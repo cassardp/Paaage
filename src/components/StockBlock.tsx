@@ -20,9 +20,10 @@ export function StockBlock({ symbol, isDark = true }: StockBlockProps) {
   useEffect(() => {
     async function fetchStock() {
       try {
-        // Utilise Yahoo Finance via un proxy CORS
+        // Yahoo Finance via proxy CORS allorigins
+        const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`;
         const res = await fetch(
-          `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`
+          `https://api.allorigins.win/raw?url=${encodeURIComponent(yahooUrl)}`
         );
         const data = await res.json();
         
@@ -71,7 +72,7 @@ export function StockBlock({ symbol, isDark = true }: StockBlockProps) {
 
   const isPositive = stock.change >= 0;
   const TrendIcon = isPositive ? TrendingUp : TrendingDown;
-  const trendColor = isPositive ? 'text-green-500' : 'text-red-500';
+  const trendColor = isDark ? 'text-neutral-300' : 'text-neutral-600';
 
   return (
     <div className="h-full flex items-center justify-between">

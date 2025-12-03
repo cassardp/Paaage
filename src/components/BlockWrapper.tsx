@@ -4,9 +4,10 @@ interface BlockWrapperProps {
   children: ReactNode;
   isDragging?: boolean;
   isDark?: boolean;
+  compact?: boolean;
 }
 
-export function BlockWrapper({ children, isDragging, isDark = true }: BlockWrapperProps) {
+export function BlockWrapper({ children, isDragging, isDark = true, compact = false }: BlockWrapperProps) {
   const bgClass = isDark ? 'bg-neutral-900/50' : 'bg-white/90';
   const borderClass = isDark 
     ? 'border-neutral-700 hover:border-neutral-600' 
@@ -15,10 +16,11 @@ export function BlockWrapper({ children, isDragging, isDark = true }: BlockWrapp
   const shadowClass = isDragging 
     ? (isDark ? 'shadow-2xl shadow-black/50' : 'shadow-2xl shadow-black/20') 
     : '';
+  const paddingClass = compact ? 'p-2' : 'p-4';
 
   return (
     <div
-      className={`relative w-full h-full p-4 backdrop-blur-sm rounded-[12px] transition-all duration-200
+      className={`relative w-full h-full ${paddingClass} backdrop-blur-sm rounded-[12px] transition-all duration-200
                  border ${bgClass} ${borderClass} ${shadowClass}`}
     >
       <div className={`h-full overflow-hidden ${textClass}`}>

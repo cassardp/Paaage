@@ -32,17 +32,20 @@ function App() {
 
   const isDark = config.settings.theme === 'dark';
 
-  const renderBlock = (block: Block, isDragging: boolean) => (
-    <BlockWrapper isDragging={isDragging} isDark={isDark}>
-      <BlockContent
-        block={block}
-        searchEngine={config.settings.searchEngine}
-        onSelectStation={selectStation}
-        onUpdateNote={updateNote}
-        isDark={isDark}
-      />
-    </BlockWrapper>
-  );
+  const renderBlock = (block: Block, isDragging: boolean) => {
+    const isCompact = block.layout.h <= 2;
+    return (
+      <BlockWrapper isDragging={isDragging} isDark={isDark} compact={isCompact}>
+        <BlockContent
+          block={block}
+          searchEngine={config.settings.searchEngine}
+          onSelectStation={selectStation}
+          onUpdateNote={updateNote}
+          isDark={isDark}
+        />
+      </BlockWrapper>
+    );
+  };
 
   return (
     <div className={`min-h-screen ${isDark ? 'dark' : ''}`}>

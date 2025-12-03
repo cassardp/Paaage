@@ -42,7 +42,7 @@ export function BlockContent({
       return <WeatherBlock city={block.city} isDark={isDark} />;
     
     case 'bookmark':
-      return <BookmarkBlock label={block.label} url={block.url} isDark={isDark} />;
+      return <BookmarkBlock label={block.label} url={block.url} height={block.layout.h} isDark={isDark} />;
     
     case 'note':
       return <NoteBlock blockId={block.id} content={block.content} onUpdate={onUpdateNote} isDark={isDark} />;

@@ -3,6 +3,18 @@ import { CELL_SIZE } from '../lib/defaultConfig';
 import { gridToPixel, gridSizeToPixel, pixelToGrid } from './Grid';
 import type { Block, BlockLayout } from '../types/config';
 
+// Limites de taille par type de bloc (en cellules)
+const BLOCK_SIZE_LIMITS: Record<string, { minW: number; minH: number; maxW: number; maxH: number }> = {
+  search: { minW: 10, minH: 2, maxW: 60, maxH: 4 },
+  bookmark: { minW: 4, minH: 2, maxW: 30, maxH: 4 },
+  note: { minW: 4, minH: 1, maxW: 40, maxH: 20 },
+  station: { minW: 6, minH: 2, maxW: 20, maxH: 4 },
+  weather: { minW: 8, minH: 3, maxW: 25, maxH: 8 },
+  stock: { minW: 6, minH: 2, maxW: 20, maxH: 6 },
+  radio: { minW: 10, minH: 6, maxW: 30, maxH: 20 },
+  default: { minW: 4, minH: 2, maxW: 40, maxH: 30 },
+};
+
 interface DraggableGridProps {
   blocks: Block[];
   onMoveBlock: (blockId: string, layout: BlockLayout) => void;
@@ -77,11 +89,12 @@ export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock,
         let pxW = e.clientX - rect.left - dragState.currentPxX;
         let pxH = e.clientY - rect.top - dragState.currentPxY;
 
-        // Limites en cellules
-        const minW = CELL_SIZE * 5;   // min 5 cellules (100px)
-        const minH = CELL_SIZE * 3;   // min 3 cellules (60px)
-        const maxW = CELL_SIZE * 40;  // max 40 cellules (800px)
-        const maxH = CELL_SIZE * 30;  // max 30 cellules (600px)
+        // Limites selon le type de bloc
+        const limits = BLOCK_SIZE_LIMITS[block.type] || BLOCK_SIZE_LIMITS.default;
+        const minW = CELL_SIZE * limits.minW;
+        const minH = CELL_SIZE * limits.minH;
+        const maxW = CELL_SIZE * limits.maxW;
+        const maxH = CELL_SIZE * limits.maxH;
         
         pxW = Math.max(minW, Math.min(pxW, maxW));
         pxH = Math.max(minH, Math.min(pxH, maxH));

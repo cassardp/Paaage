@@ -13,10 +13,10 @@ function App() {
     moveBlock,
     deleteBlock,
     addBlock,
-    addNote,
-    deleteNote,
-    addLink,
-    deleteLink,
+    addBookmark,
+    addSingleNote,
+    updateNote,
+    addStation,
     selectStation,
     toggleTheme,
   } = useConfig();
@@ -36,11 +36,8 @@ function App() {
       <BlockContent
         block={block}
         searchEngine={config.settings.searchEngine}
-        onAddNote={addNote}
-        onDeleteNote={deleteNote}
-        onAddLink={addLink}
-        onDeleteLink={deleteLink}
         onSelectStation={selectStation}
+        onUpdateNote={updateNote}
         isDark={isDark}
       />
     </BlockWrapper>
@@ -54,7 +51,7 @@ function App() {
         onMoveBlock={moveBlock}
         onDeleteBlock={deleteBlock}
         renderBlock={renderBlock}
-        toolbar={<Toolbar config={config} onImport={setConfig} onToggleTheme={toggleTheme} onAddBlock={addBlock} />}
+        toolbar={<Toolbar config={config} onImport={setConfig} onToggleTheme={toggleTheme} onAddBlock={addBlock} onAddBookmark={addBookmark} onAddNote={addSingleNote} onAddStation={addStation} />}
         isDark={isDark}
       />
     </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { Config, Block, Link, NoteItem, BlockLayout } from '../types/config';
+import type { Config, Block, BlockLayout } from '../types/config';
 import { loadConfig, saveConfig, fetchRemoteConfig, mergeWithRemote } from '../lib/storage';
 import { generateId } from '../lib/utils';
 
@@ -25,14 +25,17 @@ export function useConfig() {
     });
   }, []);
 
-  // Déplacer un bloc sur la grille
+  // Déplacer un bloc sur la grille (et le mettre au premier plan)
   const moveBlock = useCallback((blockId: string, layout: BlockLayout) => {
-    updateConfig((prev) => ({
-      ...prev,
-      blocks: prev.blocks.map((block) =>
-        block.id === blockId ? { ...block, layout } : block
-      ),
-    }));
+    updateConfig((prev) => {
+      const block = prev.blocks.find((b) => b.id === blockId);
+      if (!block) return prev;
+      const others = prev.blocks.filter((b) => b.id !== blockId);
+      return {
+        ...prev,
+        blocks: [...others, { ...block, layout }],
+      };
+    });
   }, [updateConfig]);
 
   // Supprimer un bloc
@@ -44,7 +47,7 @@ export function useConfig() {
   }, [updateConfig]);
 
   // Ajouter un bloc
-  const addBlock = useCallback((type: 'search' | 'links' | 'notes' | 'radio' | 'weather') => {
+  const addBlock = useCallback((type: 'search' | 'weather') => {
     const id = generateId();
     const baseLayout = { x: 1, y: 1, w: 20, h: 10 };
     
@@ -52,15 +55,6 @@ export function useConfig() {
     switch (type) {
       case 'search':
         newBlock = { id, type: 'search', layout: { ...baseLayout, h: 3 } };
-        break;
-      case 'links':
-        newBlock = { id, type: 'links', title: 'Liens', links: [], layout: baseLayout };
-        break;
-      case 'notes':
-        newBlock = { id, type: 'notes', title: 'Notes', items: [], layout: baseLayout };
-        break;
-      case 'radio':
-        newBlock = { id, type: 'radio', title: 'Radio', stations: [], layout: baseLayout };
         break;
       case 'weather':
         newBlock = { id, type: 'weather', city: 'Paris', layout: { ...baseLayout, w: 15, h: 4 } };
@@ -73,58 +67,66 @@ export function useConfig() {
     }));
   }, [updateConfig]);
 
-  // Notes
-  const addNote = useCallback((blockId: string, content: string) => {
+  // Ajouter un bookmark
+  const addBookmark = useCallback((label: string, url: string) => {
+    const id = generateId();
+    const newBlock: Block = { 
+      id, 
+      type: 'bookmark', 
+      label, 
+      url, 
+      layout: { x: 1, y: 1, w: 10, h: 3 } 
+    };
+
+    updateConfig((prev) => ({
+      ...prev,
+      blocks: [...prev.blocks, newBlock],
+    }));
+  }, [updateConfig]);
+
+  // Ajouter une note simple
+  const addSingleNote = useCallback((content: string) => {
+    const id = generateId();
+    const newBlock: Block = { 
+      id, 
+      type: 'note', 
+      content, 
+      layout: { x: 1, y: 1, w: 15, h: 4 } 
+    };
+
+    updateConfig((prev) => ({
+      ...prev,
+      blocks: [...prev.blocks, newBlock],
+    }));
+  }, [updateConfig]);
+
+  // Mettre à jour une note
+  const updateNote = useCallback((blockId: string, content: string) => {
     updateConfig((prev) => ({
       ...prev,
       blocks: prev.blocks.map((block) => {
-        if (block.id === blockId && block.type === 'notes') {
-          const newItem: NoteItem = {
-            id: generateId(),
-            content,
-            createdAt: new Date().toISOString(),
-          };
-          return { ...block, items: [newItem, ...block.items] };
+        if (block.id === blockId && block.type === 'note') {
+          return { ...block, content };
         }
         return block;
       }),
     }));
   }, [updateConfig]);
 
-  const deleteNote = useCallback((blockId: string, noteId: string) => {
-    updateConfig((prev) => ({
-      ...prev,
-      blocks: prev.blocks.map((block) => {
-        if (block.id === blockId && block.type === 'notes') {
-          return { ...block, items: block.items.filter((n) => n.id !== noteId) };
-        }
-        return block;
-      }),
-    }));
-  }, [updateConfig]);
+  // Ajouter une station (FIP par défaut)
+  const addStation = useCallback(() => {
+    const id = generateId();
+    const newBlock: Block = { 
+      id, 
+      type: 'station', 
+      name: 'FIP', 
+      streamUrl: 'https://icecast.radiofrance.fr/fip-midfi.mp3', 
+      layout: { x: 1, y: 1, w: 12, h: 3 } 
+    };
 
-  // Links
-  const addLink = useCallback((blockId: string, link: Omit<Link, 'id'>) => {
     updateConfig((prev) => ({
       ...prev,
-      blocks: prev.blocks.map((block) => {
-        if (block.id === blockId && block.type === 'links') {
-          return { ...block, links: [...block.links, { ...link, id: generateId() }] };
-        }
-        return block;
-      }),
-    }));
-  }, [updateConfig]);
-
-  const deleteLink = useCallback((blockId: string, linkId: string) => {
-    updateConfig((prev) => ({
-      ...prev,
-      blocks: prev.blocks.map((block) => {
-        if (block.id === blockId && block.type === 'links') {
-          return { ...block, links: block.links.filter((l) => l.id !== linkId) };
-        }
-        return block;
-      }),
+      blocks: [...prev.blocks, newBlock],
     }));
   }, [updateConfig]);
 
@@ -160,10 +162,10 @@ export function useConfig() {
     moveBlock,
     deleteBlock,
     addBlock,
-    addNote,
-    deleteNote,
-    addLink,
-    deleteLink,
+    addBookmark,
+    addSingleNote,
+    updateNote,
+    addStation,
     selectStation,
     toggleTheme,
   };

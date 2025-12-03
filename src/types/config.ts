@@ -16,30 +16,6 @@ export interface SearchBlock extends BaseBlock {
   type: 'search';
 }
 
-export interface Link {
-  id: string;
-  label: string;
-  url: string;
-  icon?: string;
-}
-
-export interface LinksBlock extends BaseBlock {
-  type: 'links';
-  title: string;
-  links: Link[];
-}
-
-export interface NoteItem {
-  id: string;
-  content: string;
-  createdAt: string;
-}
-
-export interface NotesBlock extends BaseBlock {
-  type: 'notes';
-  title: string;
-  items: NoteItem[];
-}
 
 export interface RadioStation {
   id: string;
@@ -59,7 +35,24 @@ export interface WeatherBlock extends BaseBlock {
   city: string;
 }
 
-export type Block = SearchBlock | LinksBlock | NotesBlock | RadioBlock | WeatherBlock;
+export interface BookmarkBlock extends BaseBlock {
+  type: 'bookmark';
+  label: string;
+  url: string;
+}
+
+export interface NoteBlock extends BaseBlock {
+  type: 'note';
+  content: string;
+}
+
+export interface StationBlock extends BaseBlock {
+  type: 'station';
+  name: string;
+  streamUrl: string;
+}
+
+export type Block = SearchBlock | RadioBlock | WeatherBlock | BookmarkBlock | NoteBlock | StationBlock;
 
 export interface Settings {
   theme: 'light' | 'dark';

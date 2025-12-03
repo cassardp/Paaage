@@ -116,16 +116,7 @@ export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock,
         newLayout = { ...block.layout, w: gridW, h: gridH };
       }
 
-      // Vérifier collision
-      const wouldCollide = blocks.some((other) => {
-        if (other.id === block.id) return false;
-        return checkCollision(newLayout, other.layout);
-      });
-
-      if (!wouldCollide) {
-        onMoveBlock(block.id, newLayout);
-      }
-
+      onMoveBlock(block.id, newLayout);
       setDragState(null);
     };
 
@@ -221,11 +212,3 @@ export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock,
   );
 }
 
-function checkCollision(a: BlockLayout, b: BlockLayout): boolean {
-  return !(
-    a.x + a.w <= b.x ||
-    b.x + b.w <= a.x ||
-    a.y + a.h <= b.y ||
-    b.y + b.h <= a.y
-  );
-}

@@ -17,6 +17,7 @@ function App() {
     addSingleNote,
     updateNote,
     addStation,
+    addStock,
     selectStation,
     toggleTheme,
   } = useConfig();
@@ -51,7 +52,7 @@ function App() {
         onMoveBlock={moveBlock}
         onDeleteBlock={deleteBlock}
         renderBlock={renderBlock}
-        toolbar={<Toolbar config={config} onImport={setConfig} onToggleTheme={toggleTheme} onAddBlock={addBlock} onAddBookmark={addBookmark} onAddNote={addSingleNote} onAddStation={addStation} />}
+        toolbar={<Toolbar config={config} onImport={setConfig} onToggleTheme={toggleTheme} onAddBlock={addBlock} onAddBookmark={addBookmark} onAddNote={addSingleNote} onAddStation={addStation} onAddStock={addStock} />}
         isDark={isDark}
       />
     </div>

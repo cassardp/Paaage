@@ -52,7 +52,12 @@ export interface StationBlock extends BaseBlock {
   streamUrl: string;
 }
 
-export type Block = SearchBlock | RadioBlock | WeatherBlock | BookmarkBlock | NoteBlock | StationBlock;
+export interface StockBlock extends BaseBlock {
+  type: 'stock';
+  symbol: string;
+}
+
+export type Block = SearchBlock | RadioBlock | WeatherBlock | BookmarkBlock | NoteBlock | StationBlock | StockBlock;
 
 export interface Settings {
   theme: 'light' | 'dark';

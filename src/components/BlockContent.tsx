@@ -5,6 +5,7 @@ import { WeatherBlock } from './WeatherBlock';
 import { BookmarkBlock } from './BookmarkBlock';
 import { NoteBlock } from './NoteBlock';
 import { StationBlock } from './StationBlock';
+import { StockBlock } from './StockBlock';
 
 interface BlockContentProps {
   block: Block;
@@ -48,6 +49,9 @@ export function BlockContent({
     
     case 'station':
       return <StationBlock name={block.name} streamUrl={block.streamUrl} isDark={isDark} />;
+    
+    case 'stock':
+      return <StockBlock symbol={block.symbol} isDark={isDark} />;
     
     default:
       return null;

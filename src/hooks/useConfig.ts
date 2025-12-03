@@ -130,6 +130,22 @@ export function useConfig() {
     }));
   }, [updateConfig]);
 
+  // Ajouter un stock (Apple par défaut)
+  const addStock = useCallback(() => {
+    const id = generateId();
+    const newBlock: Block = { 
+      id, 
+      type: 'stock', 
+      symbol: 'AAPL', 
+      layout: { x: 1, y: 1, w: 12, h: 4 } 
+    };
+
+    updateConfig((prev) => ({
+      ...prev,
+      blocks: [...prev.blocks, newBlock],
+    }));
+  }, [updateConfig]);
+
   // Radio
   const selectStation = useCallback((blockId: string, stationId: string | null) => {
     updateConfig((prev) => ({
@@ -166,6 +182,7 @@ export function useConfig() {
     addSingleNote,
     updateNote,
     addStation,
+    addStock,
     selectStation,
     toggleTheme,
   };

@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Download, Upload, Sun, Moon, Plus, Search, CloudSun, Bookmark, FileText, Headphones } from 'lucide-react';
+import { Download, Upload, Sun, Moon, Plus, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp } from 'lucide-react';
 import type { Config } from '../types/config';
 import { exportConfig, importConfig, saveConfig } from '../lib/storage';
 
@@ -11,9 +11,10 @@ interface ToolbarProps {
   onAddBookmark: (label: string, url: string) => void;
   onAddNote: (content: string) => void;
   onAddStation: () => void;
+  onAddStock: () => void;
 }
 
-export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBookmark, onAddNote, onAddStation }: ToolbarProps) {
+export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBookmark, onAddNote, onAddStation, onAddStock }: ToolbarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [showBookmarkForm, setShowBookmarkForm] = useState(false);
@@ -131,6 +132,13 @@ export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBook
             >
               <Headphones className="w-4 h-4" />
               Station
+            </button>
+            <button
+              onClick={() => { onAddStock(); setShowAddMenu(false); }}
+              className={`w-full flex items-center gap-2 px-3 py-2 text-sm ${menuItemClass}`}
+            >
+              <TrendingUp className="w-4 h-4" />
+              Stock
             </button>
           </div>
           </>

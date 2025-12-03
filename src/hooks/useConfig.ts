@@ -25,10 +25,6 @@ export function useConfig() {
     });
   }, []);
 
-  const updateBlocks = useCallback((blocks: Block[]) => {
-    updateConfig((prev) => ({ ...prev, blocks }));
-  }, [updateConfig]);
-
   // Déplacer un bloc sur la grille
   const moveBlock = useCallback((blockId: string, layout: BlockLayout) => {
     updateConfig((prev) => ({
@@ -129,21 +125,6 @@ export function useConfig() {
     }));
   }, [updateConfig]);
 
-  const updateLink = useCallback((blockId: string, linkId: string, updates: Partial<Link>) => {
-    updateConfig((prev) => ({
-      ...prev,
-      blocks: prev.blocks.map((block) => {
-        if (block.id === blockId && block.type === 'links') {
-          return {
-            ...block,
-            links: block.links.map((l) => (l.id === linkId ? { ...l, ...updates } : l)),
-          };
-        }
-        return block;
-      }),
-    }));
-  }, [updateConfig]);
-
   // Radio
   const selectStation = useCallback((blockId: string, stationId: string | null) => {
     updateConfig((prev) => ({
@@ -173,7 +154,6 @@ export function useConfig() {
     isLoading,
     setConfig,
     updateConfig,
-    updateBlocks,
     moveBlock,
     deleteBlock,
     addBlock,
@@ -181,7 +161,6 @@ export function useConfig() {
     deleteNote,
     addLink,
     deleteLink,
-    updateLink,
     selectStation,
     toggleTheme,
   };

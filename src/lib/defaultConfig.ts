@@ -1,9 +1,7 @@
 import type { Config } from '../types/config';
 
-// Configuration de la grille (cellules de 20x20px)
+// Configuration de la grille
 export const CELL_SIZE = 20; // px - taille d'une cellule
-export const GRID_COLS = 60; // nombre de colonnes (1200px de large)
-export const GRID_ROWS = 40; // nombre de lignes (800px de haut)
 
 export const DEFAULT_CONFIG: Config = {
   version: 1,

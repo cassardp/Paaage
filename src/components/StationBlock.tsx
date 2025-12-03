@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
 
+// Cache global pour les instances audio (persiste entre les re-renders)
+const audioCache = new Map<string, HTMLAudioElement>();
+
 interface StationBlockProps {
   name: string;
   streamUrl: string;
@@ -13,15 +16,18 @@ export function StationBlock({ name, streamUrl, isDark = true }: StationBlockPro
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    audioRef.current = new Audio(streamUrl);
-    audioRef.current.volume = 0.5;
+    // Récupérer ou créer l'instance audio
+    let audio = audioCache.get(streamUrl);
+    if (!audio) {
+      audio = new Audio(streamUrl);
+      audio.volume = 0.5;
+      audioCache.set(streamUrl, audio);
+    }
+    audioRef.current = audio;
     
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-    };
+    // Sync l'état avec l'audio existant
+    setIsPlaying(!audio.paused);
+    setIsMuted(audio.muted);
   }, [streamUrl]);
 
   const togglePlay = () => {

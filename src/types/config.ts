@@ -54,7 +54,12 @@ export interface RadioBlock extends BaseBlock {
   currentStationId?: string;
 }
 
-export type Block = SearchBlock | LinksBlock | NotesBlock | RadioBlock;
+export interface WeatherBlock extends BaseBlock {
+  type: 'weather';
+  city: string;
+}
+
+export type Block = SearchBlock | LinksBlock | NotesBlock | RadioBlock | WeatherBlock;
 
 export interface Settings {
   theme: 'light' | 'dark';

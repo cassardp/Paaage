@@ -3,6 +3,7 @@ import { SearchBlock } from './SearchBlock';
 import { LinksBlock } from './LinksBlock';
 import { NotesBlock } from './NotesBlock';
 import { RadioBlock } from './RadioBlock';
+import { WeatherBlock } from './WeatherBlock';
 
 interface BlockContentProps {
   block: Block;
@@ -64,6 +65,9 @@ export function BlockContent({
           isDark={isDark}
         />
       );
+    
+    case 'weather':
+      return <WeatherBlock city={block.city} isDark={isDark} />;
     
     default:
       return null;

@@ -44,7 +44,7 @@ export function useConfig() {
   }, [updateConfig]);
 
   // Ajouter un bloc
-  const addBlock = useCallback((type: 'search' | 'links' | 'notes' | 'radio') => {
+  const addBlock = useCallback((type: 'search' | 'links' | 'notes' | 'radio' | 'weather') => {
     const id = generateId();
     const baseLayout = { x: 1, y: 1, w: 20, h: 10 };
     
@@ -61,6 +61,9 @@ export function useConfig() {
         break;
       case 'radio':
         newBlock = { id, type: 'radio', title: 'Radio', stations: [], layout: baseLayout };
+        break;
+      case 'weather':
+        newBlock = { id, type: 'weather', city: 'Paris', layout: { ...baseLayout, w: 15, h: 4 } };
         break;
     }
 

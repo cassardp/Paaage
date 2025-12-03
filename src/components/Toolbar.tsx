@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Download, Upload, Sun, Moon, Plus, Search, Link, StickyNote, Radio } from 'lucide-react';
+import { Download, Upload, Sun, Moon, Plus, Search, Link, StickyNote, Radio, CloudSun } from 'lucide-react';
 import type { Config } from '../types/config';
 import { exportConfig, importConfig, saveConfig } from '../lib/storage';
 
@@ -7,7 +7,7 @@ interface ToolbarProps {
   config: Config;
   onImport: (config: Config) => void;
   onToggleTheme: () => void;
-  onAddBlock: (type: 'search' | 'links' | 'notes' | 'radio') => void;
+  onAddBlock: (type: 'search' | 'links' | 'notes' | 'radio' | 'weather') => void;
 }
 
 export function Toolbar({ config, onImport, onToggleTheme, onAddBlock }: ToolbarProps) {
@@ -51,7 +51,7 @@ export function Toolbar({ config, onImport, onToggleTheme, onAddBlock }: Toolbar
     ? 'hover:bg-neutral-700 text-neutral-200'
     : 'hover:bg-neutral-100 text-neutral-700';
 
-  const handleAddBlock = (type: 'search' | 'links' | 'notes' | 'radio') => {
+  const handleAddBlock = (type: 'search' | 'links' | 'notes' | 'radio' | 'weather') => {
     onAddBlock(type);
     setShowAddMenu(false);
   };
@@ -97,6 +97,13 @@ export function Toolbar({ config, onImport, onToggleTheme, onAddBlock }: Toolbar
             >
               <Radio className="w-4 h-4" />
               Radio
+            </button>
+            <button
+              onClick={() => handleAddBlock('weather')}
+              className={`w-full flex items-center gap-2 px-3 py-2 text-sm ${menuItemClass}`}
+            >
+              <CloudSun className="w-4 h-4" />
+              Météo
             </button>
           </div>
         )}

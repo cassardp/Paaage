@@ -21,11 +21,12 @@ interface DraggableGridProps {
   onDeleteBlock: (blockId: string) => void;
   renderBlock: (block: Block, isDragging: boolean) => ReactNode;
   isDark?: boolean;
+  dragLocked?: boolean;
 }
 
 type DragMode = 'move' | 'resize';
 
-export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock, isDark = true }: DraggableGridProps) {
+export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock, isDark = true, dragLocked = false }: DraggableGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
   const [dragState, setDragState] = useState<{
     blockId: string;
@@ -183,8 +184,9 @@ export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock,
           >
             {/* Contenu du bloc */}
             <div 
-              className="relative w-full h-full cursor-grab active:cursor-grabbing"
+              className={`relative w-full h-full ${dragLocked ? '' : 'cursor-grab active:cursor-grabbing'}`}
               onMouseDown={(e) => {
+                if (dragLocked) return;
                 // Ne pas drag si on clique sur un élément interactif
                 const target = e.target as HTMLElement;
                 if (target.closest('input, textarea, button, a, select')) return;
@@ -194,22 +196,25 @@ export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock,
               {renderBlock(block, isDragging)}
             </div>
             
-            {/* Bouton supprimer sous le bloc, centré */}
-            <button
-              className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-5 h-5 flex items-center justify-center rounded z-20 cursor-pointer
-                         opacity-0 group-hover:opacity-40 hover:!opacity-100 text-neutral-400 hover:text-neutral-600 transition-all"
-              onClick={(e) => { e.stopPropagation(); onDeleteBlock(block.id); }}
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14zM10 11v6M14 11v6" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
+            {/* Bouton supprimer et zone de resize - masqués si verrouillé */}
+            {!dragLocked && (
+              <>
+                <button
+                  className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-5 h-5 flex items-center justify-center rounded z-20 cursor-pointer
+                             opacity-0 group-hover:opacity-40 hover:!opacity-100 text-neutral-400 hover:text-neutral-600 transition-all"
+                  onClick={(e) => { e.stopPropagation(); onDeleteBlock(block.id); }}
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14zM10 11v6M14 11v6" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
 
-            {/* Zone de resize - coin bas-droit */}
-            <div
-              className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-20"
-              onMouseDown={(e) => startDrag(e, block, 'resize')}
-            />
+                <div
+                  className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-20"
+                  onMouseDown={(e) => startDrag(e, block, 'resize')}
+                />
+              </>
+            )}
           </div>
         );
       })}

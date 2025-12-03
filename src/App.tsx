@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useConfig } from './hooks/useConfig';
 import { DraggableGrid } from './components/DraggableGrid';
 import { BlockWrapper } from './components/BlockWrapper';
@@ -6,6 +7,7 @@ import { Toolbar } from './components/Toolbar';
 import type { Block } from './types/config';
 
 function App() {
+  const [dragLocked, setDragLocked] = useState(false);
   const {
     config,
     isLoading,
@@ -61,6 +63,8 @@ function App() {
         onAddStation={addStation}
         onAddStock={addStock}
         isDark={isDark}
+        dragLocked={dragLocked}
+        onToggleDragLock={() => setDragLocked(!dragLocked)}
       />
       
       {/* Grille de blocs - pleine page */}
@@ -70,6 +74,7 @@ function App() {
         onDeleteBlock={deleteBlock}
         renderBlock={renderBlock}
         isDark={isDark}
+        dragLocked={dragLocked}
       />
     </div>
   );

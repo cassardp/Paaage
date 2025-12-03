@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Settings, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp } from 'lucide-react';
+import { Plus, Settings, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock } from 'lucide-react';
 import { SettingsDrawer } from './SettingsDrawer';
 import type { Config } from '../types/config';
 import { CELL_SIZE } from '../lib/defaultConfig';
@@ -15,9 +15,11 @@ interface ToolbarProps {
   onAddStation: () => void;
   onAddStock: () => void;
   isDark: boolean;
+  dragLocked: boolean;
+  onToggleDragLock: () => void;
 }
 
-export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBookmark, onAddNote, onAddStation, onAddStock, isDark }: ToolbarProps) {
+export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBookmark, onAddNote, onAddStation, onAddStock, isDark, dragLocked, onToggleDragLock }: ToolbarProps) {
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showBookmarkForm, setShowBookmarkForm] = useState(false);
@@ -130,6 +132,20 @@ export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBook
           className={`w-full h-full rounded-[12px] border flex items-center justify-center transition-all ${blockClass}`}
         >
           <Settings className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Bouton Lock/Unlock - 1 case sous Settings */}
+      <div
+        className="absolute z-40"
+        style={{ left: settingsX, top: gridToPixel(4), width: size, height: size }}
+      >
+        <button
+          onClick={onToggleDragLock}
+          className={`w-full h-full rounded-[12px] border flex items-center justify-center transition-all ${blockClass}
+            ${dragLocked ? 'text-[var(--accent-color)]' : ''}`}
+        >
+          {dragLocked ? <Lock className="w-5 h-5" /> : <Unlock className="w-5 h-5" />}
         </button>
       </div>
 

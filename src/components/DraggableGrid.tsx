@@ -20,13 +20,12 @@ interface DraggableGridProps {
   onMoveBlock: (blockId: string, layout: BlockLayout) => void;
   onDeleteBlock: (blockId: string) => void;
   renderBlock: (block: Block, isDragging: boolean) => ReactNode;
-  toolbar?: ReactNode;
   isDark?: boolean;
 }
 
 type DragMode = 'move' | 'resize';
 
-export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock, toolbar, isDark = true }: DraggableGridProps) {
+export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock, isDark = true }: DraggableGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
   const [dragState, setDragState] = useState<{
     blockId: string;
@@ -163,13 +162,6 @@ export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock,
           backgroundSize: `${CELL_SIZE}px ${CELL_SIZE}px`,
         }}
       />
-
-      {/* Toolbar */}
-      {toolbar && (
-        <div className="absolute top-3 right-3 z-50">
-          {toolbar}
-        </div>
-      )}
 
       {/* Blocs */}
       {blocks.map((block) => {

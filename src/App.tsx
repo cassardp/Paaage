@@ -34,6 +34,7 @@ function App() {
 
   const renderBlock = (block: Block, isDragging: boolean) => {
     const isCompact = block.layout.h <= 2;
+    
     return (
       <BlockWrapper isDragging={isDragging} isDark={isDark} compact={isCompact}>
         <BlockContent
@@ -49,13 +50,25 @@ function App() {
 
   return (
     <div className={`min-h-screen ${isDark ? 'dark' : ''}`}>
+      {/* Toolbar fixe */}
+      <Toolbar
+        config={config}
+        onImport={setConfig}
+        onToggleTheme={toggleTheme}
+        onAddBlock={addBlock}
+        onAddBookmark={addBookmark}
+        onAddNote={addSingleNote}
+        onAddStation={addStation}
+        onAddStock={addStock}
+        isDark={isDark}
+      />
+      
       {/* Grille de blocs - pleine page */}
       <DraggableGrid
         blocks={config.blocks}
         onMoveBlock={moveBlock}
         onDeleteBlock={deleteBlock}
         renderBlock={renderBlock}
-        toolbar={<Toolbar config={config} onImport={setConfig} onToggleTheme={toggleTheme} onAddBlock={addBlock} onAddBookmark={addBookmark} onAddNote={addSingleNote} onAddStation={addStation} onAddStock={addStock} />}
         isDark={isDark}
       />
     </div>

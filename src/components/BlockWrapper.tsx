@@ -8,7 +8,7 @@ interface BlockWrapperProps {
 }
 
 export function BlockWrapper({ children, isDragging, isDark = true, compact = false }: BlockWrapperProps) {
-  const bgClass = isDark ? 'bg-neutral-900/50' : 'bg-white/90';
+  const bgClass = isDark ? 'bg-neutral-900/50 backdrop-blur-sm' : 'bg-white/90 backdrop-blur-sm';
   const borderClass = isDark 
     ? 'border-neutral-700 hover:border-neutral-600' 
     : 'border-neutral-200 hover:border-neutral-300';
@@ -20,7 +20,7 @@ export function BlockWrapper({ children, isDragging, isDark = true, compact = fa
 
   return (
     <div
-      className={`relative w-full h-full ${paddingClass} backdrop-blur-sm rounded-[12px] transition-all duration-200
+      className={`relative w-full h-full ${paddingClass} rounded-[12px] transition-all duration-200
                  border ${bgClass} ${borderClass} ${shadowClass}`}
     >
       <div className={`h-full overflow-hidden ${textClass}`}>

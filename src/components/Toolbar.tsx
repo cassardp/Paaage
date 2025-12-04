@@ -1,10 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Plus, Settings, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock, Eye, EyeOff, ListTodo, Clock, Newspaper, Cloud, Check, Copy } from 'lucide-react';
 import { getShareUrl } from '../hooks/useCloudStorage';
 import { SettingsDrawer } from './SettingsDrawer';
 import type { Config } from '../types/config';
-import { CELL_SIZE } from '../lib/defaultConfig';
-import { gridToPixel, gridSizeToPixel } from './Grid';
 
 interface ToolbarProps {
   config: Config;
@@ -28,7 +26,8 @@ interface ToolbarProps {
 }
 
 export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAddBlock, onAddBookmark, onAddNote, onAddStation, onAddStock, onAddTodo, onAddClock, onAddNews, isDark, dragLocked, onToggleDragLock, notesHidden, onToggleNotesHidden }: ToolbarProps) {
-  const [showAddMenu, setShowAddMenu] = useState(false);
+  const [isHovered, setIsHovered] = useState(false); // Hover = actions utilitaires
+  const [isClicked, setIsClicked] = useState(false); // Clic = actions d'ajout
   const [showSettings, setShowSettings] = useState(false);
   const [showBookmarkForm, setShowBookmarkForm] = useState(false);
   const [bookmarkUrl, setBookmarkUrl] = useState('');
@@ -46,19 +45,20 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
     ? 'hover:bg-neutral-700 text-neutral-200'
     : 'hover:bg-neutral-100 text-neutral-700';
 
-  const blockClass = isDark
-    ? 'bg-neutral-900/50 backdrop-blur-sm border-neutral-700 hover:border-neutral-600 text-neutral-400 hover:text-neutral-100'
-    : 'bg-white/90 backdrop-blur-sm border-neutral-200 hover:border-neutral-300 text-neutral-500 hover:text-neutral-900';
+  const fabClass = isDark
+    ? 'bg-neutral-900/80 backdrop-blur-sm border-neutral-700 text-neutral-400 hover:text-neutral-100'
+    : 'bg-white/90 backdrop-blur-sm border-neutral-200 text-neutral-500 hover:text-neutral-900';
 
   const hasSearchBlock = config.blocks.some((b) => b.type === 'search');
+  const hasNotesOrTodos = config.blocks.some(b => b.type === 'note' || b.type === 'todo');
 
   const handleAddBlock = (type: 'search' | 'weather') => {
     onAddBlock(type);
-    setShowAddMenu(false);
+    setIsClicked(false);
   };
 
   const handleBookmarkClick = () => {
-    setShowAddMenu(false);
+    setIsClicked(false);
     setShowBookmarkForm(true);
   };
 
@@ -76,26 +76,6 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
     }
   };
 
-  // Taille d'un bloc 2x2
-  const size = gridSizeToPixel(2);
-  
-  // Calculer les positions X depuis la droite, alignées sur la grille
-  const [gridCols, setGridCols] = useState(0);
-  
-  useEffect(() => {
-    const updateCols = () => {
-      setGridCols(Math.floor(window.innerWidth / CELL_SIZE));
-    };
-    updateCols();
-    window.addEventListener('resize', updateCols);
-    return () => window.removeEventListener('resize', updateCols);
-  }, []);
-
-  // Position X des boutons (depuis la gauche, alignée sur la grille)
-  const settingsX = gridToPixel(gridCols - 3); // 2 cellules de large + 1 de marge
-  const cloudX = gridToPixel(gridCols - 6); // entre add et settings
-  const addX = gridToPixel(gridCols - 9); // décalé d'une position
-
   const handleCopyShareUrl = () => {
     if (shareUrl) {
       navigator.clipboard.writeText(shareUrl);
@@ -104,80 +84,120 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
     }
   };
 
+  // Actions d'ajout (apparaissent au clic)
+  const addActions = [
+    ...(!hasSearchBlock ? [{ icon: Search, action: () => handleAddBlock('search'), label: 'Recherche' }] : []),
+    { icon: CloudSun, action: () => handleAddBlock('weather'), label: 'Météo' },
+    { icon: Bookmark, action: handleBookmarkClick, label: 'Lien' },
+    { icon: FileText, action: () => { onAddNote(''); setIsClicked(false); }, label: 'Note' },
+    { icon: Headphones, action: () => { onAddStation(); setIsClicked(false); }, label: 'Radio' },
+    { icon: TrendingUp, action: () => { onAddStock(); setIsClicked(false); }, label: 'Stock' },
+    { icon: ListTodo, action: () => { onAddTodo(); setIsClicked(false); }, label: 'Todo' },
+    { icon: Clock, action: () => { onAddClock(); setIsClicked(false); }, label: 'Horloge' },
+    { icon: Newspaper, action: () => { onAddNews(); setIsClicked(false); }, label: 'News' },
+  ];
+
+  // Actions utilitaires (apparaissent au hover)
+  const utilActions = [
+    { icon: Settings, action: () => setShowSettings(true), label: 'Paramètres', active: false },
+    { icon: dragLocked ? Lock : Unlock, action: onToggleDragLock, label: dragLocked ? 'Déverrouiller' : 'Verrouiller', active: dragLocked },
+    ...(hasNotesOrTodos ? [{ icon: notesHidden ? EyeOff : Eye, action: onToggleNotesHidden, label: notesHidden ? 'Afficher notes' : 'Masquer notes', active: notesHidden }] : []),
+    { icon: Cloud, action: () => setShowCloudMenu(!showCloudMenu), label: 'Cloud', active: !!syncId, syncing },
+  ];
+
+  const radius = 80;
+  const startAngle = -180;
+  const endAngle = 0;
+
+  // Calcul des positions pour un groupe d'actions
+  const getPosition = (index: number, total: number) => {
+    const angle = startAngle + (index / (total - 1 || 1)) * (endAngle - startAngle);
+    const radian = (angle * Math.PI) / 180;
+    return { x: Math.cos(radian) * radius, y: Math.sin(radian) * radius };
+  };
+
+  // Afficher les actions utilitaires au hover, les actions d'ajout au clic
+  const showUtil = isHovered && !isClicked;
+  const showAdd = isClicked;
+
   return (
     <>
-      {/* Bouton Ajouter - calé sur la grille à droite */}
+      {/* FAB Container - zone élargie pour maintenir le hover */}
       <div
-        className="absolute z-40"
-        style={{ left: addX, top: gridToPixel(1), width: size }}
-        onMouseEnter={() => setShowAddMenu(true)}
-        onMouseLeave={() => setShowAddMenu(false)}
+        className="fixed bottom-6 left-1/2 z-40 flex items-end justify-center"
+        style={{ width: radius * 2 + 56, height: radius + 56, transform: 'translateX(-50%)' }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => { setIsHovered(false); setIsClicked(false); setShowCloudMenu(false); }}
       >
-        <button
-          onClick={() => setShowAddMenu(!showAddMenu)}
-          style={{ width: size, height: size }}
-          className={`rounded-[12px] border flex items-center justify-center transition-all cursor-pointer ${blockClass}`}
-        >
-          <Plus className="w-5 h-5" />
-        </button>
+        {/* Actions utilitaires (hover) */}
+        {utilActions.map((item, index) => {
+          const { x, y } = getPosition(index, utilActions.length);
+          const Icon = item.icon;
+          const isSyncing = 'syncing' in item && item.syncing;
 
-        {showAddMenu && (
-          <div className={`absolute right-0 mt-0 py-1 rounded-lg border shadow-lg min-w-[140px] z-50 ${menuClass}`}>
-              {!hasSearchBlock && (
-                <button onClick={() => handleAddBlock('search')} className={`w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${menuItemClass}`}>
-                  <Search className="w-4 h-4" /> Recherche
-                </button>
+          return (
+            <button
+              key={`util-${index}`}
+              onClick={item.action}
+              title={item.label}
+              className={`absolute w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-200 cursor-pointer ${fabClass}
+                ${'active' in item && item.active ? 'text-[var(--accent-color)]' : ''}`}
+              style={{
+                left: '50%',
+                bottom: 0,
+                transform: showUtil
+                  ? `translate(calc(-50% + ${x}px), ${y}px) scale(1)`
+                  : 'translate(-50%, 0) scale(0)',
+                opacity: showUtil ? 1 : 0,
+                transitionDelay: showUtil ? `${index * 20}ms` : '0ms',
+              }}
+            >
+              {isSyncing ? (
+                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Icon className="w-4 h-4" />
               )}
-              <button onClick={() => handleAddBlock('weather')} className={`w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${menuItemClass}`}>
-                <CloudSun className="w-4 h-4" /> Météo
-              </button>
-              <button onClick={handleBookmarkClick} className={`w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${menuItemClass}`}>
-                <Bookmark className="w-4 h-4" /> Lien
-              </button>
-              <button onClick={() => { onAddNote(''); setShowAddMenu(false); }} className={`w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${menuItemClass}`}>
-                <FileText className="w-4 h-4" /> Note
-              </button>
-              <button onClick={() => { onAddStation(); setShowAddMenu(false); }} className={`w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${menuItemClass}`}>
-                <Headphones className="w-4 h-4" /> Radio
-              </button>
-              <button onClick={() => { onAddStock(); setShowAddMenu(false); }} className={`w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${menuItemClass}`}>
-                <TrendingUp className="w-4 h-4" /> Stock
-              </button>
-              <button onClick={() => { onAddTodo(); setShowAddMenu(false); }} className={`w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${menuItemClass}`}>
-                <ListTodo className="w-4 h-4" /> Todo
-              </button>
-              <button onClick={() => { onAddClock(); setShowAddMenu(false); }} className={`w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${menuItemClass}`}>
-                <Clock className="w-4 h-4" /> Horloge
-              </button>
-              <button onClick={() => { onAddNews(); setShowAddMenu(false); }} className={`w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${menuItemClass}`}>
-                <Newspaper className="w-4 h-4" /> News
-              </button>
-            </div>
-        )}
-      </div>
+            </button>
+          );
+        })}
 
-      {/* Bouton Cloud - entre Add et Settings */}
-      <div
-        className="absolute z-40"
-        style={{ left: cloudX, top: gridToPixel(1), width: size }}
-        onMouseEnter={() => setShowCloudMenu(true)}
-        onMouseLeave={() => setShowCloudMenu(false)}
-      >
+        {/* Actions d'ajout (clic) */}
+        {addActions.map((item, index) => {
+          const { x, y } = getPosition(index, addActions.length);
+          const Icon = item.icon;
+
+          return (
+            <button
+              key={`add-${index}`}
+              onClick={item.action}
+              title={item.label}
+              className={`absolute w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-200 cursor-pointer ${fabClass}`}
+              style={{
+                left: '50%',
+                bottom: 0,
+                transform: showAdd
+                  ? `translate(calc(-50% + ${x}px), ${y}px) scale(1)`
+                  : 'translate(-50%, 0) scale(0)',
+                opacity: showAdd ? 1 : 0,
+                transitionDelay: showAdd ? `${index * 20}ms` : '0ms',
+              }}
+            >
+              <Icon className="w-4 h-4" />
+            </button>
+          );
+        })}
+
+        {/* FAB principal */}
         <button
-          onClick={() => setShowCloudMenu(!showCloudMenu)}
-          style={{ width: size, height: size }}
-          className={`rounded-[12px] border flex items-center justify-center transition-all cursor-pointer ${blockClass}
-            ${syncId ? 'text-[var(--accent-color)]' : ''}`}
+          onClick={() => setIsClicked(!isClicked)}
+          className={`relative w-14 h-14 rounded-full border flex items-center justify-center transition-all duration-200 cursor-pointer ${fabClass}`}
         >
-          {syncing ? (
-            <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-          ) : (
-            <Cloud className="w-5 h-5" />
-          )}
+          <Plus className={`w-6 h-6 transition-transform duration-200 ${isClicked ? 'rotate-45' : ''}`} />
         </button>
 
+        {/* Menu Cloud */}
         {showCloudMenu && (
-          <div className={`absolute right-0 mt-0 py-2 px-3 rounded-lg border shadow-lg min-w-[200px] z-50 ${menuClass}`}>
+          <div className={`absolute bottom-full mb-2 left-1/2 -translate-x-1/2 py-2 px-3 rounded-lg border shadow-lg min-w-[200px] z-50 ${menuClass}`}>
             {syncId ? (
               <>
                 <div className={`text-xs mb-2 ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
@@ -202,49 +222,6 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
           </div>
         )}
       </div>
-
-      {/* Bouton Settings - calé sur la grille à droite */}
-      <div
-        className="absolute z-40"
-        style={{ left: settingsX, top: gridToPixel(1), width: size, height: size }}
-      >
-        <button
-          onClick={() => setShowSettings(true)}
-          className={`w-full h-full rounded-[12px] border flex items-center justify-center transition-all cursor-pointer ${blockClass}`}
-        >
-          <Settings className="w-5 h-5" />
-        </button>
-      </div>
-
-      {/* Bouton Lock/Unlock - 1 case sous Settings */}
-      <div
-        className="absolute z-40"
-        style={{ left: settingsX, top: gridToPixel(4), width: size, height: size }}
-      >
-        <button
-          onClick={onToggleDragLock}
-          className={`w-full h-full rounded-[12px] border flex items-center justify-center transition-all cursor-pointer ${blockClass}
-            ${dragLocked ? 'text-[var(--accent-color)]' : ''}`}
-        >
-          {dragLocked ? <Lock className="w-5 h-5" /> : <Unlock className="w-5 h-5" />}
-        </button>
-      </div>
-
-      {/* Bouton Hide/Show Notes/Todos - sous Lock, visible seulement si des notes ou todos existent */}
-      {config.blocks.some(b => b.type === 'note' || b.type === 'todo') && (
-        <div
-          className="absolute z-40"
-          style={{ left: settingsX, top: gridToPixel(7), width: size, height: size }}
-        >
-          <button
-            onClick={onToggleNotesHidden}
-            className={`w-full h-full rounded-[12px] border flex items-center justify-center transition-all cursor-pointer ${blockClass}
-              ${notesHidden ? 'text-[var(--accent-color)]' : ''}`}
-          >
-            {notesHidden ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-          </button>
-        </div>
-      )}
 
       {/* Settings Drawer */}
       <SettingsDrawer

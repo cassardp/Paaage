@@ -6,6 +6,7 @@ import { DraggableGrid } from './components/DraggableGrid';
 import { BlockWrapper } from './components/BlockWrapper';
 import { BlockContent } from './components/BlockContent';
 import { Toolbar } from './components/Toolbar';
+import { SlashMenu } from './components/SlashMenu';
 import type { Block } from './types/config';
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
   const [focusedNoteId, setFocusedNoteId] = useState<string | null>(null);
   const [notesHidden, setNotesHidden] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [showBookmarkModal, setShowBookmarkModal] = useState(false);
 
   // Détecter le redimensionnement
   useEffect(() => {
@@ -126,6 +128,8 @@ function App() {
         onToggleDragLock={() => setDragLocked(!dragLocked)}
         notesHidden={notesHidden}
         onToggleNotesHidden={() => setNotesHidden(!notesHidden)}
+        showBookmarkForm={showBookmarkModal}
+        onShowBookmarkForm={setShowBookmarkModal}
       />
       <DraggableGrid
         blocks={visibleBlocks}
@@ -134,6 +138,19 @@ function App() {
         renderBlock={renderBlock}
         isDark={isDark}
         dragLocked={dragLocked}
+      />
+      <SlashMenu
+        onAddSearch={() => addBlock('search')}
+        onAddWeather={() => addBlock('weather')}
+        onAddBookmark={() => setShowBookmarkModal(true)}
+        onAddNote={() => setFocusedNoteId(addSingleNote(''))}
+        onAddStation={addStation}
+        onAddStock={addStock}
+        onAddTodo={addTodo}
+        onAddClock={addClock}
+        onAddNews={addNews}
+        hasSearchBlock={config.blocks.some(b => b.type === 'search')}
+        isDark={isDark}
       />
       <SpeedInsights />
       <Analytics />

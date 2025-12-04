@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Plus, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock, Eye, EyeOff, ListTodo, Clock, Newspaper, Cloud, Sun, Moon, Download, Upload, Undo2 } from 'lucide-react';
 import { getShareUrl } from '../hooks/useCloudStorage';
 import { exportConfig, importConfig } from '../lib/storage';
@@ -26,12 +26,24 @@ interface ToolbarProps {
   onToggleDragLock: () => void;
   notesHidden: boolean;
   onToggleNotesHidden: () => void;
+  showBookmarkForm?: boolean;
+  onShowBookmarkForm?: (show: boolean) => void;
 }
 
-export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAddBlock, onAddBookmark, onAddNote, onAddStation, onAddStock, onAddTodo, onAddClock, onAddNews, onUndo, canUndo, isDark, dragLocked, onToggleDragLock, notesHidden, onToggleNotesHidden }: ToolbarProps) {
+export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAddBlock, onAddBookmark, onAddNote, onAddStation, onAddStock, onAddTodo, onAddClock, onAddNews, onUndo, canUndo, isDark, dragLocked, onToggleDragLock, notesHidden, onToggleNotesHidden, showBookmarkForm: externalShowBookmark, onShowBookmarkForm }: ToolbarProps) {
   const [isHovered, setIsHovered] = useState(false); // Hover = actions utilitaires
   const [isClicked, setIsClicked] = useState(false); // Clic = actions d'ajout
-  const [showBookmarkForm, setShowBookmarkForm] = useState(false);
+  const [internalShowBookmark, setInternalShowBookmark] = useState(false);
+  
+  // Synchroniser avec le state externe si fourni
+  const showBookmarkForm = externalShowBookmark ?? internalShowBookmark;
+  const setShowBookmarkForm = onShowBookmarkForm ?? setInternalShowBookmark;
+  
+  useEffect(() => {
+    if (externalShowBookmark !== undefined) {
+      setInternalShowBookmark(externalShowBookmark);
+    }
+  }, [externalShowBookmark]);
   const [bookmarkUrl, setBookmarkUrl] = useState('');
   const [bookmarkLabel, setBookmarkLabel] = useState('');
   const [toastMessage, setToastMessage] = useState('');

@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
+import { Monitor } from 'lucide-react';
 import { useConfig } from './hooks/useConfig';
 import { DraggableGrid } from './components/DraggableGrid';
 import { BlockWrapper } from './components/BlockWrapper';
@@ -11,6 +12,14 @@ function App() {
   const [dragLocked, setDragLocked] = useState(false);
   const [focusedNoteId, setFocusedNoteId] = useState<string | null>(null);
   const [notesHidden, setNotesHidden] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  // Détecter le redimensionnement
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   const {
     config,
     isLoading,
@@ -35,6 +44,20 @@ function App() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-[var(--accent-color)] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // Afficher un message sur mobile
+  if (isMobile) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-900 text-neutral-200 p-8 text-center">
+        <Monitor className="w-12 h-12 mb-4 text-neutral-500" />
+        <h1 className="text-xl font-semibold mb-2">Desktop uniquement</h1>
+        <p className="text-neutral-400 text-sm max-w-xs">
+          Paaage n'est pas encore disponible sur mobile. Ouvrez cette page sur un ordinateur.
+        </p>
+        <SpeedInsights />
       </div>
     );
   }

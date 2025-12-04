@@ -36,7 +36,7 @@ const WEATHER_ICONS: Record<number, typeof Sun> = {
   99: CloudLightning, // Thunderstorm with heavy hail
 };
 
-export function WeatherBlock({ city = 'Paris', isDark = true }: WeatherBlockProps) {
+export function WeatherBlock({ city = 'Toulon', isDark = true }: WeatherBlockProps) {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

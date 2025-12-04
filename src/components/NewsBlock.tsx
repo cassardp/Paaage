@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Newspaper, ExternalLink } from 'lucide-react';
 
 interface NewsItem {
   title: string;
@@ -38,10 +37,8 @@ export function NewsBlock({ isDark = true }: NewsBlockProps) {
     fetchNews();
   }, []);
 
-  const textClass = isDark ? 'text-neutral-200' : 'text-neutral-800';
   const mutedClass = isDark ? 'text-neutral-500' : 'text-neutral-400';
-  const hoverClass = isDark ? 'hover:bg-neutral-800/50' : 'hover:bg-neutral-100';
-
+  
   if (loading) {
     return (
       <div className={`h-full flex items-center justify-center ${mutedClass}`}>
@@ -59,11 +56,7 @@ export function NewsBlock({ isDark = true }: NewsBlockProps) {
   }
 
   return (
-    <div className="h-full flex flex-col p-3 overflow-hidden">
-      <div className={`flex items-center gap-2 mb-2 ${mutedClass}`}>
-        <Newspaper className="w-4 h-4" />
-        <span className="text-xs font-medium uppercase tracking-wide">Hacker News</span>
-      </div>
+    <div className="h-full flex flex-col overflow-hidden">
       <div className="flex-1 overflow-y-auto space-y-1">
         {news.map((item, i) => (
           <a
@@ -71,10 +64,9 @@ export function NewsBlock({ isDark = true }: NewsBlockProps) {
             href={item.url}
             target="_blank"
             rel="noopener noreferrer"
-            className={`group flex items-start gap-2 py-1.5 px-2 -mx-2 rounded text-sm ${textClass} ${hoverClass} transition-colors`}
+            className={`block py-1.5 text-sm underline ${isDark ? 'text-neutral-200 hover:text-neutral-400' : 'text-neutral-700 hover:text-neutral-500'} transition-colors`}
           >
-            <span className="flex-1 line-clamp-2">{item.title}</span>
-            <ExternalLink className={`w-3 h-3 mt-1 opacity-0 group-hover:opacity-50 transition-opacity flex-shrink-0`} />
+            <span className="line-clamp-2">{item.title}</span>
           </a>
         ))}
       </div>

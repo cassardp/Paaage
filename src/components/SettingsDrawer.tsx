@@ -1,18 +1,14 @@
 import { useRef, useEffect } from 'react';
-import { X, Download, Upload, Sun, Moon } from 'lucide-react';
+import { X } from 'lucide-react';
 import type { Config } from '../types/config';
-import { exportConfig, importConfig } from '../lib/storage';
 
 interface SettingsDrawerProps {
   open: boolean;
   onClose: () => void;
   config: Config;
-  onImport: (config: Config) => void;
-  onToggleTheme: () => void;
 }
 
-export function SettingsDrawer({ open, onClose, config, onImport, onToggleTheme }: SettingsDrawerProps) {
-  const fileInputRef = useRef<HTMLInputElement>(null);
+export function SettingsDrawer({ open, onClose, config }: SettingsDrawerProps) {
   const drawerRef = useRef<HTMLDivElement>(null);
   const isDark = config.settings.theme === 'dark';
 
@@ -35,33 +31,6 @@ export function SettingsDrawer({ open, onClose, config, onImport, onToggleTheme 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [open, onClose]);
-
-  const handleExport = () => {
-    exportConfig(config);
-  };
-
-  const handleImportClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      try {
-        const imported = await importConfig(file);
-        onImport(imported);
-      } catch (err) {
-        alert(err instanceof Error ? err.message : 'Erreur import');
-      }
-    }
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
-  const btnClass = isDark
-    ? 'text-neutral-200 bg-neutral-700 hover:bg-neutral-600'
-    : 'text-neutral-700 bg-neutral-100 hover:bg-neutral-200';
 
   return (
     <>
@@ -88,53 +57,13 @@ export function SettingsDrawer({ open, onClose, config, onImport, onToggleTheme 
                   </div>
                 </div>
 
-                {/* Content */}
+                {/* Content - temporairement vide */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-6">
-                  {/* Thème */}
-                  <div>
-                    <h3 className={`text-sm font-medium mb-3 ${isDark ? 'text-neutral-300' : 'text-neutral-600'}`}>
-                      Apparence
-                    </h3>
-                    <button
-                      onClick={onToggleTheme}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors cursor-pointer ${btnClass}`}
-                    >
-                      {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                      <span>{isDark ? 'Passer en mode clair' : 'Passer en mode sombre'}</span>
-                    </button>
-                  </div>
-
-                  {/* Import/Export */}
-                  <div>
-                    <h3 className={`text-sm font-medium mb-3 ${isDark ? 'text-neutral-300' : 'text-neutral-600'}`}>
-                      Données
-                    </h3>
-                    <div className="space-y-2">
-                      <button
-                        onClick={handleExport}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors cursor-pointer ${btnClass}`}
-                      >
-                        <Download className="w-5 h-5" />
-                        <span>Exporter la configuration</span>
-                      </button>
-                      <button
-                        onClick={handleImportClick}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors cursor-pointer ${btnClass}`}
-                      >
-                        <Upload className="w-5 h-5" />
-                        <span>Importer une configuration</span>
-                      </button>
-                    </div>
-                  </div>
+                  <p className={`text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
+                    Aucun paramètre disponible pour le moment.
+                  </p>
                 </div>
 
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".json"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
               </div>
             </div>
           </div>

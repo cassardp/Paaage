@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { Plus, Settings, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock, Eye, EyeOff, ListTodo, Clock, Newspaper, Cloud, Check, Copy } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Plus, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock, Eye, EyeOff, ListTodo, Clock, Newspaper, Cloud, Check, Copy, Sun, Moon, Download, Upload } from 'lucide-react';
 import { getShareUrl } from '../hooks/useCloudStorage';
-import { SettingsDrawer } from './SettingsDrawer';
+import { exportConfig, importConfig } from '../lib/storage';
 import type { Config } from '../types/config';
 
 interface ToolbarProps {
@@ -28,14 +28,37 @@ interface ToolbarProps {
 export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAddBlock, onAddBookmark, onAddNote, onAddStation, onAddStock, onAddTodo, onAddClock, onAddNews, isDark, dragLocked, onToggleDragLock, notesHidden, onToggleNotesHidden }: ToolbarProps) {
   const [isHovered, setIsHovered] = useState(false); // Hover = actions utilitaires
   const [isClicked, setIsClicked] = useState(false); // Clic = actions d'ajout
-  const [showSettings, setShowSettings] = useState(false);
   const [showBookmarkForm, setShowBookmarkForm] = useState(false);
   const [bookmarkUrl, setBookmarkUrl] = useState('');
   const [bookmarkLabel, setBookmarkLabel] = useState('');
   const [showCloudMenu, setShowCloudMenu] = useState(false);
   const [copied, setCopied] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const shareUrl = getShareUrl();
+
+  const handleExport = () => {
+    exportConfig(config);
+  };
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const imported = await importConfig(file);
+        onImport(imported);
+      } catch (err) {
+        alert(err instanceof Error ? err.message : 'Erreur import');
+      }
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const menuClass = isDark
     ? 'bg-neutral-800 border-neutral-700'
@@ -99,7 +122,9 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
 
   // Actions utilitaires (apparaissent au hover)
   const utilActions = [
-    { icon: Settings, action: () => setShowSettings(true), label: 'Paramètres', active: false },
+    { icon: isDark ? Sun : Moon, action: onToggleTheme, label: isDark ? 'Mode clair' : 'Mode sombre', active: false },
+    { icon: Download, action: handleImportClick, label: 'Importer', active: false },
+    { icon: Upload, action: handleExport, label: 'Exporter', active: false },
     { icon: dragLocked ? Lock : Unlock, action: onToggleDragLock, label: dragLocked ? 'Déverrouiller' : 'Verrouiller', active: dragLocked },
     ...(hasNotesOrTodos ? [{ icon: notesHidden ? EyeOff : Eye, action: onToggleNotesHidden, label: notesHidden ? 'Afficher notes' : 'Masquer notes', active: notesHidden }] : []),
     { icon: Cloud, action: () => setShowCloudMenu(!showCloudMenu), label: 'Cloud', active: !!syncId, syncing },
@@ -223,13 +248,13 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
         )}
       </div>
 
-      {/* Settings Drawer */}
-      <SettingsDrawer
-        open={showSettings}
-        onClose={() => setShowSettings(false)}
-        config={config}
-        onImport={onImport}
-        onToggleTheme={onToggleTheme}
+      {/* Input file caché pour import */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".json"
+        onChange={handleFileChange}
+        className="hidden"
       />
 
       {/* Modal formulaire bookmark */}

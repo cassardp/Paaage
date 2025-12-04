@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { useConfig } from './hooks/useConfig';
 import { DraggableGrid } from './components/DraggableGrid';
-import { MobileLayout } from './components/MobileLayout';
 import { BlockWrapper } from './components/BlockWrapper';
 import { BlockContent } from './components/BlockContent';
 import { Toolbar } from './components/Toolbar';
@@ -77,27 +76,15 @@ function App() {
     );
   };
 
-  const renderMobileBlock = (block: Block) => {
-    const isCompact = block.layout.h <= 2;
-    return (
-      <BlockWrapper isDragging={false} isDark={isDark} compact={isCompact}>
-        {renderBlockContent(block)}
-      </BlockWrapper>
-    );
-  };
-
-  // Version mobile - uniquement liens, notes et todos
+  // Version mobile - message desktop only
   if (isMobile) {
-    const mobileBlocks = visibleBlocks.filter(b => 
-      b.type === 'bookmark' || b.type === 'note' || b.type === 'todo'
-    );
     return (
-      <div className={`min-h-screen ${isDark ? 'dark' : ''}`}>
-        <MobileLayout
-          blocks={mobileBlocks}
-          renderBlock={renderMobileBlock}
-          isDark={isDark}
-        />
+      <div className="min-h-screen bg-[var(--grid-color)] p-4 flex items-center justify-center">
+        <div className="bg-white/90 backdrop-blur-sm border border-neutral-200 rounded-2xl p-6 text-center max-w-sm">
+          <p className="text-neutral-700 text-sm">
+            Cette application est optimisée pour une utilisation sur desktop uniquement.
+          </p>
+        </div>
         <SpeedInsights />
       </div>
     );

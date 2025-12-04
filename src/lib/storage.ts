@@ -5,11 +5,12 @@ const STORAGE_KEY = 'paaage-config';
 const SYNC_ID_KEY = 'paaage-sync-id';
 
 // URL Val.town pour la synchronisation
-const VALTOWN_BASE_URL = import.meta.env.VITE_VALTOWN_URL || '';
-console.log('VALTOWN_BASE_URL:', VALTOWN_BASE_URL);
+const VALTOWN_URL = import.meta.env.VITE_VALTOWN_URL || '';
 
-// Récupérer l'ID de sync depuis localStorage ou l'URL
+// Récupérer ou créer l'ID de sync
 export function getSyncId(): string | null {
+  if (!VALTOWN_URL) return null;
+  
   // Priorité à l'URL (pour partage)
   const urlParams = new URLSearchParams(window.location.search);
   const urlId = urlParams.get('sync');
@@ -17,17 +18,14 @@ export function getSyncId(): string | null {
     localStorage.setItem(SYNC_ID_KEY, urlId);
     return urlId;
   }
-  return localStorage.getItem(SYNC_ID_KEY);
-}
-
-export function setSyncId(id: string): void {
-  localStorage.setItem(SYNC_ID_KEY, id);
-}
-
-function getValtownUrl(id?: string | null): string {
-  if (!VALTOWN_BASE_URL) return '';
-  if (id) return `${VALTOWN_BASE_URL}?id=${id}`;
-  return VALTOWN_BASE_URL;
+  
+  // Sinon, récupérer ou créer un ID
+  let id = localStorage.getItem(SYNC_ID_KEY);
+  if (!id) {
+    id = crypto.randomUUID().slice(0, 8);
+    localStorage.setItem(SYNC_ID_KEY, id);
+  }
+  return id;
 }
 
 export function loadConfig(): Config {
@@ -55,31 +53,14 @@ export function saveConfig(config: Config): void {
 
 async function syncToValtown(config: Config): Promise<void> {
   const syncId = getSyncId();
-  const url = getValtownUrl(syncId);
-  if (!url) return;
+  if (!syncId || !VALTOWN_URL) return;
   
   try {
-    if (syncId) {
-      // Mise à jour d'une config existante
-      await fetch(url, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(config),
-      });
-    } else {
-      // Création d'une nouvelle config
-      const res = await fetch(VALTOWN_BASE_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(config),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.id) {
-          setSyncId(data.id);
-        }
-      }
-    }
+    await fetch(`${VALTOWN_URL}?id=${syncId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(config),
+    });
   } catch {
     // Erreurs ignorées silencieusement
   }
@@ -87,11 +68,10 @@ async function syncToValtown(config: Config): Promise<void> {
 
 export async function fetchRemoteConfig(): Promise<Config | null> {
   const syncId = getSyncId();
-  const url = getValtownUrl(syncId);
-  if (!url || !syncId) return null;
+  if (!syncId || !VALTOWN_URL) return null;
   
   try {
-    const res = await fetch(url);
+    const res = await fetch(`${VALTOWN_URL}?id=${syncId}`);
     if (res.ok) {
       return (await res.json()) as Config;
     }

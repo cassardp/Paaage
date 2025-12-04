@@ -20,8 +20,11 @@ function App() {
     addBookmark,
     addSingleNote,
     updateNote,
+    addTodo,
+    updateTodo,
     addStation,
     addStock,
+    addClock,
     selectStation,
     toggleTheme,
   } = useConfig();
@@ -46,6 +49,7 @@ function App() {
           searchEngine={config.settings.searchEngine}
           onSelectStation={selectStation}
           onUpdateNote={updateNote}
+          onUpdateTodo={updateTodo}
           isDark={isDark}
           focusedNoteId={focusedNoteId}
           onNoteFocused={() => setFocusedNoteId(null)}
@@ -66,6 +70,8 @@ function App() {
         onAddNote={(content) => setFocusedNoteId(addSingleNote(content))}
         onAddStation={addStation}
         onAddStock={addStock}
+        onAddTodo={addTodo}
+        onAddClock={addClock}
         isDark={isDark}
         dragLocked={dragLocked}
         onToggleDragLock={() => setDragLocked(!dragLocked)}
@@ -75,7 +81,7 @@ function App() {
       
       {/* Grille de blocs - pleine page */}
       <DraggableGrid
-        blocks={notesHidden ? config.blocks.filter(b => b.type !== 'note') : config.blocks}
+        blocks={notesHidden ? config.blocks.filter(b => b.type !== 'note' && b.type !== 'todo') : config.blocks}
         onMoveBlock={moveBlock}
         onDeleteBlock={deleteBlock}
         renderBlock={renderBlock}

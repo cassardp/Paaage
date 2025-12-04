@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { Config, Block, BlockLayout } from '../types/config';
+import type { Config, Block, BlockLayout, TodoItem } from '../types/config';
 import { loadConfig, saveConfig, fetchRemoteConfig, mergeWithRemote } from '../lib/storage';
 import { generateId } from '../lib/utils';
 import { CELL_SIZE } from '../lib/defaultConfig';
@@ -130,6 +130,36 @@ export function useConfig() {
     }));
   }, [updateConfig]);
 
+  // Mettre à jour une todo
+  const updateTodo = useCallback((blockId: string, items: TodoItem[]) => {
+    updateConfig((prev) => ({
+      ...prev,
+      blocks: prev.blocks.map((block) => {
+        if (block.id === blockId && block.type === 'todo') {
+          return { ...block, items };
+        }
+        return block;
+      }),
+    }));
+  }, [updateConfig]);
+
+  // Ajouter une todo
+  const addTodo = useCallback(() => {
+    const id = generateId();
+    const pos = getCenteredPosition(15, 6);
+    const newBlock: Block = { 
+      id, 
+      type: 'todo', 
+      items: [],
+      layout: { ...pos, w: 15, h: 6 } 
+    };
+
+    updateConfig((prev) => ({
+      ...prev,
+      blocks: [...prev.blocks, newBlock],
+    }));
+  }, [updateConfig]);
+
   // Ajouter une station (FIP par défaut)
   const addStation = useCallback(() => {
     const id = generateId();
@@ -157,6 +187,24 @@ export function useConfig() {
       type: 'stock', 
       symbol: 'AAPL', 
       layout: { ...pos, w: 12, h: 4 } 
+    };
+
+    updateConfig((prev) => ({
+      ...prev,
+      blocks: [...prev.blocks, newBlock],
+    }));
+  }, [updateConfig]);
+
+  // Ajouter une horloge
+  const addClock = useCallback(() => {
+    const id = generateId();
+    const pos = getCenteredPosition(8, 5);
+    const newBlock: Block = { 
+      id, 
+      type: 'clock',
+      city: 'Paris',
+      timezone: 'Europe/Paris',
+      layout: { ...pos, w: 8, h: 5 } 
     };
 
     updateConfig((prev) => ({
@@ -200,8 +248,11 @@ export function useConfig() {
     addBookmark,
     addSingleNote,
     updateNote,
+    addTodo,
+    updateTodo,
     addStation,
     addStock,
+    addClock,
     selectStation,
     toggleTheme,
   };

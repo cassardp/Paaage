@@ -57,7 +57,24 @@ export interface StockBlock extends BaseBlock {
   symbol: string;
 }
 
-export type Block = SearchBlock | RadioBlock | WeatherBlock | BookmarkBlock | NoteBlock | StationBlock | StockBlock;
+export interface TodoItem {
+  id: string;
+  text: string;
+  done: boolean;
+}
+
+export interface TodoBlock extends BaseBlock {
+  type: 'todo';
+  items: TodoItem[];
+}
+
+export interface ClockBlock extends BaseBlock {
+  type: 'clock';
+  city?: string;
+  timezone?: string;
+}
+
+export type Block = SearchBlock | RadioBlock | WeatherBlock | BookmarkBlock | NoteBlock | StationBlock | StockBlock | TodoBlock | ClockBlock;
 
 export interface Settings {
   theme: 'light' | 'dark';

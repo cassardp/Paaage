@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Settings, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock, Eye, EyeOff } from 'lucide-react';
+import { Plus, Settings, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock, Eye, EyeOff, ListTodo, Clock } from 'lucide-react';
 import { SettingsDrawer } from './SettingsDrawer';
 import type { Config } from '../types/config';
 import { CELL_SIZE } from '../lib/defaultConfig';
@@ -14,6 +14,8 @@ interface ToolbarProps {
   onAddNote: (content: string) => void;
   onAddStation: () => void;
   onAddStock: () => void;
+  onAddTodo: () => void;
+  onAddClock: () => void;
   isDark: boolean;
   dragLocked: boolean;
   onToggleDragLock: () => void;
@@ -21,7 +23,7 @@ interface ToolbarProps {
   onToggleNotesHidden: () => void;
 }
 
-export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBookmark, onAddNote, onAddStation, onAddStock, isDark, dragLocked, onToggleDragLock, notesHidden, onToggleNotesHidden }: ToolbarProps) {
+export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBookmark, onAddNote, onAddStation, onAddStock, onAddTodo, onAddClock, isDark, dragLocked, onToggleDragLock, notesHidden, onToggleNotesHidden }: ToolbarProps) {
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showBookmarkForm, setShowBookmarkForm] = useState(false);
@@ -90,19 +92,20 @@ export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBook
       {/* Bouton Ajouter - calé sur la grille à droite */}
       <div
         className="absolute z-40"
-        style={{ left: addX, top: gridToPixel(1), width: size, height: size }}
+        style={{ left: addX, top: gridToPixel(1), width: size }}
+        onMouseEnter={() => setShowAddMenu(true)}
+        onMouseLeave={() => setShowAddMenu(false)}
       >
         <button
           onClick={() => setShowAddMenu(!showAddMenu)}
-          className={`w-full h-full rounded-[12px] border flex items-center justify-center transition-all cursor-pointer ${blockClass}`}
+          style={{ width: size, height: size }}
+          className={`rounded-[12px] border flex items-center justify-center transition-all cursor-pointer ${blockClass}`}
         >
           <Plus className="w-5 h-5" />
         </button>
 
         {showAddMenu && (
-          <>
-            <div className="fixed inset-0 z-40" onClick={() => setShowAddMenu(false)} />
-            <div className={`absolute top-full right-0 mt-2 py-1 rounded-lg border shadow-lg min-w-[140px] z-50 ${menuClass}`}>
+          <div className={`absolute right-0 mt-0 py-1 rounded-lg border shadow-lg min-w-[140px] z-50 ${menuClass}`}>
               {!hasSearchBlock && (
                 <button onClick={() => handleAddBlock('search')} className={`w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${menuItemClass}`}>
                   <Search className="w-4 h-4" /> Recherche
@@ -123,8 +126,13 @@ export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBook
               <button onClick={() => { onAddStock(); setShowAddMenu(false); }} className={`w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${menuItemClass}`}>
                 <TrendingUp className="w-4 h-4" /> Stock
               </button>
+              <button onClick={() => { onAddTodo(); setShowAddMenu(false); }} className={`w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${menuItemClass}`}>
+                <ListTodo className="w-4 h-4" /> Todo
+              </button>
+              <button onClick={() => { onAddClock(); setShowAddMenu(false); }} className={`w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${menuItemClass}`}>
+                <Clock className="w-4 h-4" /> Horloge
+              </button>
             </div>
-          </>
         )}
       </div>
 
@@ -155,8 +163,8 @@ export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBook
         </button>
       </div>
 
-      {/* Bouton Hide/Show Notes - sous Lock, visible seulement si des notes existent */}
-      {config.blocks.some(b => b.type === 'note') && (
+      {/* Bouton Hide/Show Notes/Todos - sous Lock, visible seulement si des notes ou todos existent */}
+      {config.blocks.some(b => b.type === 'note' || b.type === 'todo') && (
         <div
           className="absolute z-40"
           style={{ left: settingsX, top: gridToPixel(7), width: size, height: size }}

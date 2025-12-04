@@ -1,4 +1,4 @@
-import type { Block } from '../types/config';
+import type { Block, TodoItem } from '../types/config';
 import { SearchBlock } from './SearchBlock';
 import { RadioBlock } from './RadioBlock';
 import { WeatherBlock } from './WeatherBlock';
@@ -6,12 +6,15 @@ import { BookmarkBlock } from './BookmarkBlock';
 import { NoteBlock } from './NoteBlock';
 import { StationBlock } from './StationBlock';
 import { StockBlock } from './StockBlock';
+import { TodoBlock } from './TodoBlock';
+import { ClockBlock } from './ClockBlock';
 
 interface BlockContentProps {
   block: Block;
   searchEngine: string;
   onSelectStation: (blockId: string, stationId: string | null) => void;
   onUpdateNote: (blockId: string, content: string) => void;
+  onUpdateTodo: (blockId: string, items: TodoItem[]) => void;
   isDark?: boolean;
   focusedNoteId?: string | null;
   onNoteFocused?: () => void;
@@ -22,6 +25,7 @@ export function BlockContent({
   searchEngine,
   onSelectStation,
   onUpdateNote,
+  onUpdateTodo,
   isDark = true,
   focusedNoteId,
   onNoteFocused,
@@ -65,6 +69,12 @@ export function BlockContent({
     
     case 'stock':
       return <StockBlock symbol={block.symbol} isDark={isDark} />;
+    
+    case 'todo':
+      return <TodoBlock blockId={block.id} items={block.items} onUpdate={onUpdateTodo} isDark={isDark} />;
+    
+    case 'clock':
+      return <ClockBlock city={block.city} timezone={block.timezone} isDark={isDark} />;
     
     default:
       return null;

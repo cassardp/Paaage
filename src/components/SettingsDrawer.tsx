@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react';
 import { X, Download, Upload, Sun, Moon } from 'lucide-react';
 import type { Config } from '../types/config';
-import { exportConfig, importConfig, saveConfig } from '../lib/storage';
+import { exportConfig, importConfig } from '../lib/storage';
 
 interface SettingsDrawerProps {
   open: boolean;
@@ -49,7 +49,6 @@ export function SettingsDrawer({ open, onClose, config, onImport, onToggleTheme 
     if (file) {
       try {
         const imported = await importConfig(file);
-        saveConfig(imported);
         onImport(imported);
       } catch (err) {
         alert(err instanceof Error ? err.message : 'Erreur import');

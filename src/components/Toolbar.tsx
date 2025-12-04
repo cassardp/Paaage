@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Plus, Settings, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock, Eye, EyeOff, ListTodo, Clock, Newspaper } from 'lucide-react';
+import { Plus, Settings, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock, Eye, EyeOff, ListTodo, Clock, Newspaper, Cloud, CloudOff, Check, Copy } from 'lucide-react';
+import { getSyncId, getShareUrl } from '../lib/storage';
 import { SettingsDrawer } from './SettingsDrawer';
 import type { Config } from '../types/config';
 import { CELL_SIZE } from '../lib/defaultConfig';
@@ -30,6 +31,11 @@ export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBook
   const [showBookmarkForm, setShowBookmarkForm] = useState(false);
   const [bookmarkUrl, setBookmarkUrl] = useState('');
   const [bookmarkLabel, setBookmarkLabel] = useState('');
+  const [showCloudMenu, setShowCloudMenu] = useState(false);
+  const [copied, setCopied] = useState(false);
+  
+  const syncId = getSyncId();
+  const shareUrl = getShareUrl();
 
   const menuClass = isDark
     ? 'bg-neutral-800 border-neutral-700'
@@ -86,7 +92,16 @@ export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBook
 
   // Position X des boutons (depuis la gauche, alignée sur la grille)
   const settingsX = gridToPixel(gridCols - 3); // 2 cellules de large + 1 de marge
-  const addX = gridToPixel(gridCols - 6); // 2 cellules de large + 1 d'écart + 2 + 1
+  const cloudX = gridToPixel(gridCols - 6); // entre add et settings
+  const addX = gridToPixel(gridCols - 9); // décalé d'une position
+
+  const handleCopyShareUrl = () => {
+    if (shareUrl) {
+      navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   return (
     <>
@@ -137,6 +152,49 @@ export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBook
                 <Newspaper className="w-4 h-4" /> News
               </button>
             </div>
+        )}
+      </div>
+
+      {/* Bouton Cloud - entre Add et Settings */}
+      <div
+        className="absolute z-40"
+        style={{ left: cloudX, top: gridToPixel(1), width: size }}
+        onMouseEnter={() => setShowCloudMenu(true)}
+        onMouseLeave={() => setShowCloudMenu(false)}
+      >
+        <button
+          onClick={() => setShowCloudMenu(!showCloudMenu)}
+          style={{ width: size, height: size }}
+          className={`rounded-[12px] border flex items-center justify-center transition-all cursor-pointer ${blockClass}
+            ${syncId ? 'text-[var(--accent-color)]' : ''}`}
+        >
+          {syncId ? <Cloud className="w-5 h-5" /> : <CloudOff className="w-5 h-5" />}
+        </button>
+
+        {showCloudMenu && (
+          <div className={`absolute right-0 mt-0 py-2 px-3 rounded-lg border shadow-lg min-w-[200px] z-50 ${menuClass}`}>
+            {syncId ? (
+              <>
+                <div className={`text-xs mb-2 ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
+                  Sync activée
+                </div>
+                <div className={`text-xs font-mono mb-2 p-2 rounded truncate ${isDark ? 'bg-neutral-900 text-neutral-300' : 'bg-neutral-100 text-neutral-600'}`}>
+                  ID: {syncId}
+                </div>
+                <button
+                  onClick={handleCopyShareUrl}
+                  className={`w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded cursor-pointer ${menuItemClass}`}
+                >
+                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                  {copied ? 'Copié !' : 'Copier le lien'}
+                </button>
+              </>
+            ) : (
+              <div className={`text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
+                Sync désactivée.<br />Configurez VITE_VALTOWN_URL pour activer.
+              </div>
+            )}
+          </div>
         )}
       </div>
 

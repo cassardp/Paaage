@@ -2,9 +2,32 @@ import type { Config } from '../types/config';
 import { DEFAULT_CONFIG } from './defaultConfig';
 
 const STORAGE_KEY = 'paaage-config';
+const SYNC_ID_KEY = 'paaage-sync-id';
 
-// URL Val.town pour la synchronisation (à configurer)
-const VALTOWN_URL = import.meta.env.VITE_VALTOWN_URL || '';
+// URL Val.town pour la synchronisation
+const VALTOWN_BASE_URL = import.meta.env.VITE_VALTOWN_URL || '';
+
+// Récupérer l'ID de sync depuis localStorage ou l'URL
+export function getSyncId(): string | null {
+  // Priorité à l'URL (pour partage)
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlId = urlParams.get('sync');
+  if (urlId) {
+    localStorage.setItem(SYNC_ID_KEY, urlId);
+    return urlId;
+  }
+  return localStorage.getItem(SYNC_ID_KEY);
+}
+
+export function setSyncId(id: string): void {
+  localStorage.setItem(SYNC_ID_KEY, id);
+}
+
+function getValtownUrl(id?: string | null): string {
+  if (!VALTOWN_BASE_URL) return '';
+  if (id) return `${VALTOWN_BASE_URL}?id=${id}`;
+  return VALTOWN_BASE_URL;
+}
 
 export function loadConfig(): Config {
   try {
@@ -30,22 +53,44 @@ export function saveConfig(config: Config): void {
 }
 
 async function syncToValtown(config: Config): Promise<void> {
-  if (!VALTOWN_URL) return;
+  const syncId = getSyncId();
+  const url = getValtownUrl(syncId);
+  if (!url) return;
+  
   try {
-    await fetch(VALTOWN_URL, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(config),
-    });
+    if (syncId) {
+      // Mise à jour d'une config existante
+      await fetch(url, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(config),
+      });
+    } else {
+      // Création d'une nouvelle config
+      const res = await fetch(VALTOWN_BASE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(config),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.id) {
+          setSyncId(data.id);
+        }
+      }
+    }
   } catch {
     // Erreurs ignorées silencieusement
   }
 }
 
 export async function fetchRemoteConfig(): Promise<Config | null> {
-  if (!VALTOWN_URL) return null;
+  const syncId = getSyncId();
+  const url = getValtownUrl(syncId);
+  if (!url || !syncId) return null;
+  
   try {
-    const res = await fetch(VALTOWN_URL);
+    const res = await fetch(url);
     if (res.ok) {
       return (await res.json()) as Config;
     }
@@ -53,6 +98,14 @@ export async function fetchRemoteConfig(): Promise<Config | null> {
     // Erreurs ignorées
   }
   return null;
+}
+
+// Générer l'URL de partage
+export function getShareUrl(): string | null {
+  const syncId = getSyncId();
+  if (!syncId) return null;
+  const baseUrl = window.location.origin + window.location.pathname;
+  return `${baseUrl}?sync=${syncId}`;
 }
 
 export function mergeWithRemote(local: Config, remote: Config | null): Config {

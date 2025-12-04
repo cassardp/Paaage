@@ -52,16 +52,18 @@ export function saveConfig(config: Config): void {
 
 async function syncToValtown(config: Config): Promise<void> {
   const syncId = getSyncId();
+  console.log('[Sync] syncId:', syncId, 'URL:', VALTOWN_URL);
   if (!syncId || !VALTOWN_URL) return;
   
   try {
-    await fetch(`${VALTOWN_URL}?id=${syncId}`, {
+    const res = await fetch(`${VALTOWN_URL}?id=${syncId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(config),
     });
-  } catch {
-    // Erreurs ignorées silencieusement
+    console.log('[Sync] POST response:', res.status);
+  } catch (e) {
+    console.error('[Sync] Error:', e);
   }
 }
 

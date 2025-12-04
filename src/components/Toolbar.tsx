@@ -1,8 +1,9 @@
 import { useState, useRef } from 'react';
-import { Plus, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock, Eye, EyeOff, ListTodo, Clock, Newspaper, Cloud, Check, Sun, Moon, Download, Upload } from 'lucide-react';
+import { Plus, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock, Eye, EyeOff, ListTodo, Clock, Newspaper, Cloud, Sun, Moon, Download, Upload } from 'lucide-react';
 import { getShareUrl } from '../hooks/useCloudStorage';
 import { exportConfig, importConfig } from '../lib/storage';
 import type { Config } from '../types/config';
+import { Toast } from './Toast';
 
 interface ToolbarProps {
   config: Config;
@@ -31,7 +32,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
   const [showBookmarkForm, setShowBookmarkForm] = useState(false);
   const [bookmarkUrl, setBookmarkUrl] = useState('');
   const [bookmarkLabel, setBookmarkLabel] = useState('');
-  const [copied, setCopied] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const shareUrl = getShareUrl();
@@ -93,8 +94,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
   const handleCopyShareUrl = () => {
     if (shareUrl) {
       navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setToastMessage('Lien copié !');
     }
   };
 
@@ -118,7 +118,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
     { icon: Upload, action: handleExport, label: 'Exporter', active: false },
     { icon: dragLocked ? Lock : Unlock, action: onToggleDragLock, label: dragLocked ? 'Déverrouiller' : 'Verrouiller', active: dragLocked },
     ...(hasNotesOrTodos ? [{ icon: notesHidden ? EyeOff : Eye, action: onToggleNotesHidden, label: notesHidden ? 'Afficher notes' : 'Masquer notes', active: notesHidden }] : []),
-    { icon: copied ? Check : Cloud, action: handleCopyShareUrl, label: copied ? 'Copié !' : 'Copier le lien', active: !!syncId, syncing },
+    { icon: Cloud, action: handleCopyShareUrl, label: 'Copier le lien', active: !!syncId, syncing },
   ];
 
   const radius = 80;
@@ -267,6 +267,8 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
           </div>
         </div>
       )}
+
+      <Toast message={toastMessage} visible={!!toastMessage} onHide={() => setToastMessage('')} />
     </>
   );
 }

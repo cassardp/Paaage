@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
-import { Monitor } from 'lucide-react';
 import { useConfig } from './hooks/useConfig';
 import { DraggableGrid } from './components/DraggableGrid';
+import { MobileLayout } from './components/MobileLayout';
 import { BlockWrapper } from './components/BlockWrapper';
 import { BlockContent } from './components/BlockContent';
 import { Toolbar } from './components/Toolbar';
@@ -48,44 +48,62 @@ function App() {
     );
   }
 
-  // Afficher un message sur mobile
-  if (isMobile) {
+  const isDark = config.settings.theme === 'dark';
+  const visibleBlocks = notesHidden 
+    ? config.blocks.filter(b => b.type !== 'note' && b.type !== 'todo') 
+    : config.blocks;
+
+  const renderBlockContent = (block: Block) => (
+    <BlockContent
+      block={block}
+      searchEngine={config.settings.searchEngine}
+      onSelectStation={selectStation}
+      onUpdateNote={updateNote}
+      onUpdateTodo={updateTodo}
+      isDark={isDark}
+      focusedNoteId={focusedNoteId}
+      onNoteFocused={() => setFocusedNoteId(null)}
+    />
+  );
+
+  const renderBlock = (block: Block, isDragging: boolean) => {
+    const isCompact = block.layout.h <= 2;
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-900 text-neutral-200 p-8 text-center">
-        <Monitor className="w-12 h-12 mb-4 text-neutral-500" />
-        <h1 className="text-xl font-semibold mb-2">Desktop uniquement</h1>
-        <p className="text-neutral-400 text-sm max-w-xs">
-          Paaage n'est pas encore disponible sur mobile. Ouvrez cette page sur un ordinateur.
-        </p>
+      <BlockWrapper isDragging={isDragging} isDark={isDark} compact={isCompact}>
+        {renderBlockContent(block)}
+      </BlockWrapper>
+    );
+  };
+
+  const renderMobileBlock = (block: Block) => {
+    const isCompact = block.layout.h <= 2;
+    return (
+      <BlockWrapper isDragging={false} isDark={isDark} compact={isCompact}>
+        {renderBlockContent(block)}
+      </BlockWrapper>
+    );
+  };
+
+  // Version mobile - uniquement liens, notes et todos
+  if (isMobile) {
+    const mobileBlocks = visibleBlocks.filter(b => 
+      b.type === 'bookmark' || b.type === 'note' || b.type === 'todo'
+    );
+    return (
+      <div className={`min-h-screen ${isDark ? 'dark' : ''}`}>
+        <MobileLayout
+          blocks={mobileBlocks}
+          renderBlock={renderMobileBlock}
+          isDark={isDark}
+        />
         <SpeedInsights />
       </div>
     );
   }
 
-  const isDark = config.settings.theme === 'dark';
-
-  const renderBlock = (block: Block, isDragging: boolean) => {
-    const isCompact = block.layout.h <= 2;
-    
-    return (
-      <BlockWrapper isDragging={isDragging} isDark={isDark} compact={isCompact}>
-        <BlockContent
-          block={block}
-          searchEngine={config.settings.searchEngine}
-          onSelectStation={selectStation}
-          onUpdateNote={updateNote}
-          onUpdateTodo={updateTodo}
-          isDark={isDark}
-          focusedNoteId={focusedNoteId}
-          onNoteFocused={() => setFocusedNoteId(null)}
-        />
-      </BlockWrapper>
-    );
-  };
-
+  // Version desktop
   return (
     <div className={`min-h-screen ${isDark ? 'dark' : ''}`}>
-      {/* Toolbar fixe */}
       <Toolbar
         config={config}
         onImport={setConfig}
@@ -104,10 +122,8 @@ function App() {
         notesHidden={notesHidden}
         onToggleNotesHidden={() => setNotesHidden(!notesHidden)}
       />
-      
-      {/* Grille de blocs - pleine page */}
       <DraggableGrid
-        blocks={notesHidden ? config.blocks.filter(b => b.type !== 'note' && b.type !== 'todo') : config.blocks}
+        blocks={visibleBlocks}
         onMoveBlock={moveBlock}
         onDeleteBlock={deleteBlock}
         renderBlock={renderBlock}

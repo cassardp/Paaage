@@ -60,7 +60,7 @@ function App() {
 
   const isDark = config.settings.theme === 'dark';
   const visibleBlocks = notesHidden 
-    ? config.blocks.filter(b => b.type !== 'note' && b.type !== 'todo') 
+    ? config.blocks.filter(b => b.type === 'search' || b.type === 'bookmark') 
     : config.blocks;
 
   const renderBlockContent = (block: Block) => (

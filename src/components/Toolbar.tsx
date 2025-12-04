@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Plus, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock, Eye, EyeOff, ListTodo, Clock, Newspaper, Cloud, Check, Copy, Sun, Moon, Download, Upload } from 'lucide-react';
+import { Plus, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock, Eye, EyeOff, ListTodo, Clock, Newspaper, Cloud, Check, Sun, Moon, Download, Upload } from 'lucide-react';
 import { getShareUrl } from '../hooks/useCloudStorage';
 import { exportConfig, importConfig } from '../lib/storage';
 import type { Config } from '../types/config';
@@ -31,7 +31,6 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
   const [showBookmarkForm, setShowBookmarkForm] = useState(false);
   const [bookmarkUrl, setBookmarkUrl] = useState('');
   const [bookmarkLabel, setBookmarkLabel] = useState('');
-  const [showCloudMenu, setShowCloudMenu] = useState(false);
   const [copied, setCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -59,14 +58,6 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
       fileInputRef.current.value = '';
     }
   };
-
-  const menuClass = isDark
-    ? 'bg-neutral-800 border-neutral-700'
-    : 'bg-white border-neutral-200';
-
-  const menuItemClass = isDark
-    ? 'hover:bg-neutral-700 text-neutral-200'
-    : 'hover:bg-neutral-100 text-neutral-700';
 
   const fabClass = isDark
     ? 'bg-neutral-900/80 backdrop-blur-sm border-neutral-700 text-neutral-400 hover:text-neutral-100'
@@ -127,7 +118,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
     { icon: Upload, action: handleExport, label: 'Exporter', active: false },
     { icon: dragLocked ? Lock : Unlock, action: onToggleDragLock, label: dragLocked ? 'Déverrouiller' : 'Verrouiller', active: dragLocked },
     ...(hasNotesOrTodos ? [{ icon: notesHidden ? EyeOff : Eye, action: onToggleNotesHidden, label: notesHidden ? 'Afficher notes' : 'Masquer notes', active: notesHidden }] : []),
-    { icon: Cloud, action: () => setShowCloudMenu(!showCloudMenu), label: 'Cloud', active: !!syncId, syncing },
+    { icon: copied ? Check : Cloud, action: handleCopyShareUrl, label: copied ? 'Copié !' : 'Copier le lien', active: !!syncId, syncing },
   ];
 
   const radius = 80;
@@ -152,7 +143,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
         className="fixed bottom-6 left-1/2 z-40 flex items-end justify-center"
         style={{ width: radius * 2 + 56, height: radius + 56, transform: 'translateX(-50%)' }}
         onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => { setIsHovered(false); setIsClicked(false); setShowCloudMenu(false); }}
+        onMouseLeave={() => { setIsHovered(false); setIsClicked(false); }}
       >
         {/* Actions utilitaires (hover) */}
         {utilActions.map((item, index) => {
@@ -220,32 +211,6 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
           <Plus className={`w-6 h-6 transition-transform duration-200 ${isClicked ? 'rotate-45' : ''}`} />
         </button>
 
-        {/* Menu Cloud */}
-        {showCloudMenu && (
-          <div className={`absolute bottom-full mb-2 left-1/2 -translate-x-1/2 py-2 px-3 rounded-lg border shadow-lg min-w-[200px] z-50 ${menuClass}`}>
-            {syncId ? (
-              <>
-                <div className={`text-xs mb-2 ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
-                  Sync activée
-                </div>
-                <div className={`text-xs font-mono mb-2 p-2 rounded truncate ${isDark ? 'bg-neutral-900 text-neutral-300' : 'bg-neutral-100 text-neutral-600'}`}>
-                  ID: {syncId}
-                </div>
-                <button
-                  onClick={handleCopyShareUrl}
-                  className={`w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded cursor-pointer ${menuItemClass}`}
-                >
-                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                  {copied ? 'Copié !' : 'Copier le lien'}
-                </button>
-              </>
-            ) : (
-              <div className={`text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
-                Sync désactivée.<br />Configurez VITE_VALTOWN_URL pour activer.
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
       {/* Input file caché pour import */}
@@ -260,7 +225,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
       {/* Modal formulaire bookmark */}
       {showBookmarkForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowBookmarkForm(false)}>
-          <div className={`p-4 rounded-lg border shadow-xl w-80 ${menuClass}`} onClick={(e) => e.stopPropagation()}>
+          <div className={`p-4 rounded-lg border shadow-xl w-80 ${isDark ? 'bg-neutral-800 border-neutral-700' : 'bg-white border-neutral-200'}`} onClick={(e) => e.stopPropagation()}>
             <h3 className={`text-sm font-semibold mb-3 ${isDark ? 'text-neutral-200' : 'text-neutral-800'}`}>
               Nouveau raccourci
             </h3>

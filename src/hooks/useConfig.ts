@@ -41,16 +41,23 @@ export function useConfig() {
     }
   }, [setConfig]);
 
-  // Raccourci clavier Ctrl+Z
+  // Raccourci clavier Ctrl+Z / Cmd+Z
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Ne pas intercepter si on est dans un input/textarea
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+        return;
+      }
+      
       if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
         e.preventDefault();
+        e.stopPropagation();
         undo();
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown, true); // capture phase
+    return () => window.removeEventListener('keydown', handleKeyDown, true);
   }, [undo]);
 
   // Déplacer un bloc sur la grille (et le mettre au premier plan)

@@ -134,15 +134,17 @@ export function StationBlock({ name, streamUrl, isDark = true, onUpdateStation }
             className="flex items-center gap-2 group cursor-pointer"
           >
             {isPlaying ? (
-              <Pause className="w-5 h-5 text-[var(--accent-color)]" />
+              <Pause className="w-5 h-5 shrink-0 text-[var(--accent-color)]" />
             ) : (
-              <Play className={`w-5 h-5 ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`} />
+              <Play className={`w-5 h-5 shrink-0 ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`} />
             )}
             <span 
               onClick={(e) => { e.stopPropagation(); onFlip(); }}
-              className={`text-sm font-medium cursor-pointer hover:underline ${isDark ? 'text-neutral-200' : 'text-neutral-700'}`}
+              className={`text-sm font-medium cursor-pointer hover:underline overflow-hidden ${isDark ? 'text-neutral-200' : 'text-neutral-700'}`}
             >
-              {name}
+              <span className="inline-block whitespace-nowrap animate-marquee hover:animate-none">
+                {name}
+              </span>
             </span>
           </button>
           

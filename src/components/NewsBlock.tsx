@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Loader } from 'lucide-react';
 
 interface NewsItem {
   title: string;
@@ -41,8 +42,8 @@ export function NewsBlock({ isDark = true }: NewsBlockProps) {
   
   if (loading) {
     return (
-      <div className={`h-full flex items-center justify-center ${mutedClass}`}>
-        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+      <div className="h-full flex items-center justify-center">
+        <Loader className={`w-6 h-6 animate-spin ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`} />
       </div>
     );
   }

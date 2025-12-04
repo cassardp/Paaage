@@ -140,11 +140,9 @@ export function StationBlock({ name, streamUrl, isDark = true, onUpdateStation }
             )}
             <span 
               onClick={(e) => { e.stopPropagation(); onFlip(); }}
-              className={`text-sm font-medium cursor-pointer hover:underline overflow-hidden ${isDark ? 'text-neutral-200' : 'text-neutral-700'}`}
+              className={`text-sm font-medium cursor-pointer hover:underline line-clamp-1 ${isDark ? 'text-neutral-200' : 'text-neutral-700'}`}
             >
-              <span className="inline-block whitespace-nowrap animate-marquee hover:animate-none">
-                {name}
-              </span>
+              {name}
             </span>
           </button>
           

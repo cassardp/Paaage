@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Plus, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock, Eye, EyeOff, ListTodo, Clock, Newspaper, Cloud, Sun, Moon, Download, Upload, Undo2 } from 'lucide-react';
+import { Plus, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock, Eye, EyeOff, ListTodo, Clock, Newspaper, Cloud, Sun, Moon, Download, Upload, Undo2, Settings2 } from 'lucide-react';
 import { getShareUrl } from '../hooks/useCloudStorage';
 import { exportConfig, importConfig } from '../lib/storage';
 import type { Config } from '../types/config';
@@ -112,20 +112,20 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
     }
   };
 
-  // Actions d'ajout (apparaissent au clic)
+  // Actions d'ajout (apparaissent au hover)
   const addActions = [
     ...(!hasSearchBlock ? [{ icon: Search, action: () => handleAddBlock('search'), label: 'Recherche' }] : []),
     { icon: CloudSun, action: () => handleAddBlock('weather'), label: 'Météo' },
     { icon: Bookmark, action: handleBookmarkClick, label: 'Lien' },
-    { icon: FileText, action: () => { onAddNote(''); setIsClicked(false); }, label: 'Note' },
-    { icon: Headphones, action: () => { onAddStation(); setIsClicked(false); }, label: 'Radio' },
-    { icon: TrendingUp, action: () => { onAddStock(); setIsClicked(false); }, label: 'Stock' },
-    { icon: ListTodo, action: () => { onAddTodo(); setIsClicked(false); }, label: 'Todo' },
-    { icon: Clock, action: () => { onAddClock(); setIsClicked(false); }, label: 'Horloge' },
-    { icon: Newspaper, action: () => { onAddNews(); setIsClicked(false); }, label: 'News' },
+    { icon: FileText, action: () => { onAddNote(''); setIsHovered(false); }, label: 'Note' },
+    { icon: Headphones, action: () => { onAddStation(); setIsHovered(false); }, label: 'Radio' },
+    { icon: TrendingUp, action: () => { onAddStock(); setIsHovered(false); }, label: 'Stock' },
+    { icon: ListTodo, action: () => { onAddTodo(); setIsHovered(false); }, label: 'Todo' },
+    { icon: Clock, action: () => { onAddClock(); setIsHovered(false); }, label: 'Horloge' },
+    { icon: Newspaper, action: () => { onAddNews(); setIsHovered(false); }, label: 'News' },
   ];
 
-  // Actions utilitaires (apparaissent au hover)
+  // Actions utilitaires (apparaissent au clic)
   const utilActions = [
     ...(canUndo ? [{ icon: Undo2, action: onUndo, label: 'Annuler', active: false }] : []),
     { icon: isDark ? Sun : Moon, action: onToggleTheme, label: isDark ? 'Mode clair' : 'Mode sombre', active: false },
@@ -147,9 +147,9 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
     return { x: Math.cos(radian) * radius, y: Math.sin(radian) * radius };
   };
 
-  // Afficher les actions utilitaires au hover, les actions d'ajout au clic
-  const showUtil = isHovered && !isClicked;
-  const showAdd = isClicked;
+  // Afficher les actions d'ajout au hover, les actions utilitaires au clic
+  const showAdd = isHovered && !isClicked;
+  const showUtil = isClicked;
 
   return (
     <>
@@ -223,7 +223,13 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
           onClick={() => setIsClicked(!isClicked)}
           className={`relative w-14 h-14 rounded-full border flex items-center justify-center transition-all duration-200 cursor-pointer ${fabClass}`}
         >
-          <Plus className={`w-6 h-6 transition-transform duration-200 ${isClicked ? 'rotate-45' : ''}`} />
+          {isClicked ? (
+            <Plus className="w-6 h-6" />
+          ) : showAdd ? (
+            <Settings2 className="w-5 h-5" />
+          ) : (
+            <Plus className="w-6 h-6" />
+          )}
         </button>
 
       </div>

@@ -6,6 +6,7 @@ const SYNC_ID_KEY = 'paaage-sync-id';
 
 // URL Val.town pour la synchronisation
 const VALTOWN_BASE_URL = import.meta.env.VITE_VALTOWN_URL || '';
+console.log('VALTOWN_BASE_URL:', VALTOWN_BASE_URL);
 
 // Récupérer l'ID de sync depuis localStorage ou l'URL
 export function getSyncId(): string | null {

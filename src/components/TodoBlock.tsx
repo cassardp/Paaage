@@ -50,9 +50,9 @@ export function TodoBlock({ blockId, items, onUpdate, isDark = true }: TodoBlock
   return (
     <div className="h-full flex flex-col">
       {/* Liste des tâches */}
-      <div className="flex-1 overflow-auto space-y-1">
+      <div className="flex-1 overflow-auto space-y-2">
         {items.map(item => (
-          <div key={item.id} className="flex items-center gap-2 group">
+          <div key={item.id} className="flex items-center gap-2 group/todo">
             <input
               type="checkbox"
               checked={item.done}
@@ -66,7 +66,7 @@ export function TodoBlock({ blockId, items, onUpdate, isDark = true }: TodoBlock
             />
             <button
               onClick={() => removeItem(item.id)}
-              className={`opacity-0 group-hover:opacity-100 p-0.5 cursor-pointer ${mutedClass} hover:text-neutral-600 transition-opacity`}
+              className={`opacity-0 group-hover/todo:opacity-100 p-0.5 cursor-pointer ${mutedClass} hover:text-neutral-600 transition-opacity`}
             >
               <X className="w-3 h-3" />
             </button>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { useConfig } from './hooks/useConfig';
 import { DraggableGrid } from './components/DraggableGrid';
 import { BlockWrapper } from './components/BlockWrapper';
@@ -90,6 +91,7 @@ function App() {
         isDark={isDark}
         dragLocked={dragLocked}
       />
+      <SpeedInsights />
     </div>
   );
 }

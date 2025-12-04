@@ -33,23 +33,48 @@ export function StockBlock({ symbol, isDark = true, onUpdateSymbol }: StockBlock
 
   useEffect(() => {
     async function fetchStock() {
+      setLoading(true);
+      setError(null);
+      
       try {
         const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`;
         const res = await fetch(
           `https://api.allorigins.win/raw?url=${encodeURIComponent(yahooUrl)}`
         );
-        const data = await res.json();
+        
+        if (!res.ok) {
+          setError('Symbole non trouvé');
+          setLoading(false);
+          return;
+        }
+        
+        const text = await res.text();
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch {
+          setError('Symbole non trouvé');
+          setLoading(false);
+          return;
+        }
         
         const quote = data.chart?.result?.[0];
         if (!quote) {
-          setError('Données non disponibles');
+          setError('Symbole non trouvé');
           setLoading(false);
           return;
         }
 
         const meta = quote.meta;
-        const price = meta.regularMarketPrice;
-        const previousClose = meta.chartPreviousClose || meta.previousClose;
+        const price = meta?.regularMarketPrice;
+        const previousClose = meta?.chartPreviousClose || meta?.previousClose;
+        
+        if (price == null || previousClose == null) {
+          setError('Données non disponibles');
+          setLoading(false);
+          return;
+        }
+        
         const change = price - previousClose;
         const changePercent = (change / previousClose) * 100;
 

@@ -5,11 +5,10 @@ const STORAGE_KEY = 'paaage-config';
 const SYNC_ID_KEY = 'paaage-sync-id';
 
 // URL Val.town pour la synchronisation
-const VALTOWN_URL = import.meta.env.VITE_VALTOWN_URL || '';
+const VALTOWN_URL = 'https://cassardp--86ac705cd0fb11f0873e42dde27851f2.web.val.run';
 
 // Récupérer ou créer l'ID de sync
 export function getSyncId(): string | null {
-  if (!VALTOWN_URL) return null;
   
   // Priorité à l'URL (pour partage)
   const urlParams = new URLSearchParams(window.location.search);

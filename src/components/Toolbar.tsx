@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Plus, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock, Eye, EyeOff, ListTodo, Clock, Newspaper, Cloud, Sun, Moon, Download, Upload, Undo2, Settings2 } from 'lucide-react';
+import { Plus, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock, Eye, EyeOff, ListTodo, Clock, Newspaper, Cloud, Sun, Moon, Download, Upload, Undo2, Settings2, Info } from 'lucide-react';
 import { getShareUrl } from '../hooks/useCloudStorage';
 import { exportConfig, importConfig } from '../lib/storage';
 import type { Config } from '../types/config';
@@ -47,6 +47,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
   const [bookmarkUrl, setBookmarkUrl] = useState('');
   const [bookmarkLabel, setBookmarkLabel] = useState('');
   const [toastMessage, setToastMessage] = useState('');
+  const [showInfoModal, setShowInfoModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const shareUrl = getShareUrl();
@@ -134,6 +135,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
     { icon: dragLocked ? Lock : Unlock, action: onToggleDragLock, label: dragLocked ? 'Déverrouiller' : 'Verrouiller', active: dragLocked },
     ...(hasNotesOrTodos ? [{ icon: notesHidden ? EyeOff : Eye, action: onToggleNotesHidden, label: notesHidden ? 'Afficher notes' : 'Masquer notes', active: notesHidden }] : []),
     { icon: Cloud, action: handleCopyShareUrl, label: 'Copier le lien', active: !!syncId, syncing },
+    { icon: Info, action: () => setShowInfoModal(true), label: 'À propos', active: false },
   ];
 
   const radius = 80;
@@ -290,6 +292,33 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
       )}
 
       <Toast message={toastMessage} visible={!!toastMessage} onHide={() => setToastMessage('')} />
+
+      {/* Modal À propos */}
+      {showInfoModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowInfoModal(false)}>
+          <div className={`p-6 rounded-lg border shadow-xl w-80 ${isDark ? 'bg-neutral-800 border-neutral-700' : 'bg-white border-neutral-200'}`} onClick={(e) => e.stopPropagation()}>
+            <h3 className={`text-lg font-semibold mb-4 ${isDark ? 'text-neutral-100' : 'text-neutral-900'}`}>
+              Paaage
+            </h3>
+            <div className={`text-sm space-y-3 ${isDark ? 'text-neutral-300' : 'text-neutral-600'}`}>
+              <p>Une page d'accueil personnalisable pour votre navigateur.</p>
+              <div>
+                <p className="font-medium mb-1">Fonctionnement</p>
+                <p>Glissez-déposez les blocs pour organiser votre page. Tapez "/" pour ajouter rapidement un bloc.</p>
+              </div>
+              <div>
+                <p className="font-medium mb-1">Données</p>
+                <p>Stockées dans le cloud en json sur Val Town, sans authentification. Partagez le lien pour synchroniser entre appareils.</p>
+              </div>
+              <div>
+                <p className="font-medium mb-1">Technologies</p>
+                <p>React 19 • TypeScript • Tailwind CSS • Vite</p>
+              </div>
+              <p className="opacity-70">Version alpha</p>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

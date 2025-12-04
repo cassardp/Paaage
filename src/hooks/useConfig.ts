@@ -128,6 +128,58 @@ export function useConfig() {
     }));
   }, [updateConfig]);
 
+  // Mettre à jour la ville d'un bloc météo
+  const updateWeatherCity = useCallback((blockId: string, city: string) => {
+    updateConfig((prev) => ({
+      ...prev,
+      blocks: prev.blocks.map((block) => {
+        if (block.id === blockId && block.type === 'weather') {
+          return { ...block, city };
+        }
+        return block;
+      }),
+    }));
+  }, [updateConfig]);
+
+  // Mettre à jour la ville d'un bloc horloge
+  const updateClockCity = useCallback((blockId: string, city: string, timezone: string) => {
+    updateConfig((prev) => ({
+      ...prev,
+      blocks: prev.blocks.map((block) => {
+        if (block.id === blockId && block.type === 'clock') {
+          return { ...block, city, timezone };
+        }
+        return block;
+      }),
+    }));
+  }, [updateConfig]);
+
+  // Mettre à jour le symbole d'un bloc stock
+  const updateStockSymbol = useCallback((blockId: string, symbol: string) => {
+    updateConfig((prev) => ({
+      ...prev,
+      blocks: prev.blocks.map((block) => {
+        if (block.id === blockId && block.type === 'stock') {
+          return { ...block, symbol };
+        }
+        return block;
+      }),
+    }));
+  }, [updateConfig]);
+
+  // Mettre à jour l'URL d'une station
+  const updateStationUrl = useCallback((blockId: string, name: string, streamUrl: string) => {
+    updateConfig((prev) => ({
+      ...prev,
+      blocks: prev.blocks.map((block) => {
+        if (block.id === blockId && block.type === 'station') {
+          return { ...block, name, streamUrl };
+        }
+        return block;
+      }),
+    }));
+  }, [updateConfig]);
+
   // Ajouter une todo
   const addTodo = useCallback(() => {
     const id = generateId();
@@ -253,6 +305,10 @@ export function useConfig() {
     updateNote,
     addTodo,
     updateTodo,
+    updateWeatherCity,
+    updateClockCity,
+    updateStockSymbol,
+    updateStationUrl,
     addStation,
     addStock,
     addClock,

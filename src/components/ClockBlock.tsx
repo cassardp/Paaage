@@ -1,12 +1,29 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { FlipCard } from './FlipCard';
 
 interface ClockBlockProps {
   city?: string;
   timezone?: string;
   isDark?: boolean;
+  onUpdateCity?: (city: string, timezone: string) => void;
 }
 
-export function ClockBlock({ city, timezone, isDark = true }: ClockBlockProps) {
+// Validation de la ville via l'API geocoding (retourne aussi le timezone)
+async function validateAndGetTimezone(city: string): Promise<string | null> {
+  try {
+    const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`);
+    const data = await res.json();
+    if (data.results?.[0]?.timezone) {
+      return data.results[0].timezone;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export function ClockBlock({ city, timezone, isDark = true, onUpdateCity }: ClockBlockProps) {
+  const pendingTimezone = useRef<string | null>(null);
   const [time, setTime] = useState(new Date());
 
   useEffect(() => {
@@ -27,16 +44,45 @@ export function ClockBlock({ city, timezone, isDark = true }: ClockBlockProps) {
     return `${hours}:${minutes}`;
   };
 
+  const handleSave = (newCity: string) => {
+    if (pendingTimezone.current) {
+      onUpdateCity?.(newCity, pendingTimezone.current);
+      pendingTimezone.current = null;
+    }
+  };
+
+  const validateCity = async (value: string): Promise<boolean> => {
+    const tz = await validateAndGetTimezone(value);
+    if (tz) {
+      pendingTimezone.current = tz;
+      return true;
+    }
+    return false;
+  };
+
   return (
-    <div className="h-full flex flex-col items-center justify-center">
-      <span className={`text-4xl font-light tracking-wider ${isDark ? 'text-neutral-100' : 'text-neutral-800'}`}>
-        {formatTime()}
-      </span>
-      {city && (
-        <span className={`text-sm mt-1 ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
-          {city}
-        </span>
+    <FlipCard
+      editValue={city || ''}
+      onSave={handleSave}
+      validate={validateCity}
+      isDark={isDark}
+      placeholder="Ville"
+    >
+      {(onFlip: () => void) => (
+        <div className="h-full flex flex-col items-center justify-center">
+          <span className={`text-4xl font-light tracking-wider ${isDark ? 'text-neutral-100' : 'text-neutral-800'}`}>
+            {formatTime()}
+          </span>
+          {city && (
+            <span 
+              onClick={onFlip}
+              className={`text-sm mt-1 cursor-pointer hover:underline ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}
+            >
+              {city}
+            </span>
+          )}
+        </div>
       )}
-    </div>
+    </FlipCard>
   );
 }

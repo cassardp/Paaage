@@ -34,6 +34,10 @@ function App() {
     updateNote,
     addTodo,
     updateTodo,
+    updateWeatherCity,
+    updateClockCity,
+    updateStockSymbol,
+    updateStationUrl,
     addStation,
     addStock,
     addClock,
@@ -62,6 +66,10 @@ function App() {
       onSelectStation={selectStation}
       onUpdateNote={updateNote}
       onUpdateTodo={updateTodo}
+      onUpdateWeatherCity={updateWeatherCity}
+      onUpdateClockCity={updateClockCity}
+      onUpdateStockSymbol={updateStockSymbol}
+      onUpdateStationUrl={updateStationUrl}
       isDark={isDark}
       focusedNoteId={focusedNoteId}
       onNoteFocused={() => setFocusedNoteId(null)}

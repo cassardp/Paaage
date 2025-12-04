@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Cloud, Sun, CloudRain, CloudSnow, CloudLightning, Wind, Loader } from 'lucide-react';
+import { FlipCard } from './FlipCard';
 
 interface WeatherBlockProps {
   city?: string;
   isDark?: boolean;
+  onUpdateCity?: (city: string) => void;
 }
 
 interface WeatherData {
@@ -36,7 +38,14 @@ const WEATHER_ICONS: Record<number, typeof Sun> = {
   99: CloudLightning, // Thunderstorm with heavy hail
 };
 
-export function WeatherBlock({ city = 'Toulon', isDark = true }: WeatherBlockProps) {
+// Validation de la ville via l'API geocoding
+async function validateCity(city: string): Promise<boolean> {
+  const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`);
+  const data = await res.json();
+  return !!data.results?.[0];
+}
+
+export function WeatherBlock({ city = 'Toulon', isDark = true, onUpdateCity }: WeatherBlockProps) {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -44,7 +53,6 @@ export function WeatherBlock({ city = 'Toulon', isDark = true }: WeatherBlockPro
   useEffect(() => {
     async function fetchWeather() {
       try {
-        // Geocoding pour obtenir les coordonnées
         const geoRes = await fetch(
           `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`
         );
@@ -58,7 +66,6 @@ export function WeatherBlock({ city = 'Toulon', isDark = true }: WeatherBlockPro
 
         const { latitude, longitude } = geoData.results[0];
 
-        // Météo actuelle
         const weatherRes = await fetch(
           `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code,wind_speed_10m`
         );
@@ -77,7 +84,6 @@ export function WeatherBlock({ city = 'Toulon', isDark = true }: WeatherBlockPro
     }
 
     fetchWeather();
-    // Rafraîchir toutes les 30 minutes
     const interval = setInterval(fetchWeather, 30 * 60 * 1000);
     return () => clearInterval(interval);
   }, [city]);
@@ -101,18 +107,33 @@ export function WeatherBlock({ city = 'Toulon', isDark = true }: WeatherBlockPro
   const WeatherIcon = WEATHER_ICONS[weather.weatherCode] || Cloud;
 
   return (
-    <div className="h-full flex items-center justify-between">
-      <div className="flex items-center gap-3">
-        <WeatherIcon className="w-10 h-10 text-[var(--accent-color)]" />
-        <div>
-          <p className="text-2xl font-semibold">{weather.temperature}°C</p>
-          <p className={`text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>{city}</p>
+    <FlipCard
+      editValue={city}
+      onSave={(value) => onUpdateCity?.(value)}
+      validate={validateCity}
+      isDark={isDark}
+      placeholder="Ville"
+    >
+      {(onFlip: () => void) => (
+        <div className="h-full flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <WeatherIcon className="w-10 h-10 text-[var(--accent-color)]" />
+            <div>
+              <p className="text-2xl font-semibold">{weather.temperature}°C</p>
+              <p 
+                onClick={onFlip}
+                className={`text-sm cursor-pointer hover:underline truncate max-w-[120px] ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}
+              >
+                {city}
+              </p>
+            </div>
+          </div>
+          <div className={`flex items-center gap-1 text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
+            <Wind className="w-4 h-4" />
+            <span>{weather.windSpeed} km/h</span>
+          </div>
         </div>
-      </div>
-      <div className={`flex items-center gap-1 text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
-        <Wind className="w-4 h-4" />
-        <span>{weather.windSpeed} km/h</span>
-      </div>
-    </div>
+      )}
+    </FlipCard>
   );
 }

@@ -22,7 +22,7 @@ export function NewsBlock({ isDark = true }: NewsBlockProps) {
         const ids: number[] = await res.json();
         
         const items = await Promise.all(
-          ids.slice(0, 8).map(async (id) => {
+          ids.slice(0, 20).map(async (id) => {
             const item = await fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`).then(r => r.json());
             return { title: item.title, url: item.url || `https://news.ycombinator.com/item?id=${id}` };
           })

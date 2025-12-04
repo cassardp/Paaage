@@ -84,7 +84,7 @@ export function StockBlock({ symbol, isDark = true, onUpdateSymbol }: StockBlock
 
   const isPositive = stock.change >= 0;
   const TrendIcon = isPositive ? TrendingUp : TrendingDown;
-  const trendColor = isDark ? 'text-neutral-300' : 'text-neutral-600';
+  const trendColor = isDark ? 'text-neutral-400' : 'text-neutral-500';
 
   return (
     <FlipCard
@@ -103,7 +103,7 @@ export function StockBlock({ symbol, isDark = true, onUpdateSymbol }: StockBlock
             >
               {symbol}
             </p>
-            <p className={`text-xl font-semibold ${isDark ? 'text-neutral-100' : 'text-neutral-800'}`}>
+            <p className={`text-xl font-medium ${isDark ? 'text-neutral-100' : 'text-neutral-800'}`}>
               ${stock.price.toFixed(2)}
             </p>
           </div>

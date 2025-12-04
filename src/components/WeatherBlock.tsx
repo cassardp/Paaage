@@ -119,7 +119,7 @@ export function WeatherBlock({ city = 'Toulon', isDark = true, onUpdateCity }: W
           <div className="flex items-center gap-3">
             <WeatherIcon className="w-10 h-10 text-[var(--accent-color)]" />
             <div>
-              <p className="text-2xl font-semibold">{weather.temperature}°C</p>
+              <p className={`text-2xl font-medium ${isDark ? 'text-neutral-100' : 'text-neutral-800'}`}>{weather.temperature}°C</p>
               <p 
                 onClick={onFlip}
                 className={`text-sm cursor-pointer hover:underline truncate max-w-[120px] ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}

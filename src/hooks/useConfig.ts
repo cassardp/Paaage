@@ -1,4 +1,4 @@
-import { useCallback, useRef, useEffect } from 'react';
+import { useCallback, useRef } from 'react';
 import type { Config, Block, BlockLayout, TodoItem } from '../types/config';
 import { useCloudStorage } from './useCloudStorage';
 import { generateId } from '../lib/utils';
@@ -40,25 +40,6 @@ export function useConfig() {
       setConfig(() => previousConfig);
     }
   }, [setConfig]);
-
-  // Raccourci clavier Ctrl+Z / Cmd+Z
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Ne pas intercepter si on est dans un input/textarea
-      const target = e.target as HTMLElement;
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
-        return;
-      }
-      
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
-        e.preventDefault();
-        e.stopPropagation();
-        undo();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown, true); // capture phase
-    return () => window.removeEventListener('keydown', handleKeyDown, true);
-  }, [undo]);
 
   // Déplacer un bloc sur la grille (et le mettre au premier plan)
   const moveBlock = useCallback((blockId: string, layout: BlockLayout) => {
@@ -354,5 +335,7 @@ export function useConfig() {
     addNews,
     selectStation,
     toggleTheme,
+    undo,
+    canUndo: historyRef.current.length > 0,
   };
 }

@@ -44,6 +44,8 @@ function App() {
     addNews,
     selectStation,
     toggleTheme,
+    undo,
+    canUndo,
   } = useConfig();
 
   if (isLoading) {
@@ -117,6 +119,8 @@ function App() {
         onAddTodo={addTodo}
         onAddClock={addClock}
         onAddNews={addNews}
+        onUndo={undo}
+        canUndo={canUndo}
         isDark={isDark}
         dragLocked={dragLocked}
         onToggleDragLock={() => setDragLocked(!dragLocked)}

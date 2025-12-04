@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Plus, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock, Eye, EyeOff, ListTodo, Clock, Newspaper, Cloud, Sun, Moon, Download, Upload } from 'lucide-react';
+import { Plus, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock, Eye, EyeOff, ListTodo, Clock, Newspaper, Cloud, Sun, Moon, Download, Upload, Undo2 } from 'lucide-react';
 import { getShareUrl } from '../hooks/useCloudStorage';
 import { exportConfig, importConfig } from '../lib/storage';
 import type { Config } from '../types/config';
@@ -19,6 +19,8 @@ interface ToolbarProps {
   onAddTodo: () => void;
   onAddClock: () => void;
   onAddNews: () => void;
+  onUndo: () => void;
+  canUndo: boolean;
   isDark: boolean;
   dragLocked: boolean;
   onToggleDragLock: () => void;
@@ -26,7 +28,7 @@ interface ToolbarProps {
   onToggleNotesHidden: () => void;
 }
 
-export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAddBlock, onAddBookmark, onAddNote, onAddStation, onAddStock, onAddTodo, onAddClock, onAddNews, isDark, dragLocked, onToggleDragLock, notesHidden, onToggleNotesHidden }: ToolbarProps) {
+export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAddBlock, onAddBookmark, onAddNote, onAddStation, onAddStock, onAddTodo, onAddClock, onAddNews, onUndo, canUndo, isDark, dragLocked, onToggleDragLock, notesHidden, onToggleNotesHidden }: ToolbarProps) {
   const [isHovered, setIsHovered] = useState(false); // Hover = actions utilitaires
   const [isClicked, setIsClicked] = useState(false); // Clic = actions d'ajout
   const [showBookmarkForm, setShowBookmarkForm] = useState(false);
@@ -113,6 +115,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
 
   // Actions utilitaires (apparaissent au hover)
   const utilActions = [
+    ...(canUndo ? [{ icon: Undo2, action: onUndo, label: 'Annuler', active: false }] : []),
     { icon: isDark ? Sun : Moon, action: onToggleTheme, label: isDark ? 'Mode clair' : 'Mode sombre', active: false },
     { icon: Download, action: handleImportClick, label: 'Importer', active: false },
     { icon: Upload, action: handleExport, label: 'Exporter', active: false },

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
+import { Analytics } from '@vercel/analytics/react';
 import { useConfig } from './hooks/useConfig';
 import { DraggableGrid } from './components/DraggableGrid';
 import { BlockWrapper } from './components/BlockWrapper';
@@ -86,6 +87,7 @@ function App() {
           </p>
         </div>
         <SpeedInsights />
+        <Analytics />
       </div>
     );
   }
@@ -122,6 +124,7 @@ function App() {
         dragLocked={dragLocked}
       />
       <SpeedInsights />
+      <Analytics />
     </div>
   );
 }

@@ -25,7 +25,7 @@ export function SearchBlock({ searchEngine, isDark = true }: SearchBlockProps) {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Rechercher..."
+          placeholder=""
           autoFocus
           className={`w-full pl-8 pr-4 py-2 bg-transparent border-none outline-none
                      text-lg ${isDark ? 'text-neutral-100 placeholder-neutral-500' : 'text-neutral-900 placeholder-neutral-400'}`}

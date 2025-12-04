@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Settings, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock } from 'lucide-react';
+import { Plus, Settings, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock, Eye, EyeOff } from 'lucide-react';
 import { SettingsDrawer } from './SettingsDrawer';
 import type { Config } from '../types/config';
 import { CELL_SIZE } from '../lib/defaultConfig';
@@ -17,9 +17,11 @@ interface ToolbarProps {
   isDark: boolean;
   dragLocked: boolean;
   onToggleDragLock: () => void;
+  notesHidden: boolean;
+  onToggleNotesHidden: () => void;
 }
 
-export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBookmark, onAddNote, onAddStation, onAddStock, isDark, dragLocked, onToggleDragLock }: ToolbarProps) {
+export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBookmark, onAddNote, onAddStation, onAddStock, isDark, dragLocked, onToggleDragLock, notesHidden, onToggleNotesHidden }: ToolbarProps) {
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showBookmarkForm, setShowBookmarkForm] = useState(false);
@@ -37,6 +39,8 @@ export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBook
   const blockClass = isDark
     ? 'bg-neutral-900/50 backdrop-blur-sm border-neutral-700 hover:border-neutral-600 text-neutral-400 hover:text-neutral-100'
     : 'bg-white/90 backdrop-blur-sm border-neutral-200 hover:border-neutral-300 text-neutral-500 hover:text-neutral-900';
+
+  const hasSearchBlock = config.blocks.some((b) => b.type === 'search');
 
   const handleAddBlock = (type: 'search' | 'weather') => {
     onAddBlock(type);
@@ -90,7 +94,7 @@ export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBook
       >
         <button
           onClick={() => setShowAddMenu(!showAddMenu)}
-          className={`w-full h-full rounded-[12px] border flex items-center justify-center transition-all ${blockClass}`}
+          className={`w-full h-full rounded-[12px] border flex items-center justify-center transition-all cursor-pointer ${blockClass}`}
         >
           <Plus className="w-5 h-5" />
         </button>
@@ -99,22 +103,24 @@ export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBook
           <>
             <div className="fixed inset-0 z-40" onClick={() => setShowAddMenu(false)} />
             <div className={`absolute top-full right-0 mt-2 py-1 rounded-lg border shadow-lg min-w-[140px] z-50 ${menuClass}`}>
-              <button onClick={() => handleAddBlock('search')} className={`w-full flex items-center gap-2 px-3 py-2 text-sm ${menuItemClass}`}>
-                <Search className="w-4 h-4" /> Recherche
-              </button>
-              <button onClick={() => handleAddBlock('weather')} className={`w-full flex items-center gap-2 px-3 py-2 text-sm ${menuItemClass}`}>
+              {!hasSearchBlock && (
+                <button onClick={() => handleAddBlock('search')} className={`w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${menuItemClass}`}>
+                  <Search className="w-4 h-4" /> Recherche
+                </button>
+              )}
+              <button onClick={() => handleAddBlock('weather')} className={`w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${menuItemClass}`}>
                 <CloudSun className="w-4 h-4" /> Météo
               </button>
-              <button onClick={handleBookmarkClick} className={`w-full flex items-center gap-2 px-3 py-2 text-sm ${menuItemClass}`}>
-                <Bookmark className="w-4 h-4" /> Raccourci
+              <button onClick={handleBookmarkClick} className={`w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${menuItemClass}`}>
+                <Bookmark className="w-4 h-4" /> Lien
               </button>
-              <button onClick={() => { onAddNote(''); setShowAddMenu(false); }} className={`w-full flex items-center gap-2 px-3 py-2 text-sm ${menuItemClass}`}>
+              <button onClick={() => { onAddNote(''); setShowAddMenu(false); }} className={`w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${menuItemClass}`}>
                 <FileText className="w-4 h-4" /> Note
               </button>
-              <button onClick={() => { onAddStation(); setShowAddMenu(false); }} className={`w-full flex items-center gap-2 px-3 py-2 text-sm ${menuItemClass}`}>
-                <Headphones className="w-4 h-4" /> Station
+              <button onClick={() => { onAddStation(); setShowAddMenu(false); }} className={`w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${menuItemClass}`}>
+                <Headphones className="w-4 h-4" /> Radio
               </button>
-              <button onClick={() => { onAddStock(); setShowAddMenu(false); }} className={`w-full flex items-center gap-2 px-3 py-2 text-sm ${menuItemClass}`}>
+              <button onClick={() => { onAddStock(); setShowAddMenu(false); }} className={`w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${menuItemClass}`}>
                 <TrendingUp className="w-4 h-4" /> Stock
               </button>
             </div>
@@ -129,7 +135,7 @@ export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBook
       >
         <button
           onClick={() => setShowSettings(true)}
-          className={`w-full h-full rounded-[12px] border flex items-center justify-center transition-all ${blockClass}`}
+          className={`w-full h-full rounded-[12px] border flex items-center justify-center transition-all cursor-pointer ${blockClass}`}
         >
           <Settings className="w-5 h-5" />
         </button>
@@ -142,12 +148,28 @@ export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBook
       >
         <button
           onClick={onToggleDragLock}
-          className={`w-full h-full rounded-[12px] border flex items-center justify-center transition-all ${blockClass}
+          className={`w-full h-full rounded-[12px] border flex items-center justify-center transition-all cursor-pointer ${blockClass}
             ${dragLocked ? 'text-[var(--accent-color)]' : ''}`}
         >
           {dragLocked ? <Lock className="w-5 h-5" /> : <Unlock className="w-5 h-5" />}
         </button>
       </div>
+
+      {/* Bouton Hide/Show Notes - sous Lock, visible seulement si des notes existent */}
+      {config.blocks.some(b => b.type === 'note') && (
+        <div
+          className="absolute z-40"
+          style={{ left: settingsX, top: gridToPixel(7), width: size, height: size }}
+        >
+          <button
+            onClick={onToggleNotesHidden}
+            className={`w-full h-full rounded-[12px] border flex items-center justify-center transition-all cursor-pointer ${blockClass}
+              ${notesHidden ? 'text-[var(--accent-color)]' : ''}`}
+          >
+            {notesHidden ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+          </button>
+        </div>
+      )}
 
       {/* Settings Drawer */}
       <SettingsDrawer
@@ -189,13 +211,13 @@ export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBook
             <div className="flex gap-2">
               <button
                 onClick={() => setShowBookmarkForm(false)}
-                className={`flex-1 py-2 rounded text-sm ${isDark ? 'bg-neutral-700 text-neutral-300' : 'bg-neutral-200 text-neutral-600'}`}
+                className={`flex-1 py-2 rounded text-sm cursor-pointer ${isDark ? 'bg-neutral-700 text-neutral-300' : 'bg-neutral-200 text-neutral-600'}`}
               >
                 Annuler
               </button>
               <button
                 onClick={handleBookmarkSubmit}
-                className="flex-1 py-2 rounded text-sm bg-[var(--accent-color)] text-white font-medium"
+                className="flex-1 py-2 rounded text-sm cursor-pointer bg-[var(--accent-color)] text-white font-medium"
               >
                 Ajouter
               </button>

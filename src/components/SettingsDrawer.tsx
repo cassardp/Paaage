@@ -13,6 +13,7 @@ interface SettingsDrawerProps {
 
 export function SettingsDrawer({ open, onClose, config, onImport, onToggleTheme }: SettingsDrawerProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const drawerRef = useRef<HTMLDivElement>(null);
   const isDark = config.settings.theme === 'dark';
 
   // Fermer avec Escape
@@ -22,6 +23,17 @@ export function SettingsDrawer({ open, onClose, config, onImport, onToggleTheme 
     };
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
+  }, [open, onClose]);
+
+  // Fermer avec clic outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (open && drawerRef.current && !drawerRef.current.contains(e.target as Node)) {
+        onClose();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [open, onClose]);
 
   const handleExport = () => {
@@ -58,6 +70,7 @@ export function SettingsDrawer({ open, onClose, config, onImport, onToggleTheme 
         <div className="absolute inset-0 overflow-hidden">
           <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
             <div
+              ref={drawerRef}
               className={`pointer-events-auto w-screen max-w-md transform transition-transform duration-500 ease-in-out sm:duration-700 ${open ? 'translate-x-0' : 'translate-x-full'}`}
             >
               <div className={`h-full flex flex-col shadow-xl ${isDark ? 'bg-neutral-800' : 'bg-white'}`}>
@@ -69,7 +82,7 @@ export function SettingsDrawer({ open, onClose, config, onImport, onToggleTheme 
                     </h2>
                     <button
                       onClick={onClose}
-                      className={`p-2 rounded-lg transition-colors ${isDark ? 'text-neutral-400 hover:text-white hover:bg-neutral-700' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100'}`}
+                      className={`p-2 rounded-lg transition-colors cursor-pointer ${isDark ? 'text-neutral-400 hover:text-white hover:bg-neutral-700' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100'}`}
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -85,7 +98,7 @@ export function SettingsDrawer({ open, onClose, config, onImport, onToggleTheme 
                     </h3>
                     <button
                       onClick={onToggleTheme}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${btnClass}`}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors cursor-pointer ${btnClass}`}
                     >
                       {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                       <span>{isDark ? 'Passer en mode clair' : 'Passer en mode sombre'}</span>
@@ -100,14 +113,14 @@ export function SettingsDrawer({ open, onClose, config, onImport, onToggleTheme 
                     <div className="space-y-2">
                       <button
                         onClick={handleExport}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${btnClass}`}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors cursor-pointer ${btnClass}`}
                       >
                         <Download className="w-5 h-5" />
                         <span>Exporter la configuration</span>
                       </button>
                       <button
                         onClick={handleImportClick}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${btnClass}`}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors cursor-pointer ${btnClass}`}
                       >
                         <Upload className="w-5 h-5" />
                         <span>Importer une configuration</span>

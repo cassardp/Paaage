@@ -62,7 +62,7 @@ export function RadioBlock({ blockId, title, stations, currentStationId, onSelec
         <h3 className="text-sm font-semibold">{title}</h3>
         {currentStation && isPlaying && (
           <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-            <button onClick={toggleMute} className={`p-1 rounded ${isDark ? 'hover:bg-neutral-700' : 'hover:bg-neutral-200'}`}>
+            <button onClick={toggleMute} className={`p-1 rounded cursor-pointer ${isDark ? 'hover:bg-neutral-700' : 'hover:bg-neutral-200'}`}>
               {isMuted ? (
                 <VolumeX className={`w-3.5 h-3.5 ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`} />
               ) : (
@@ -103,7 +103,7 @@ export function RadioBlock({ blockId, title, stations, currentStationId, onSelec
               key={station.id}
               onClick={(e) => { e.stopPropagation(); handlePlay(station); }}
               className={`
-                flex items-center gap-1.5 px-2 py-1.5 rounded text-left transition-all
+                flex items-center gap-1.5 px-2 py-1.5 rounded text-left transition-all cursor-pointer
                 ${isActive 
                   ? 'bg-[var(--accent-color)]/20 border border-[var(--accent-color)]/50' 
                   : `${btnClass} border border-transparent`}

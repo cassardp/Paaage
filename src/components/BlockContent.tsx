@@ -13,6 +13,8 @@ interface BlockContentProps {
   onSelectStation: (blockId: string, stationId: string | null) => void;
   onUpdateNote: (blockId: string, content: string) => void;
   isDark?: boolean;
+  focusedNoteId?: string | null;
+  onNoteFocused?: () => void;
 }
 
 export function BlockContent({
@@ -21,6 +23,8 @@ export function BlockContent({
   onSelectStation,
   onUpdateNote,
   isDark = true,
+  focusedNoteId,
+  onNoteFocused,
 }: BlockContentProps) {
   switch (block.type) {
     case 'search':
@@ -45,7 +49,16 @@ export function BlockContent({
       return <BookmarkBlock label={block.label} url={block.url} height={block.layout.h} isDark={isDark} />;
     
     case 'note':
-      return <NoteBlock blockId={block.id} content={block.content} onUpdate={onUpdateNote} isDark={isDark} />;
+      return (
+        <NoteBlock
+          blockId={block.id}
+          content={block.content}
+          onUpdate={onUpdateNote}
+          isDark={isDark}
+          autoFocus={focusedNoteId === block.id}
+          onFocused={onNoteFocused}
+        />
+      );
     
     case 'station':
       return <StationBlock name={block.name} streamUrl={block.streamUrl} isDark={isDark} />;

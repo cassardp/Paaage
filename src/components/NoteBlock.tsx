@@ -1,18 +1,28 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface NoteBlockProps {
   blockId: string;
   content: string;
   onUpdate: (blockId: string, content: string) => void;
   isDark?: boolean;
+  autoFocus?: boolean;
+  onFocused?: () => void;
 }
 
-export function NoteBlock({ blockId, content, onUpdate, isDark = true }: NoteBlockProps) {
+export function NoteBlock({ blockId, content, onUpdate, isDark = true, autoFocus, onFocused }: NoteBlockProps) {
   const [value, setValue] = useState(content);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     setValue(content);
   }, [content]);
+
+  useEffect(() => {
+    if (autoFocus && textareaRef.current) {
+      textareaRef.current.focus();
+      onFocused?.();
+    }
+  }, [autoFocus, onFocused]);
 
   const handleBlur = () => {
     if (value !== content) {
@@ -23,6 +33,7 @@ export function NoteBlock({ blockId, content, onUpdate, isDark = true }: NoteBlo
   return (
     <div className="h-full">
       <textarea
+        ref={textareaRef}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onBlur={handleBlur}

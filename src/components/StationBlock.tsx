@@ -51,7 +51,7 @@ export function StationBlock({ name, streamUrl, isDark = true }: StationBlockPro
     <div className="h-full flex items-center justify-between">
       <button
         onClick={togglePlay}
-        className="flex items-center gap-2 group"
+        className="flex items-center gap-2 group cursor-pointer"
       >
         {isPlaying ? (
           <Pause className="w-5 h-5 text-[var(--accent-color)]" />
@@ -64,7 +64,7 @@ export function StationBlock({ name, streamUrl, isDark = true }: StationBlockPro
       </button>
       
       {isPlaying && (
-        <button onClick={toggleMute} className="p-1">
+        <button onClick={toggleMute} className="p-1 cursor-pointer">
           {isMuted ? (
             <VolumeX className={`w-4 h-4 ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`} />
           ) : (

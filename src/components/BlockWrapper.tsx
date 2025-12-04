@@ -16,7 +16,7 @@ export function BlockWrapper({ children, isDragging, isDark = true, compact = fa
   const shadowClass = isDragging 
     ? (isDark ? 'shadow-2xl shadow-black/50' : 'shadow-2xl shadow-black/20') 
     : '';
-  const paddingClass = compact ? 'p-2' : 'p-4';
+  const paddingClass = compact ? 'py-2 px-4' : 'p-4';
 
   return (
     <div

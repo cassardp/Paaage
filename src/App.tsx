@@ -8,6 +8,8 @@ import type { Block } from './types/config';
 
 function App() {
   const [dragLocked, setDragLocked] = useState(false);
+  const [focusedNoteId, setFocusedNoteId] = useState<string | null>(null);
+  const [notesHidden, setNotesHidden] = useState(false);
   const {
     config,
     isLoading,
@@ -45,6 +47,8 @@ function App() {
           onSelectStation={selectStation}
           onUpdateNote={updateNote}
           isDark={isDark}
+          focusedNoteId={focusedNoteId}
+          onNoteFocused={() => setFocusedNoteId(null)}
         />
       </BlockWrapper>
     );
@@ -59,17 +63,19 @@ function App() {
         onToggleTheme={toggleTheme}
         onAddBlock={addBlock}
         onAddBookmark={addBookmark}
-        onAddNote={addSingleNote}
+        onAddNote={(content) => setFocusedNoteId(addSingleNote(content))}
         onAddStation={addStation}
         onAddStock={addStock}
         isDark={isDark}
         dragLocked={dragLocked}
         onToggleDragLock={() => setDragLocked(!dragLocked)}
+        notesHidden={notesHidden}
+        onToggleNotesHidden={() => setNotesHidden(!notesHidden)}
       />
       
       {/* Grille de blocs - pleine page */}
       <DraggableGrid
-        blocks={config.blocks}
+        blocks={notesHidden ? config.blocks.filter(b => b.type !== 'note') : config.blocks}
         onMoveBlock={moveBlock}
         onDeleteBlock={deleteBlock}
         renderBlock={renderBlock}

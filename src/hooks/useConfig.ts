@@ -2,6 +2,17 @@ import { useState, useEffect, useCallback } from 'react';
 import type { Config, Block, BlockLayout } from '../types/config';
 import { loadConfig, saveConfig, fetchRemoteConfig, mergeWithRemote } from '../lib/storage';
 import { generateId } from '../lib/utils';
+import { CELL_SIZE } from '../lib/defaultConfig';
+
+// Calcule une position centrée pour un bloc
+function getCenteredPosition(w: number, h: number): { x: number; y: number } {
+  const cols = Math.floor(window.innerWidth / CELL_SIZE);
+  const rows = Math.floor(window.innerHeight / CELL_SIZE);
+  return {
+    x: Math.max(1, Math.floor((cols - w) / 2)),
+    y: Math.max(1, Math.floor((rows - h) / 2)),
+  };
+}
 
 export function useConfig() {
   const [config, setConfig] = useState<Config>(() => loadConfig());
@@ -49,16 +60,19 @@ export function useConfig() {
   // Ajouter un bloc
   const addBlock = useCallback((type: 'search' | 'weather') => {
     const id = generateId();
-    const baseLayout = { x: 1, y: 1, w: 20, h: 10 };
     
     let newBlock: Block;
     switch (type) {
-      case 'search':
-        newBlock = { id, type: 'search', layout: { ...baseLayout, h: 3 } };
+      case 'search': {
+        const pos = getCenteredPosition(20, 3);
+        newBlock = { id, type: 'search', layout: { ...pos, w: 20, h: 3 } };
         break;
-      case 'weather':
-        newBlock = { id, type: 'weather', city: 'Paris', layout: { ...baseLayout, w: 15, h: 4 } };
+      }
+      case 'weather': {
+        const pos = getCenteredPosition(15, 4);
+        newBlock = { id, type: 'weather', city: 'Toulon', layout: { ...pos, w: 15, h: 4 } };
         break;
+      }
     }
 
     updateConfig((prev) => ({
@@ -70,12 +84,13 @@ export function useConfig() {
   // Ajouter un bookmark
   const addBookmark = useCallback((label: string, url: string) => {
     const id = generateId();
+    const pos = getCenteredPosition(10, 3);
     const newBlock: Block = { 
       id, 
       type: 'bookmark', 
       label, 
       url, 
-      layout: { x: 1, y: 1, w: 10, h: 3 } 
+      layout: { ...pos, w: 10, h: 3 } 
     };
 
     updateConfig((prev) => ({
@@ -85,19 +100,21 @@ export function useConfig() {
   }, [updateConfig]);
 
   // Ajouter une note simple
-  const addSingleNote = useCallback((content: string) => {
+  const addSingleNote = useCallback((content: string): string => {
     const id = generateId();
+    const pos = getCenteredPosition(15, 4);
     const newBlock: Block = { 
       id, 
       type: 'note', 
       content, 
-      layout: { x: 1, y: 1, w: 15, h: 4 } 
+      layout: { ...pos, w: 15, h: 4 } 
     };
 
     updateConfig((prev) => ({
       ...prev,
       blocks: [...prev.blocks, newBlock],
     }));
+    return id;
   }, [updateConfig]);
 
   // Mettre à jour une note
@@ -116,12 +133,13 @@ export function useConfig() {
   // Ajouter une station (FIP par défaut)
   const addStation = useCallback(() => {
     const id = generateId();
+    const pos = getCenteredPosition(12, 3);
     const newBlock: Block = { 
       id, 
       type: 'station', 
       name: 'FIP', 
       streamUrl: 'https://icecast.radiofrance.fr/fip-midfi.mp3', 
-      layout: { x: 1, y: 1, w: 12, h: 3 } 
+      layout: { ...pos, w: 12, h: 3 } 
     };
 
     updateConfig((prev) => ({
@@ -133,11 +151,12 @@ export function useConfig() {
   // Ajouter un stock (Apple par défaut)
   const addStock = useCallback(() => {
     const id = generateId();
+    const pos = getCenteredPosition(12, 4);
     const newBlock: Block = { 
       id, 
       type: 'stock', 
       symbol: 'AAPL', 
-      layout: { x: 1, y: 1, w: 12, h: 4 } 
+      layout: { ...pos, w: 12, h: 4 } 
     };
 
     updateConfig((prev) => ({

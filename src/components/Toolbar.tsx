@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Settings, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock, Eye, EyeOff, ListTodo, Clock } from 'lucide-react';
+import { Plus, Settings, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock, Eye, EyeOff, ListTodo, Clock, Newspaper } from 'lucide-react';
 import { SettingsDrawer } from './SettingsDrawer';
 import type { Config } from '../types/config';
 import { CELL_SIZE } from '../lib/defaultConfig';
@@ -16,6 +16,7 @@ interface ToolbarProps {
   onAddStock: () => void;
   onAddTodo: () => void;
   onAddClock: () => void;
+  onAddNews: () => void;
   isDark: boolean;
   dragLocked: boolean;
   onToggleDragLock: () => void;
@@ -23,7 +24,7 @@ interface ToolbarProps {
   onToggleNotesHidden: () => void;
 }
 
-export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBookmark, onAddNote, onAddStation, onAddStock, onAddTodo, onAddClock, isDark, dragLocked, onToggleDragLock, notesHidden, onToggleNotesHidden }: ToolbarProps) {
+export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBookmark, onAddNote, onAddStation, onAddStock, onAddTodo, onAddClock, onAddNews, isDark, dragLocked, onToggleDragLock, notesHidden, onToggleNotesHidden }: ToolbarProps) {
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showBookmarkForm, setShowBookmarkForm] = useState(false);
@@ -131,6 +132,9 @@ export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBook
               </button>
               <button onClick={() => { onAddClock(); setShowAddMenu(false); }} className={`w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${menuItemClass}`}>
                 <Clock className="w-4 h-4" /> Horloge
+              </button>
+              <button onClick={() => { onAddNews(); setShowAddMenu(false); }} className={`w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${menuItemClass}`}>
+                <Newspaper className="w-4 h-4" /> News
               </button>
             </div>
         )}

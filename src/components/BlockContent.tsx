@@ -8,6 +8,7 @@ import { StationBlock } from './StationBlock';
 import { StockBlock } from './StockBlock';
 import { TodoBlock } from './TodoBlock';
 import { ClockBlock } from './ClockBlock';
+import { NewsBlock } from './NewsBlock';
 
 interface BlockContentProps {
   block: Block;
@@ -75,6 +76,9 @@ export function BlockContent({
     
     case 'clock':
       return <ClockBlock city={block.city} timezone={block.timezone} isDark={isDark} />;
+    
+    case 'news':
+      return <NewsBlock isDark={isDark} />;
     
     default:
       return null;

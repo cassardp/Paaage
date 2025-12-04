@@ -25,6 +25,7 @@ function App() {
     addStation,
     addStock,
     addClock,
+    addNews,
     selectStation,
     toggleTheme,
   } = useConfig();
@@ -72,6 +73,7 @@ function App() {
         onAddStock={addStock}
         onAddTodo={addTodo}
         onAddClock={addClock}
+        onAddNews={addNews}
         isDark={isDark}
         dragLocked={dragLocked}
         onToggleDragLock={() => setDragLocked(!dragLocked)}

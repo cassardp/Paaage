@@ -213,6 +213,22 @@ export function useConfig() {
     }));
   }, [updateConfig]);
 
+  // Ajouter un bloc news
+  const addNews = useCallback(() => {
+    const id = generateId();
+    const pos = getCenteredPosition(15, 8);
+    const newBlock: Block = { 
+      id, 
+      type: 'news',
+      layout: { ...pos, w: 15, h: 8 } 
+    };
+
+    updateConfig((prev) => ({
+      ...prev,
+      blocks: [...prev.blocks, newBlock],
+    }));
+  }, [updateConfig]);
+
   // Radio
   const selectStation = useCallback((blockId: string, stationId: string | null) => {
     updateConfig((prev) => ({
@@ -253,6 +269,7 @@ export function useConfig() {
     addStation,
     addStock,
     addClock,
+    addNews,
     selectStation,
     toggleTheme,
   };

@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useRef, useEffect } from 'react';
 import type { Config, Block, BlockLayout, TodoItem } from '../types/config';
 import { useCloudStorage } from './useCloudStorage';
 import { generateId } from '../lib/utils';
@@ -14,12 +14,44 @@ function getCenteredPosition(w: number, h: number): { x: number; y: number } {
   };
 }
 
+const MAX_HISTORY = 20;
+
 export function useConfig() {
   const [config, setConfig, { loading: isLoading, syncing, syncId }] = useCloudStorage();
+  const historyRef = useRef<Config[]>([]);
+  const isUndoing = useRef(false);
 
   const updateConfig = useCallback((updater: (prev: Config) => Config) => {
-    setConfig(updater);
+    setConfig((prev) => {
+      // Sauvegarder l'état précédent dans l'historique (sauf si on fait un undo)
+      if (!isUndoing.current && prev) {
+        historyRef.current = [...historyRef.current.slice(-MAX_HISTORY + 1), prev];
+      }
+      isUndoing.current = false;
+      return updater(prev);
+    });
   }, [setConfig]);
+
+  const undo = useCallback(() => {
+    if (historyRef.current.length === 0) return;
+    const previousConfig = historyRef.current.pop();
+    if (previousConfig) {
+      isUndoing.current = true;
+      setConfig(() => previousConfig);
+    }
+  }, [setConfig]);
+
+  // Raccourci clavier Ctrl+Z
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [undo]);
 
   // Déplacer un bloc sur la grille (et le mettre au premier plan)
   const moveBlock = useCallback((blockId: string, layout: BlockLayout) => {

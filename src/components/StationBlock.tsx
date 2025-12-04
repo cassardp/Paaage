@@ -5,6 +5,9 @@ import { FlipCard } from './FlipCard';
 // Cache global pour les instances audio (persiste entre les re-renders)
 const audioCache = new Map<string, HTMLAudioElement>();
 
+// Event pour arrêter les autres radios quand une nouvelle joue
+const STOP_OTHER_RADIOS = 'stopOtherRadios';
+
 interface StationBlockProps {
   name: string;
   streamUrl: string;
@@ -66,6 +69,19 @@ export function StationBlock({ name, streamUrl, isDark = true, onUpdateStation }
     setIsMuted(audio.muted);
   }, [streamUrl]);
 
+  // Écouter l'événement pour arrêter cette radio si une autre joue
+  useEffect(() => {
+    const handleStopOthers = (e: CustomEvent<string>) => {
+      if (e.detail !== streamUrl && audioRef.current && !audioRef.current.paused) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      }
+    };
+
+    window.addEventListener(STOP_OTHER_RADIOS, handleStopOthers as EventListener);
+    return () => window.removeEventListener(STOP_OTHER_RADIOS, handleStopOthers as EventListener);
+  }, [streamUrl]);
+
   const togglePlay = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!audioRef.current) return;
@@ -73,6 +89,8 @@ export function StationBlock({ name, streamUrl, isDark = true, onUpdateStation }
     if (isPlaying) {
       audioRef.current.pause();
     } else {
+      // Notifier les autres radios de s'arrêter
+      window.dispatchEvent(new CustomEvent(STOP_OTHER_RADIOS, { detail: streamUrl }));
       audioRef.current.play();
     }
     setIsPlaying(!isPlaying);

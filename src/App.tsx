@@ -23,6 +23,8 @@ function App() {
   const {
     config,
     isLoading,
+    syncing,
+    syncId,
     setConfig,
     moveBlock,
     deleteBlock,
@@ -106,6 +108,8 @@ function App() {
     <div className={`min-h-screen ${isDark ? 'dark' : ''}`}>
       <Toolbar
         config={config}
+        syncId={syncId}
+        syncing={syncing}
         onImport={setConfig}
         onToggleTheme={toggleTheme}
         onAddBlock={addBlock}

@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
 import type { Config, Block, BlockLayout, TodoItem } from '../types/config';
-import { loadConfig, saveConfig, fetchRemoteConfig, mergeWithRemote } from '../lib/storage';
+import { useCloudStorage } from './useCloudStorage';
 import { generateId } from '../lib/utils';
 import { CELL_SIZE } from '../lib/defaultConfig';
 
@@ -15,26 +15,11 @@ function getCenteredPosition(w: number, h: number): { x: number; y: number } {
 }
 
 export function useConfig() {
-  const [config, setConfig] = useState<Config>(() => loadConfig());
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Sync avec Val.town au démarrage
-  useEffect(() => {
-    fetchRemoteConfig().then((remote) => {
-      if (remote) {
-        setConfig((current) => mergeWithRemote(current, remote));
-      }
-      setIsLoading(false);
-    });
-  }, []);
+  const [config, setConfig, { loading: isLoading, syncing, syncId }] = useCloudStorage();
 
   const updateConfig = useCallback((updater: (prev: Config) => Config) => {
-    setConfig((prev) => {
-      const next = updater(prev);
-      saveConfig(next);
-      return next;
-    });
-  }, []);
+    setConfig(updater);
+  }, [setConfig]);
 
   // Déplacer un bloc sur la grille (et le mettre au premier plan)
   const moveBlock = useCallback((blockId: string, layout: BlockLayout) => {
@@ -256,6 +241,8 @@ export function useConfig() {
   return {
     config,
     isLoading,
+    syncing,
+    syncId,
     setConfig,
     updateConfig,
     moveBlock,

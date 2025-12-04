@@ -40,6 +40,7 @@ export function loadConfig(): Config {
 }
 
 export function saveConfig(config: Config): void {
+  console.log('[saveConfig] called');
   const updated = { ...config, updatedAt: new Date().toISOString() };
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));

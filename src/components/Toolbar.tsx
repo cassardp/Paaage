@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Plus, Settings, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock, Eye, EyeOff, ListTodo, Clock, Newspaper, Cloud, CloudOff, Check, Copy } from 'lucide-react';
-import { getSyncId, getShareUrl } from '../lib/storage';
+import { Plus, Settings, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock, Eye, EyeOff, ListTodo, Clock, Newspaper, Cloud, Check, Copy } from 'lucide-react';
+import { getShareUrl } from '../hooks/useCloudStorage';
 import { SettingsDrawer } from './SettingsDrawer';
 import type { Config } from '../types/config';
 import { CELL_SIZE } from '../lib/defaultConfig';
@@ -8,6 +8,8 @@ import { gridToPixel, gridSizeToPixel } from './Grid';
 
 interface ToolbarProps {
   config: Config;
+  syncId: string;
+  syncing: boolean;
   onImport: (config: Config) => void;
   onToggleTheme: () => void;
   onAddBlock: (type: 'search' | 'weather') => void;
@@ -25,7 +27,7 @@ interface ToolbarProps {
   onToggleNotesHidden: () => void;
 }
 
-export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBookmark, onAddNote, onAddStation, onAddStock, onAddTodo, onAddClock, onAddNews, isDark, dragLocked, onToggleDragLock, notesHidden, onToggleNotesHidden }: ToolbarProps) {
+export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAddBlock, onAddBookmark, onAddNote, onAddStation, onAddStock, onAddTodo, onAddClock, onAddNews, isDark, dragLocked, onToggleDragLock, notesHidden, onToggleNotesHidden }: ToolbarProps) {
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showBookmarkForm, setShowBookmarkForm] = useState(false);
@@ -34,7 +36,6 @@ export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBook
   const [showCloudMenu, setShowCloudMenu] = useState(false);
   const [copied, setCopied] = useState(false);
   
-  const syncId = getSyncId();
   const shareUrl = getShareUrl();
 
   const menuClass = isDark
@@ -168,7 +169,11 @@ export function Toolbar({ config, onImport, onToggleTheme, onAddBlock, onAddBook
           className={`rounded-[12px] border flex items-center justify-center transition-all cursor-pointer ${blockClass}
             ${syncId ? 'text-[var(--accent-color)]' : ''}`}
         >
-          {syncId ? <Cloud className="w-5 h-5" /> : <CloudOff className="w-5 h-5" />}
+          {syncing ? (
+            <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <Cloud className="w-5 h-5" />
+          )}
         </button>
 
         {showCloudMenu && (

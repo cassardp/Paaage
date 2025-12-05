@@ -67,7 +67,7 @@ export function TodoBlock({ blockId, items, onUpdate, isDark = true }: TodoBlock
             </span>
             <button
               onClick={() => removeItem(item.id)}
-              className={`opacity-0 group-hover/todo:opacity-100 p-0.5 cursor-pointer ${mutedClass} hover:text-neutral-600 transition-opacity`}
+              className={`opacity-0 group-hover/todo:opacity-100 p-0.5 cursor-pointer ${mutedClass} hover:text-neutral-600`}
             >
               <X className="w-3 h-3" />
             </button>

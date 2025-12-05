@@ -18,7 +18,7 @@ export function RadioBlock({ blockId, title, stations, currentStationId, onSelec
   const [volume, setVolume] = useState(0.7);
 
   const currentStation = stations.find((s) => s.id === currentStationId);
-  
+
   const btnClass = isDark
     ? 'bg-neutral-800/50 hover:bg-neutral-700/50 text-neutral-300'
     : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-700';
@@ -104,8 +104,8 @@ export function RadioBlock({ blockId, title, stations, currentStationId, onSelec
               onClick={(e) => { e.stopPropagation(); handlePlay(station); }}
               className={`
                 flex items-center gap-1.5 px-2 py-1.5 rounded text-left transition-all cursor-pointer
-                ${isActive 
-                  ? 'bg-[var(--accent-color)]/20 border border-[var(--accent-color)]/50' 
+                ${isActive
+                  ? 'bg-[var(--accent-color)]/20 border border-[var(--accent-color)]/50'
                   : `${btnClass} border border-transparent`}
               `}
             >

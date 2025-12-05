@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { FlipCard } from './FlipCard';
 
 // Cache global pour les instances audio (persiste entre les re-renders)
@@ -29,12 +29,12 @@ async function searchStation(query: string): Promise<StationResult | null> {
       `https://de1.api.radio-browser.info/json/stations/byname/${encodeURIComponent(query)}?limit=5&order=votes&reverse=true&hidebroken=true`
     );
     const data = await res.json();
-    
+
     // Prendre la première station avec une URL valide
-    const station = data?.find((s: { url_resolved?: string; name?: string }) => 
+    const station = data?.find((s: { url_resolved?: string; name?: string }) =>
       s.url_resolved && s.name
     );
-    
+
     if (station) {
       return { name: station.name, url: station.url_resolved };
     }
@@ -44,9 +44,33 @@ async function searchStation(query: string): Promise<StationResult | null> {
   }
 }
 
+// Composant pour les barres d'égaliseur animées
+function EqualizerBars() {
+  return (
+    <div className="flex items-end justify-center gap-[2px] w-4 h-4">
+      {[1, 2, 3].map((i) => (
+        <div
+          key={i}
+          className="w-[2px] rounded-full bg-[var(--accent-color)]"
+          style={{
+            animation: `equalizer 0.8s ease-in-out infinite`,
+            animationDelay: `${i * 0.15}s`,
+            height: '60%',
+          }}
+        />
+      ))}
+      <style>{`
+        @keyframes equalizer {
+          0%, 100% { height: 40%; }
+          50% { height: 100%; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 export function StationBlock({ name, streamUrl, isDark = true, onUpdateStation }: StationBlockProps) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const pendingStation = useRef<StationResult | null>(null);
 
@@ -64,9 +88,8 @@ export function StationBlock({ name, streamUrl, isDark = true, onUpdateStation }
       audioCache.set(streamUrl, audio);
     }
     audioRef.current = audio;
-    
+
     setIsPlaying(!audio.paused);
-    setIsMuted(audio.muted);
   }, [streamUrl]);
 
   // Écouter l'événement pour arrêter cette radio si une autre joue
@@ -85,7 +108,7 @@ export function StationBlock({ name, streamUrl, isDark = true, onUpdateStation }
   const togglePlay = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!audioRef.current) return;
-    
+
     if (isPlaying) {
       audioRef.current.pause();
     } else {
@@ -94,13 +117,6 @@ export function StationBlock({ name, streamUrl, isDark = true, onUpdateStation }
       audioRef.current.play();
     }
     setIsPlaying(!isPlaying);
-  };
-
-  const toggleMute = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!audioRef.current) return;
-    audioRef.current.muted = !isMuted;
-    setIsMuted(!isMuted);
   };
 
   const handleSave = () => {
@@ -128,35 +144,30 @@ export function StationBlock({ name, streamUrl, isDark = true, onUpdateStation }
       placeholder="Nom de la station"
     >
       {(onFlip: () => void) => (
-        <div className="h-full flex items-center justify-between">
+        <div className="h-full flex items-center gap-2">
+          {/* Play/Pause button - equalizer devient le bouton pause */}
           <button
             onClick={togglePlay}
-            className="flex items-center gap-2 group cursor-pointer"
+            className="cursor-pointer"
           >
             {isPlaying ? (
-              <Pause className="w-5 h-5 shrink-0 text-[var(--accent-color)]" />
+              <EqualizerBars />
             ) : (
-              <Play className={`w-5 h-5 shrink-0 ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`} />
+              <Play className={`w-4 h-4 shrink-0 ${isDark ? 'text-neutral-300' : 'text-neutral-700'}`} fill="currentColor" />
             )}
-            <span 
-              onClick={(e) => { e.stopPropagation(); onFlip(); }}
-              className={`text-sm font-medium cursor-pointer hover:underline line-clamp-1 ${isDark ? 'text-neutral-300' : 'text-neutral-700'}`}
-            >
-              {name}
-            </span>
           </button>
-          
-          {isPlaying && (
-            <button onClick={toggleMute} className="p-1 cursor-pointer">
-              {isMuted ? (
-                <VolumeX className={`w-4 h-4 ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`} />
-              ) : (
-                <Volume2 className="w-4 h-4 text-[var(--accent-color)]" />
-              )}
-            </button>
-          )}
+
+          {/* Nom de la station */}
+          <span
+            onClick={(e) => { e.stopPropagation(); onFlip(); }}
+            className={`text-sm font-medium cursor-pointer hover:underline truncate ${isPlaying ? 'text-[var(--accent-color)]' : isDark ? 'text-neutral-300' : 'text-neutral-700'
+              }`}
+          >
+            {name}
+          </span>
         </div>
       )}
     </FlipCard>
   );
 }
+

@@ -169,24 +169,30 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
           const Icon = item.icon;
 
           return (
-            <button
+            <div
               key={`util-${index}`}
-              onClick={item.action}
-              title={item.label}
-              className={`absolute w-11 h-11 rounded-full border flex items-center justify-center transition-all duration-200 cursor-pointer ${fabClass}
-                ${'active' in item && item.active ? 'text-[var(--accent-color)]' : ''}`}
+              className="absolute"
               style={{
                 left: '50%',
                 bottom: 0,
                 transform: showUtil
-                  ? `translate(calc(-50% + ${x}px), ${y}px) scale(1)`
-                  : 'translate(-50%, 0) scale(0)',
+                  ? `translate(calc(-50% + ${x}px), ${y}px)`
+                  : 'translate(-50%, 0)',
                 opacity: showUtil ? 1 : 0,
+                transition: 'all 200ms',
                 transitionDelay: showUtil ? `${index * 20}ms` : '0ms',
+                pointerEvents: showUtil ? 'auto' : 'none',
               }}
             >
-              <Icon className="w-4 h-4" />
-            </button>
+              <button
+                onClick={item.action}
+                title={item.label}
+                className={`w-11 h-11 rounded-full border flex items-center justify-center transition-transform duration-150 cursor-pointer hover:scale-110 ${fabClass}
+                  ${'active' in item && item.active ? 'text-[var(--accent-color)]' : ''}`}
+              >
+                <Icon className="w-4 h-4" />
+              </button>
+            </div>
           );
         })}
 
@@ -196,30 +202,36 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
           const Icon = item.icon;
 
           return (
-            <button
+            <div
               key={`add-${index}`}
-              onClick={item.action}
-              title={item.label}
-              className={`absolute w-11 h-11 rounded-full border flex items-center justify-center transition-all duration-200 cursor-pointer ${fabClass}`}
+              className="absolute"
               style={{
                 left: '50%',
                 bottom: 0,
                 transform: showAdd
-                  ? `translate(calc(-50% + ${x}px), ${y}px) scale(1)`
-                  : 'translate(-50%, 0) scale(0)',
+                  ? `translate(calc(-50% + ${x}px), ${y}px)`
+                  : 'translate(-50%, 0)',
                 opacity: showAdd ? 1 : 0,
+                transition: 'all 200ms',
                 transitionDelay: showAdd ? `${index * 20}ms` : '0ms',
+                pointerEvents: showAdd ? 'auto' : 'none',
               }}
             >
-              <Icon className="w-4 h-4" />
-            </button>
+              <button
+                onClick={item.action}
+                title={item.label}
+                className={`w-11 h-11 rounded-full border flex items-center justify-center transition-transform duration-150 cursor-pointer hover:scale-110 ${fabClass}`}
+              >
+                <Icon className="w-4 h-4" />
+              </button>
+            </div>
           );
         })}
 
         {/* FAB principal */}
         <button
           onClick={() => setIsClicked(!isClicked)}
-          className={`relative w-14 h-14 rounded-full border flex items-center justify-center transition-all duration-200 cursor-pointer ${fabClass}`}
+          className={`relative w-14 h-14 rounded-full border flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 ${fabClass}`}
         >
           {syncing ? (
             <Cloud className="w-5 h-5 text-[var(--accent-color)] animate-pulse" />

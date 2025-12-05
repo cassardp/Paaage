@@ -14,6 +14,17 @@ export function NoteBlock({ blockId, content, onUpdate, isDark = true, autoFocus
   const [value, setValue] = useState(content);
   const [isEditing, setIsEditing] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const valueRef = useRef(value);
+  const contentRef = useRef(content);
+
+  // Garder les refs à jour
+  useEffect(() => {
+    valueRef.current = value;
+  }, [value]);
+
+  useEffect(() => {
+    contentRef.current = content;
+  }, [content]);
 
   useEffect(() => {
     setValue(content);
@@ -26,6 +37,29 @@ export function NoteBlock({ blockId, content, onUpdate, isDark = true, autoFocus
       onFocused?.();
     }
   }, [autoFocus, onFocused]);
+
+  // Sauvegarde automatique 1s après la dernière modification (debounce)
+  useEffect(() => {
+    if (value === content) return;
+    
+    const timeout = setTimeout(() => {
+      onUpdate(blockId, value);
+    }, 1000);
+
+    return () => clearTimeout(timeout);
+  }, [value, blockId, onUpdate, content]);
+
+  // Sauvegarde à la fermeture de la page
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (valueRef.current !== contentRef.current) {
+        onUpdate(blockId, valueRef.current);
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [blockId, onUpdate]);
 
   const handleBlur = () => {
     setIsEditing(false);

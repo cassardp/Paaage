@@ -52,18 +52,19 @@ export function TodoBlock({ blockId, items, onUpdate, isDark = true }: TodoBlock
       {/* Liste des tâches */}
       <div className="flex-1 overflow-auto space-y-2">
         {items.map(item => (
-          <div key={item.id} className="flex items-center gap-2 group/todo">
+          <div key={item.id} className="flex items-start gap-2 group/todo">
             <input
               type="checkbox"
               checked={item.done}
               onChange={() => toggleItem(item.id)}
-              className={`w-4 h-4 rounded cursor-pointer accent-neutral-700 ${checkboxClass}`}
+              className={`w-4 h-4 mt-0.5 rounded cursor-pointer accent-neutral-700 flex-shrink-0 ${checkboxClass}`}
             />
-            <LinkifyText 
-              text={item.text} 
-              className={`flex-1 text-sm ${item.done ? `line-through ${mutedClass}` : textClass}`}
-              isDark={isDark}
-            />
+            <span 
+              onClick={() => toggleItem(item.id)}
+              className={`flex-1 text-sm cursor-pointer ${item.done ? `line-through ${mutedClass}` : textClass}`}
+            >
+              <LinkifyText text={item.text} isDark={isDark} />
+            </span>
             <button
               onClick={() => removeItem(item.id)}
               className={`opacity-0 group-hover/todo:opacity-100 p-0.5 cursor-pointer ${mutedClass} hover:text-neutral-600 transition-opacity`}

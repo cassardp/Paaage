@@ -69,13 +69,13 @@ export function useConfig() {
     let newBlock: Block;
     switch (type) {
       case 'search': {
-        const pos = getCenteredPosition(20, 3);
-        newBlock = { id, type: 'search', layout: { ...pos, w: 20, h: 3 } };
+        const pos = getCenteredPosition(40, 4);
+        newBlock = { id, type: 'search', layout: { ...pos, w: 40, h: 4 } };
         break;
       }
       case 'weather': {
-        const pos = getCenteredPosition(15, 4);
-        newBlock = { id, type: 'weather', city: 'Toulon', layout: { ...pos, w: 15, h: 4 } };
+        const pos = getCenteredPosition(15, 5);
+        newBlock = { id, type: 'weather', city: 'Toulon', layout: { ...pos, w: 15, h: 5 } };
         break;
       }
     }
@@ -89,13 +89,13 @@ export function useConfig() {
   // Ajouter un bookmark
   const addBookmark = useCallback((label: string, url: string) => {
     const id = generateId();
-    const pos = getCenteredPosition(10, 3);
+    const pos = getCenteredPosition(7, 3);
     const newBlock: Block = { 
       id, 
       type: 'bookmark', 
       label, 
       url, 
-      layout: { ...pos, w: 10, h: 3 } 
+      layout: { ...pos, w: 7, h: 2 } 
     };
 
     updateConfig((prev) => ({
@@ -107,12 +107,12 @@ export function useConfig() {
   // Ajouter une note simple
   const addSingleNote = useCallback((content: string): string => {
     const id = generateId();
-    const pos = getCenteredPosition(15, 4);
+    const pos = getCenteredPosition(20, 10);
     const newBlock: Block = { 
       id, 
       type: 'note', 
       content, 
-      layout: { ...pos, w: 15, h: 4 } 
+      layout: { ...pos, w: 20, h: 10 } 
     };
 
     updateConfig((prev) => ({
@@ -203,12 +203,12 @@ export function useConfig() {
   // Ajouter une todo
   const addTodo = useCallback(() => {
     const id = generateId();
-    const pos = getCenteredPosition(15, 6);
+    const pos = getCenteredPosition(15, 20);
     const newBlock: Block = { 
       id, 
       type: 'todo', 
       items: [],
-      layout: { ...pos, w: 15, h: 6 } 
+      layout: { ...pos, w: 15, h: 20 } 
     };
 
     updateConfig((prev) => ({
@@ -220,13 +220,13 @@ export function useConfig() {
   // Ajouter une station (FIP par défaut)
   const addStation = useCallback(() => {
     const id = generateId();
-    const pos = getCenteredPosition(12, 3);
+    const pos = getCenteredPosition(12, 4);
     const newBlock: Block = { 
       id, 
       type: 'station', 
       name: 'FIP', 
       streamUrl: 'https://icecast.radiofrance.fr/fip-midfi.mp3', 
-      layout: { ...pos, w: 12, h: 3 } 
+      layout: { ...pos, w: 12, h: 4 } 
     };
 
     updateConfig((prev) => ({
@@ -243,7 +243,7 @@ export function useConfig() {
       id, 
       type: 'stock', 
       symbol: 'AAPL', 
-      layout: { ...pos, w: 12, h: 4 } 
+      layout: { ...pos, w: 14, h: 5 } 
     };
 
     updateConfig((prev) => ({
@@ -255,13 +255,13 @@ export function useConfig() {
   // Ajouter une horloge
   const addClock = useCallback(() => {
     const id = generateId();
-    const pos = getCenteredPosition(8, 5);
+    const pos = getCenteredPosition(9, 6);
     const newBlock: Block = { 
       id, 
       type: 'clock',
       city: 'Paris',
       timezone: 'Europe/Paris',
-      layout: { ...pos, w: 8, h: 5 } 
+      layout: { ...pos, w: 9, h: 6 } 
     };
 
     updateConfig((prev) => ({
@@ -277,7 +277,7 @@ export function useConfig() {
     const newBlock: Block = { 
       id, 
       type: 'news',
-      layout: { ...pos, w: 15, h: 8 } 
+      layout: { ...pos, w: 15, h: 20 } 
     };
 
     updateConfig((prev) => ({

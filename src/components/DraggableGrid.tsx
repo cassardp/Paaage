@@ -5,16 +5,16 @@ import type { Block, BlockLayout } from '../types/config';
 
 // Limites de taille par type de bloc (en cellules)
 const BLOCK_SIZE_LIMITS: Record<string, { minW: number; minH: number; maxW: number; maxH: number }> = {
-  search: { minW: 10, minH: 2, maxW: 60, maxH: 4 },
-  bookmark: { minW: 4, minH: 2, maxW: 30, maxH: 4 },
-  note: { minW: 4, minH: 1, maxW: 40, maxH: 20 },
+  search: { minW: 20, minH: 4, maxW: 60, maxH: 4 },
+  bookmark: { minW: 4, minH: 2, maxW: 20, maxH: 4 },
+  note: { minW: 4, minH: 1, maxW: 40, maxH: 40 },
   station: { minW: 6, minH: 2, maxW: 20, maxH: 4 },
-  weather: { minW: 8, minH: 3, maxW: 25, maxH: 8 },
-  stock: { minW: 6, minH: 2, maxW: 20, maxH: 6 },
+  weather: { minW: 15, minH: 5, maxW: 25, maxH: 8 },
+  stock: { minW: 8, minH: 5, maxW: 20, maxH: 6 },
   radio: { minW: 10, minH: 6, maxW: 30, maxH: 20 },
   todo: { minW: 8, minH: 4, maxW: 30, maxH: 40 },
-  clock: { minW: 6, minH: 2, maxW: 20, maxH: 6 },
-  news: { minW: 10, minH: 5, maxW: 25, maxH: 15 },
+  clock: { minW: 9, minH: 6, maxW: 20, maxH: 6 },
+  news: { minW: 16, minH: 5, maxW: 30, maxH: 40 },
   default: { minW: 4, minH: 2, maxW: 40, maxH: 30 },
 };
 
@@ -186,16 +186,28 @@ export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock,
             }}
           >
             {/* Contenu du bloc */}
-            <div 
-              className={`relative w-full h-full ${dragLocked ? '' : 'cursor-grab active:cursor-grabbing'}`}
-              onMouseDown={(e) => {
-                if (dragLocked) return;
-                // Ne pas drag si on clique sur un élément interactif
-                const target = e.target as HTMLElement;
-                if (target.closest('input, textarea, button, a, select')) return;
-                startDrag(e, block, 'move');
-              }}
-            >
+            <div className="relative w-full h-full">
+              {/* Zones de drag sur les bords */}
+              {!dragLocked && (
+                <>
+                  <div 
+                    className="absolute inset-x-0 top-0 h-4 cursor-grab active:cursor-grabbing z-10"
+                    onMouseDown={(e) => startDrag(e, block, 'move')}
+                  />
+                  <div 
+                    className="absolute inset-x-0 bottom-0 h-4 cursor-grab active:cursor-grabbing z-10"
+                    onMouseDown={(e) => startDrag(e, block, 'move')}
+                  />
+                  <div 
+                    className="absolute inset-y-0 left-0 w-4 cursor-grab active:cursor-grabbing z-10"
+                    onMouseDown={(e) => startDrag(e, block, 'move')}
+                  />
+                  <div 
+                    className="absolute inset-y-0 right-0 w-4 cursor-grab active:cursor-grabbing z-10"
+                    onMouseDown={(e) => startDrag(e, block, 'move')}
+                  />
+                </>
+              )}
               {renderBlock(block, isDragging)}
             </div>
             

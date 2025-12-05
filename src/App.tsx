@@ -6,6 +6,7 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { DraggableGrid } from './components/DraggableGrid';
 import { BlockWrapper } from './components/BlockWrapper';
 import { BlockContent } from './components/BlockContent';
+import { Spinner } from './components/Spinner';
 import { Toolbar } from './components/Toolbar';
 import { SlashMenu } from './components/SlashMenu';
 import type { Block } from './types/config';
@@ -60,7 +61,7 @@ function App() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[var(--accent-color)] border-t-transparent rounded-full animate-spin" />
+        <Spinner size="lg" isDark={true} />
       </div>
     );
   }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { TrendingUp, TrendingDown, Loader } from 'lucide-react';
+import { TrendingUp, TrendingDown } from 'lucide-react';
+import { Spinner } from './Spinner';
 import { FlipCard } from './FlipCard';
 
 interface StockBlockProps {
@@ -94,7 +95,7 @@ export function StockBlock({ symbol, isDark = true, onUpdateSymbol }: StockBlock
   if (loading) {
     return (
       <div className="h-full flex items-center justify-center">
-        <Loader className={`w-5 h-5 animate-spin ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`} />
+        <Spinner size="sm" isDark={isDark} />
       </div>
     );
   }

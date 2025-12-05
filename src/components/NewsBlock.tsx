@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Loader } from 'lucide-react';
+import { Spinner } from './Spinner';
 
 interface NewsItem {
   title: string;
@@ -43,7 +43,7 @@ export function NewsBlock({ isDark = true }: NewsBlockProps) {
   if (loading) {
     return (
       <div className="h-full flex items-center justify-center">
-        <Loader className={`w-6 h-6 animate-spin ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`} />
+        <Spinner isDark={isDark} />
       </div>
     );
   }

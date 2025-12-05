@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Cloud, Sun, CloudRain, CloudSnow, CloudLightning, Wind, Loader } from 'lucide-react';
+import { Cloud, Sun, CloudRain, CloudSnow, CloudLightning, Wind } from 'lucide-react';
+import { Spinner } from './Spinner';
 import { FlipCard } from './FlipCard';
 
 interface WeatherBlockProps {
@@ -91,7 +92,7 @@ export function WeatherBlock({ city = 'Toulon', isDark = true, onUpdateCity }: W
   if (loading) {
     return (
       <div className="h-full flex items-center justify-center">
-        <Loader className={`w-6 h-6 animate-spin ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`} />
+        <Spinner isDark={isDark} />
       </div>
     );
   }

@@ -13,7 +13,10 @@ interface TodoBlockProps {
 
 export function TodoBlock({ blockId, items, onUpdate, isDark = true }: TodoBlockProps) {
   const [newText, setNewText] = useState('');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editText, setEditText] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+  const editInputRef = useRef<HTMLInputElement>(null);
 
   const toggleItem = (itemId: string) => {
     const updated = items.map(item => 
@@ -31,6 +34,34 @@ export function TodoBlock({ blockId, items, onUpdate, isDark = true }: TodoBlock
 
   const removeItem = (itemId: string) => {
     onUpdate(blockId, items.filter(item => item.id !== itemId));
+  };
+
+  const startEdit = (item: TodoItem) => {
+    setEditingId(item.id);
+    setEditText(item.text);
+    setTimeout(() => editInputRef.current?.focus(), 0);
+  };
+
+  const saveEdit = () => {
+    if (editingId && editText.trim()) {
+      const updated = items.map(item =>
+        item.id === editingId ? { ...item, text: editText.trim() } : item
+      );
+      onUpdate(blockId, updated);
+    }
+    setEditingId(null);
+    setEditText('');
+  };
+
+  const handleEditKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      saveEdit();
+    }
+    if (e.key === 'Escape') {
+      setEditingId(null);
+      setEditText('');
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -59,12 +90,24 @@ export function TodoBlock({ blockId, items, onUpdate, isDark = true }: TodoBlock
               onChange={() => toggleItem(item.id)}
               className={`w-4 h-4 mt-0.5 rounded cursor-pointer accent-neutral-700 flex-shrink-0 ${checkboxClass}`}
             />
-            <span 
-              onClick={() => toggleItem(item.id)}
-              className={`flex-1 text-sm cursor-pointer ${item.done ? `line-through ${mutedClass}` : textClass}`}
-            >
-              <LinkifyText text={item.text} isDark={isDark} />
-            </span>
+            {editingId === item.id ? (
+              <input
+                ref={editInputRef}
+                type="text"
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                onKeyDown={handleEditKeyDown}
+                onBlur={saveEdit}
+                className={`flex-1 text-sm bg-transparent border-none outline-none ${textClass}`}
+              />
+            ) : (
+              <span 
+                onClick={() => startEdit(item)}
+                className={`flex-1 text-sm cursor-pointer ${item.done ? `line-through ${mutedClass}` : textClass}`}
+              >
+                <LinkifyText text={item.text} isDark={isDark} />
+              </span>
+            )}
             <button
               onClick={() => removeItem(item.id)}
               className={`opacity-0 group-hover/todo:opacity-100 p-0.5 cursor-pointer ${mutedClass} hover:text-neutral-600`}

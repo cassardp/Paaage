@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Analytics } from '@vercel/analytics/react';
 import { useConfig } from './hooks/useConfig';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { DraggableGrid } from './components/DraggableGrid';
 import { BlockWrapper } from './components/BlockWrapper';
 import { BlockContent } from './components/BlockContent';
@@ -22,6 +23,7 @@ function App() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
   const {
     config,
     isLoading,
@@ -49,6 +51,11 @@ function App() {
     undo,
     canUndo,
   } = useConfig();
+
+  // Raccourcis clavier
+  const toggleLock = useCallback(() => setDragLocked(prev => !prev), []);
+  const toggleHidden = useCallback(() => setNotesHidden(prev => !prev), []);
+  useKeyboardShortcuts({ onToggleLock: toggleLock, onToggleHidden: toggleHidden, onUndo: undo });
 
   if (isLoading) {
     return (

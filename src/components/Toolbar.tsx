@@ -166,7 +166,6 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
         {utilActions.map((item, index) => {
           const { x, y } = getPosition(index, utilActions.length);
           const Icon = item.icon;
-          const isSyncing = 'syncing' in item && item.syncing;
 
           return (
             <button
@@ -185,11 +184,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
                 transitionDelay: showUtil ? `${index * 20}ms` : '0ms',
               }}
             >
-              {isSyncing ? (
-                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <Icon className="w-4 h-4" />
-              )}
+              <Icon className="w-4 h-4" />
             </button>
           );
         })}
@@ -225,10 +220,16 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
           onClick={() => setIsClicked(!isClicked)}
           className={`relative w-14 h-14 rounded-full border flex items-center justify-center transition-all duration-200 cursor-pointer ${fabClass}`}
         >
-          {isClicked ? (
+          {syncing ? (
+            <Cloud className="w-5 h-5 text-[var(--accent-color)] animate-pulse" />
+          ) : isClicked ? (
             <Plus className="w-6 h-6" />
           ) : showAdd ? (
             <Settings2 className="w-5 h-5" />
+          ) : dragLocked ? (
+            <Lock className="w-5 h-5 text-[var(--accent-color)]" />
+          ) : notesHidden ? (
+            <EyeOff className="w-5 h-5 text-[var(--accent-color)]" />
           ) : (
             <Plus className="w-6 h-6" />
           )}

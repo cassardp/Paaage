@@ -74,11 +74,12 @@ export interface ClockBlock extends BaseBlock {
   timezone?: string;
 }
 
-export interface NewsBlock extends BaseBlock {
-  type: 'news';
+export interface RssBlock extends BaseBlock {
+  type: 'rss';
+  feedUrl?: string;
 }
 
-export type Block = SearchBlock | RadioBlock | WeatherBlock | BookmarkBlock | NoteBlock | StationBlock | StockBlock | TodoBlock | ClockBlock | NewsBlock;
+export type Block = SearchBlock | RadioBlock | WeatherBlock | BookmarkBlock | NoteBlock | StationBlock | StockBlock | TodoBlock | ClockBlock | RssBlock;
 
 export interface Settings {
   theme: 'light' | 'dark';

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, ListTodo, Clock, Newspaper } from 'lucide-react';
+import { Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, ListTodo, Clock, Rss } from 'lucide-react';
 
 interface SlashMenuItem {
   id: string;
@@ -18,7 +18,7 @@ interface SlashMenuProps {
   onAddStock: () => void;
   onAddTodo: () => void;
   onAddClock: () => void;
-  onAddNews: () => void;
+  onAddRss: () => void;
   hasSearchBlock: boolean;
   isDark: boolean;
 }
@@ -32,7 +32,7 @@ export function SlashMenu({
   onAddStock,
   onAddTodo,
   onAddClock,
-  onAddNews,
+  onAddRss,
   hasSearchBlock,
   isDark,
 }: SlashMenuProps) {
@@ -50,7 +50,7 @@ export function SlashMenu({
     { id: 'stock', icon: TrendingUp, label: 'Stock', description: 'Cours de bourse', action: onAddStock },
     { id: 'todo', icon: ListTodo, label: 'Todo', description: 'Liste de tâches', action: onAddTodo },
     { id: 'clock', icon: Clock, label: 'Horloge', description: 'Heure d\'une ville', action: onAddClock },
-    { id: 'news', icon: Newspaper, label: 'News', description: 'Actualités Hacker News', action: onAddNews },
+    { id: 'rss', icon: Rss, label: 'RSS', description: 'Flux RSS personnalisé', action: onAddRss },
   ];
 
   const filteredItems = allItems.filter(item =>

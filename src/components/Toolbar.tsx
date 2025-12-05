@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Plus, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock, Eye, EyeOff, ListTodo, Clock, Newspaper, Cloud, Sun, Moon, Download, Upload, Undo2, Settings2, Info } from 'lucide-react';
+import { Plus, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock, Eye, EyeOff, ListTodo, Clock, Rss, Cloud, Sun, Moon, Download, Upload, Undo2, Settings2, Info } from 'lucide-react';
 import { getShareUrl } from '../hooks/useCloudStorage';
 import { exportConfig, importConfig } from '../lib/storage';
 import type { Config } from '../types/config';
@@ -18,7 +18,7 @@ interface ToolbarProps {
   onAddStock: () => void;
   onAddTodo: () => void;
   onAddClock: () => void;
-  onAddNews: () => void;
+  onAddRss: () => void;
   onUndo: () => void;
   canUndo: boolean;
   isDark: boolean;
@@ -30,7 +30,7 @@ interface ToolbarProps {
   onShowBookmarkForm?: (show: boolean) => void;
 }
 
-export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAddBlock, onAddBookmark, onAddNote, onAddStation, onAddStock, onAddTodo, onAddClock, onAddNews, onUndo, canUndo, isDark, dragLocked, onToggleDragLock, notesHidden, onToggleNotesHidden, showBookmarkForm: externalShowBookmark, onShowBookmarkForm }: ToolbarProps) {
+export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAddBlock, onAddBookmark, onAddNote, onAddStation, onAddStock, onAddTodo, onAddClock, onAddRss, onUndo, canUndo, isDark, dragLocked, onToggleDragLock, notesHidden, onToggleNotesHidden, showBookmarkForm: externalShowBookmark, onShowBookmarkForm }: ToolbarProps) {
   const [isHovered, setIsHovered] = useState(false); // Hover = actions utilitaires
   const [isClicked, setIsClicked] = useState(false); // Clic = actions d'ajout
   const [internalShowBookmark, setInternalShowBookmark] = useState(false);
@@ -124,7 +124,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
     { icon: TrendingUp, action: () => { onAddStock(); setIsHovered(false); }, label: 'Stock' },
     { icon: ListTodo, action: () => { onAddTodo(); setIsHovered(false); }, label: 'Todo' },
     { icon: Clock, action: () => { onAddClock(); setIsHovered(false); }, label: 'Horloge' },
-    { icon: Newspaper, action: () => { onAddNews(); setIsHovered(false); }, label: 'News' },
+    { icon: Rss, action: () => { onAddRss(); setIsHovered(false); }, label: 'RSS' },
   ];
 
   // Actions utilitaires (apparaissent au clic)

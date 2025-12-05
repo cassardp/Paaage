@@ -46,7 +46,8 @@ function App() {
     addStation,
     addStock,
     addClock,
-    addNews,
+    addRss,
+    updateRssFeedUrl,
     selectStation,
     toggleTheme,
     undo,
@@ -82,6 +83,7 @@ function App() {
       onUpdateClockCity={updateClockCity}
       onUpdateStockSymbol={updateStockSymbol}
       onUpdateStationUrl={updateStationUrl}
+      onUpdateRssFeedUrl={updateRssFeedUrl}
       isDark={isDark}
       focusedNoteId={focusedNoteId}
       onNoteFocused={() => setFocusedNoteId(null)}
@@ -128,7 +130,7 @@ function App() {
         onAddStock={addStock}
         onAddTodo={addTodo}
         onAddClock={addClock}
-        onAddNews={addNews}
+        onAddRss={addRss}
         onUndo={undo}
         canUndo={canUndo}
         isDark={isDark}
@@ -156,7 +158,7 @@ function App() {
         onAddStock={addStock}
         onAddTodo={addTodo}
         onAddClock={addClock}
-        onAddNews={addNews}
+        onAddRss={addRss}
         hasSearchBlock={config.blocks.some(b => b.type === 'search')}
         isDark={isDark}
       />

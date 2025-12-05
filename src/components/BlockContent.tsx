@@ -8,7 +8,7 @@ import { StationBlock } from './StationBlock';
 import { StockBlock } from './StockBlock';
 import { TodoBlock } from './TodoBlock';
 import { ClockBlock } from './ClockBlock';
-import { NewsBlock } from './NewsBlock';
+import { RssBlock } from './RssBlock';
 
 interface BlockContentProps {
   block: Block;
@@ -20,6 +20,7 @@ interface BlockContentProps {
   onUpdateClockCity: (blockId: string, city: string, timezone: string) => void;
   onUpdateStockSymbol: (blockId: string, symbol: string) => void;
   onUpdateStationUrl: (blockId: string, name: string, streamUrl: string) => void;
+  onUpdateRssFeedUrl: (blockId: string, feedUrl: string) => void;
   isDark?: boolean;
   focusedNoteId?: string | null;
   onNoteFocused?: () => void;
@@ -35,6 +36,7 @@ export function BlockContent({
   onUpdateClockCity,
   onUpdateStockSymbol,
   onUpdateStationUrl,
+  onUpdateRssFeedUrl,
   isDark = true,
   focusedNoteId,
   onNoteFocused,
@@ -85,8 +87,8 @@ export function BlockContent({
     case 'clock':
       return <ClockBlock city={block.city} timezone={block.timezone} isDark={isDark} onUpdateCity={(city, tz) => onUpdateClockCity(block.id, city, tz)} />;
     
-    case 'news':
-      return <NewsBlock isDark={isDark} />;
+    case 'rss':
+      return <RssBlock feedUrl={block.feedUrl} isDark={isDark} onUpdateFeedUrl={(url) => onUpdateRssFeedUrl(block.id, url)} />;
     
     default:
       return null;

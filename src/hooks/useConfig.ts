@@ -270,19 +270,33 @@ export function useConfig() {
     }));
   }, [updateConfig]);
 
-  // Ajouter un bloc news
-  const addNews = useCallback(() => {
+  // Ajouter un bloc RSS
+  const addRss = useCallback(() => {
     const id = generateId();
-    const pos = getCenteredPosition(15, 8);
+    const pos = getCenteredPosition(15, 20);
     const newBlock: Block = { 
       id, 
-      type: 'news',
+      type: 'rss',
+      feedUrl: 'https://news.ycombinator.com/rss',
       layout: { ...pos, w: 15, h: 20 } 
     };
 
     updateConfig((prev) => ({
       ...prev,
       blocks: [...prev.blocks, newBlock],
+    }));
+  }, [updateConfig]);
+
+  // Mettre à jour l'URL d'un flux RSS
+  const updateRssFeedUrl = useCallback((blockId: string, feedUrl: string) => {
+    updateConfig((prev) => ({
+      ...prev,
+      blocks: prev.blocks.map((block) => {
+        if (block.id === blockId && block.type === 'rss') {
+          return { ...block, feedUrl };
+        }
+        return block;
+      }),
     }));
   }, [updateConfig]);
 
@@ -332,7 +346,8 @@ export function useConfig() {
     addStation,
     addStock,
     addClock,
-    addNews,
+    addRss,
+    updateRssFeedUrl,
     selectStation,
     toggleTheme,
     undo,

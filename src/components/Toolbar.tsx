@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Plus, Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, Lock, Unlock, Eye, EyeOff, ListTodo, Clock, Rss, Cloud, Sun, Moon, Download, Upload, Undo2, Settings2, Info } from 'lucide-react';
+import { Plus, Search, CloudSun, Bookmark, StickyNote, Music, TrendingUp, Lock, Unlock, Eye, EyeOff, ListTodo, Clock, Rss, Cloud, Sun, Moon, Download, Upload, Undo2, Settings2, Info } from 'lucide-react';
 import { getShareUrl } from '../hooks/useCloudStorage';
 import { exportConfig, importConfig } from '../lib/storage';
 import type { Config } from '../types/config';
@@ -119,8 +119,8 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
     ...(!hasSearchBlock ? [{ icon: Search, action: () => handleAddBlock('search'), label: 'Recherche' }] : []),
     { icon: CloudSun, action: () => handleAddBlock('weather'), label: 'Météo' },
     { icon: Bookmark, action: handleBookmarkClick, label: 'Lien' },
-    { icon: FileText, action: () => { onAddNote(''); setIsHovered(false); }, label: 'Note' },
-    { icon: Headphones, action: () => { onAddStation(); setIsHovered(false); }, label: 'Radio' },
+    { icon: StickyNote, action: () => { onAddNote(''); setIsHovered(false); }, label: 'Note' },
+    { icon: Music, action: () => { onAddStation(); setIsHovered(false); }, label: 'Radio' },
     { icon: TrendingUp, action: () => { onAddStock(); setIsHovered(false); }, label: 'Stock' },
     { icon: ListTodo, action: () => { onAddTodo(); setIsHovered(false); }, label: 'Todo' },
     { icon: Clock, action: () => { onAddClock(); setIsHovered(false); }, label: 'Horloge' },

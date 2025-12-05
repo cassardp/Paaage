@@ -187,23 +187,23 @@ export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock,
           >
             {/* Contenu du bloc */}
             <div className="relative w-full h-full">
-              {/* Zones de drag sur les bords */}
+              {/* Zones de drag sur les bordures (3px) */}
               {!dragLocked && (
                 <>
                   <div 
-                    className="absolute inset-x-0 top-0 h-4 cursor-grab active:cursor-grabbing z-10"
+                    className="absolute inset-x-0 top-0 h-[3px] cursor-grab active:cursor-grabbing z-10"
                     onMouseDown={(e) => startDrag(e, block, 'move')}
                   />
                   <div 
-                    className="absolute inset-x-0 bottom-0 h-4 cursor-grab active:cursor-grabbing z-10"
+                    className="absolute inset-x-0 bottom-0 h-[3px] cursor-grab active:cursor-grabbing z-10"
                     onMouseDown={(e) => startDrag(e, block, 'move')}
                   />
                   <div 
-                    className="absolute inset-y-0 left-0 w-4 cursor-grab active:cursor-grabbing z-10"
+                    className="absolute inset-y-0 left-0 w-[3px] cursor-grab active:cursor-grabbing z-10"
                     onMouseDown={(e) => startDrag(e, block, 'move')}
                   />
                   <div 
-                    className="absolute inset-y-0 right-0 w-4 cursor-grab active:cursor-grabbing z-10"
+                    className="absolute inset-y-0 right-0 w-[3px] cursor-grab active:cursor-grabbing z-10"
                     onMouseDown={(e) => startDrag(e, block, 'move')}
                   />
                 </>

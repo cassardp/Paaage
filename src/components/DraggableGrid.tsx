@@ -27,7 +27,7 @@ interface DraggableGridProps {
   dragLocked?: boolean;
 }
 
-type DragMode = 'move' | 'resize';
+type DragMode = 'move' | 'resize-nw' | 'resize-ne' | 'resize-sw' | 'resize-se';
 
 export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock, isDark = true, dragLocked = false }: DraggableGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
@@ -58,8 +58,8 @@ export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock,
     setDragState({
       blockId: block.id,
       mode,
-      offsetX: mouseX - (mode === 'move' ? blockPxX : blockPxW),
-      offsetY: mouseY - (mode === 'move' ? blockPxY : blockPxH),
+      offsetX: mouseX,
+      offsetY: mouseY,
       currentPxX: blockPxX,
       currentPxY: blockPxY,
       currentPxW: blockPxW,
@@ -77,32 +77,67 @@ export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock,
       if (!gridRef.current) return;
       const rect = gridRef.current.getBoundingClientRect();
 
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      const deltaX = mouseX - dragState.offsetX;
+      const deltaY = mouseY - dragState.offsetY;
+
       if (dragState.mode === 'move') {
-        let pxX = e.clientX - rect.left - dragState.offsetX;
-        let pxY = e.clientY - rect.top - dragState.offsetY;
+        let pxX = dragState.currentPxX + deltaX;
+        let pxY = dragState.currentPxY + deltaY;
 
         const maxPxX = rect.width - dragState.currentPxW;
         const maxPxY = rect.height - dragState.currentPxH;
         pxX = Math.max(0, Math.min(pxX, maxPxX));
         pxY = Math.max(0, Math.min(pxY, maxPxY));
 
-        setDragState((prev) => prev ? { ...prev, currentPxX: pxX, currentPxY: pxY } : null);
+        setDragState((prev) => prev ? { ...prev, currentPxX: pxX, currentPxY: pxY, offsetX: mouseX, offsetY: mouseY } : null);
       } else {
-        // Resize
-        let pxW = e.clientX - rect.left - dragState.currentPxX;
-        let pxH = e.clientY - rect.top - dragState.currentPxY;
-
-        // Limites selon le type de bloc
+        // Resize depuis un coin
         const limits = BLOCK_SIZE_LIMITS[block.type] || BLOCK_SIZE_LIMITS.default;
         const minW = CELL_SIZE * limits.minW;
         const minH = CELL_SIZE * limits.minH;
         const maxW = CELL_SIZE * limits.maxW;
         const maxH = CELL_SIZE * limits.maxH;
-        
-        pxW = Math.max(minW, Math.min(pxW, maxW));
-        pxH = Math.max(minH, Math.min(pxH, maxH));
 
-        setDragState((prev) => prev ? { ...prev, currentPxW: pxW, currentPxH: pxH } : null);
+        let newX = dragState.currentPxX;
+        let newY = dragState.currentPxY;
+        let newW = dragState.currentPxW;
+        let newH = dragState.currentPxH;
+
+        if (dragState.mode === 'resize-se') {
+          newW = dragState.currentPxW + deltaX;
+          newH = dragState.currentPxH + deltaY;
+        } else if (dragState.mode === 'resize-sw') {
+          newX = dragState.currentPxX + deltaX;
+          newW = dragState.currentPxW - deltaX;
+          newH = dragState.currentPxH + deltaY;
+        } else if (dragState.mode === 'resize-ne') {
+          newY = dragState.currentPxY + deltaY;
+          newW = dragState.currentPxW + deltaX;
+          newH = dragState.currentPxH - deltaY;
+        } else if (dragState.mode === 'resize-nw') {
+          newX = dragState.currentPxX + deltaX;
+          newY = dragState.currentPxY + deltaY;
+          newW = dragState.currentPxW - deltaX;
+          newH = dragState.currentPxH - deltaY;
+        }
+
+        // Appliquer les limites
+        newW = Math.max(minW, Math.min(newW, maxW));
+        newH = Math.max(minH, Math.min(newH, maxH));
+        newX = Math.max(0, newX);
+        newY = Math.max(0, newY);
+
+        setDragState((prev) => prev ? { 
+          ...prev, 
+          currentPxX: newX, 
+          currentPxY: newY, 
+          currentPxW: newW, 
+          currentPxH: newH,
+          offsetX: mouseX, 
+          offsetY: mouseY 
+        } : null);
       }
     };
 
@@ -118,19 +153,17 @@ export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock,
 
       let newLayout: BlockLayout;
 
-      if (dragState.mode === 'move') {
-        let gridX = pixelToGrid(dragState.currentPxX);
-        let gridY = pixelToGrid(dragState.currentPxY);
-        gridX = Math.max(0, Math.min(gridX, maxCols - block.layout.w));
-        gridY = Math.max(0, Math.min(gridY, maxRows - block.layout.h));
-        newLayout = { ...block.layout, x: gridX, y: gridY };
-      } else {
-        let gridW = Math.round(dragState.currentPxW / CELL_SIZE);
-        let gridH = Math.round(dragState.currentPxH / CELL_SIZE);
-        gridW = Math.max(2, Math.min(gridW, maxCols - block.layout.x));
-        gridH = Math.max(2, Math.min(gridH, maxRows - block.layout.y));
-        newLayout = { ...block.layout, w: gridW, h: gridH };
-      }
+      let gridX = pixelToGrid(dragState.currentPxX);
+      let gridY = pixelToGrid(dragState.currentPxY);
+      let gridW = Math.round(dragState.currentPxW / CELL_SIZE);
+      let gridH = Math.round(dragState.currentPxH / CELL_SIZE);
+
+      gridX = Math.max(0, Math.min(gridX, maxCols - gridW));
+      gridY = Math.max(0, Math.min(gridY, maxRows - gridH));
+      gridW = Math.max(2, gridW);
+      gridH = Math.max(2, gridH);
+
+      newLayout = { x: gridX, y: gridY, w: gridW, h: gridH };
 
       onMoveBlock(block.id, newLayout);
       setDragState(null);
@@ -170,16 +203,15 @@ export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock,
       {/* Blocs */}
       {blocks.map((block) => {
         const isDragging = dragState?.blockId === block.id;
-        const isMoving = isDragging && dragState.mode === 'move';
-        const isResizing = isDragging && dragState.mode === 'resize';
+        const isResizing = isDragging && dragState.mode.startsWith('resize');
 
         return (
           <div
             key={block.id}
             className={`absolute group ${isDragging ? 'z-50 opacity-90' : 'z-0'}`}
             style={{
-              left: isMoving ? dragState.currentPxX : gridToPixel(block.layout.x),
-              top: isMoving ? dragState.currentPxY : gridToPixel(block.layout.y),
+              left: isDragging ? dragState.currentPxX : gridToPixel(block.layout.x),
+              top: isDragging ? dragState.currentPxY : gridToPixel(block.layout.y),
               width: isResizing ? dragState.currentPxW : gridSizeToPixel(block.layout.w),
               height: isResizing ? dragState.currentPxH : gridSizeToPixel(block.layout.h),
               transition: isDragging ? 'none' : 'all 150ms',
@@ -224,9 +256,22 @@ export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock,
                   </svg>
                 </button>
 
+                {/* Zones de resize aux 4 coins */}
                 <div
-                  className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-20"
-                  onMouseDown={(e) => startDrag(e, block, 'resize')}
+                  className="absolute top-0 left-0 w-4 h-4 cursor-nw-resize z-20 opacity-0 group-hover:opacity-100 hover:border-l-2 hover:border-t-2 hover:border-neutral-400 rounded-tl-[12px]"
+                  onMouseDown={(e) => startDrag(e, block, 'resize-nw')}
+                />
+                <div
+                  className="absolute top-0 right-0 w-4 h-4 cursor-ne-resize z-20 opacity-0 group-hover:opacity-100 hover:border-r-2 hover:border-t-2 hover:border-neutral-400 rounded-tr-[12px]"
+                  onMouseDown={(e) => startDrag(e, block, 'resize-ne')}
+                />
+                <div
+                  className="absolute bottom-0 left-0 w-4 h-4 cursor-sw-resize z-20 opacity-0 group-hover:opacity-100 hover:border-l-2 hover:border-b-2 hover:border-neutral-400 rounded-bl-[12px]"
+                  onMouseDown={(e) => startDrag(e, block, 'resize-sw')}
+                />
+                <div
+                  className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-20 opacity-0 group-hover:opacity-100 hover:border-r-2 hover:border-b-2 hover:border-neutral-400 rounded-br-[12px]"
+                  onMouseDown={(e) => startDrag(e, block, 'resize-se')}
                 />
               </>
             )}

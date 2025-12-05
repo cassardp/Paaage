@@ -82,7 +82,7 @@ export type Block = SearchBlock | RadioBlock | WeatherBlock | BookmarkBlock | No
 
 export interface Settings {
   theme: 'light' | 'dark';
-  accentColor: string;
+  accentColor?: string; // Deprecated - non utilisé
   searchEngine: string;
 }
 

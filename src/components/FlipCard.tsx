@@ -91,7 +91,7 @@ export function FlipCard({
               onKeyDown={handleKeyDown}
               onBlur={handleSave}
               disabled={validating}
-              className={`bg-transparent border-none outline-none text-sm text-center ${error ? 'text-red-500' : isDark ? 'text-neutral-400' : 'text-neutral-500'}`}
+              className={`bg-transparent border-none outline-none text-sm text-center ${error ? 'text-neutral-500' : isDark ? 'text-neutral-400' : 'text-neutral-500'}`}
               placeholder={placeholder}
             />
           </div>

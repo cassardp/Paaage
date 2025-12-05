@@ -73,7 +73,7 @@ export function NoteBlock({ blockId, content, onUpdate, isDark = true, autoFocus
     setTimeout(() => textareaRef.current?.focus(), 0);
   };
 
-  const textClass = isDark ? 'text-neutral-300' : 'text-neutral-600';
+  const textClass = isDark ? 'text-neutral-300' : 'text-neutral-700';
 
   return (
     <div className="h-full">
@@ -84,7 +84,7 @@ export function NoteBlock({ blockId, content, onUpdate, isDark = true, autoFocus
           onChange={(e) => setValue(e.target.value)}
           onBlur={handleBlur}
           className={`w-full h-full resize-none bg-transparent border-none outline-none text-sm
-                     ${isDark ? 'text-neutral-300 placeholder-neutral-500' : 'text-neutral-600 placeholder-neutral-400'}`}
+                     ${isDark ? 'text-neutral-300 placeholder-neutral-500' : 'text-neutral-700 placeholder-neutral-400'}`}
           placeholder="Écrivez votre note..."
         />
       ) : (

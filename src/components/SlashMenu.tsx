@@ -128,7 +128,7 @@ export function SlashMenu({
             onKeyDown={handleKeyDown}
             placeholder="Rechercher un bloc..."
             className={`w-full px-3 py-2 rounded text-sm bg-transparent border-none outline-none ${
-              isDark ? 'text-neutral-100 placeholder-neutral-500' : 'text-neutral-900 placeholder-neutral-400'
+              isDark ? 'text-neutral-300 placeholder-neutral-500' : 'text-neutral-700 placeholder-neutral-400'
             }`}
           />
         </div>
@@ -152,7 +152,7 @@ export function SlashMenu({
                 >
                   <Icon className={`w-4 h-4 shrink-0 ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`} />
                   <div>
-                    <p className={`text-sm font-medium ${isDark ? 'text-neutral-200' : 'text-neutral-800'}`}>
+                    <p className={`text-sm font-medium ${isDark ? 'text-neutral-300' : 'text-neutral-700'}`}>
                       {item.label}
                     </p>
                     <p className={`text-xs ${isDark ? 'text-neutral-500' : 'text-neutral-400'}`}>

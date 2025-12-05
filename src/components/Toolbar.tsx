@@ -250,10 +250,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
       {/* Modal formulaire bookmark */}
       {showBookmarkForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowBookmarkForm(false)}>
-          <div className={`p-4 rounded-lg border shadow-xl w-80 ${isDark ? 'bg-neutral-800 border-neutral-700' : 'bg-white border-neutral-200'}`} onClick={(e) => e.stopPropagation()}>
-            <h3 className={`text-sm font-semibold mb-3 ${isDark ? 'text-neutral-200' : 'text-neutral-800'}`}>
-              Nouveau raccourci
-            </h3>
+          <div className={`p-3 rounded-lg border shadow-xl w-72 ${isDark ? 'bg-neutral-800 border-neutral-700' : 'bg-white border-neutral-200'}`} onClick={(e) => e.stopPropagation()}>
             <input
               type="text"
               value={bookmarkUrl}
@@ -261,7 +258,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
               placeholder="URL (ex: google.com)"
               autoFocus
               className={`w-full px-3 py-2 mb-2 rounded border text-sm
-                ${isDark ? 'bg-neutral-900 border-neutral-700 text-neutral-100 placeholder-neutral-500' : 'bg-white border-neutral-300 text-neutral-900 placeholder-neutral-400'}
+                ${isDark ? 'bg-neutral-900 border-neutral-700 text-neutral-300 placeholder-neutral-500' : 'bg-white border-neutral-300 text-neutral-700 placeholder-neutral-400'}
                 focus:outline-none focus:border-[var(--accent-color)]`}
               onKeyDown={(e) => e.key === 'Enter' && handleBookmarkSubmit()}
             />
@@ -270,25 +267,17 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
               value={bookmarkLabel}
               onChange={(e) => setBookmarkLabel(e.target.value)}
               placeholder="Nom (optionnel)"
-              className={`w-full px-3 py-2 mb-3 rounded border text-sm
-                ${isDark ? 'bg-neutral-900 border-neutral-700 text-neutral-100 placeholder-neutral-500' : 'bg-white border-neutral-300 text-neutral-900 placeholder-neutral-400'}
+              className={`w-full px-3 py-2 mb-2 rounded border text-sm
+                ${isDark ? 'bg-neutral-900 border-neutral-700 text-neutral-300 placeholder-neutral-500' : 'bg-white border-neutral-300 text-neutral-700 placeholder-neutral-400'}
                 focus:outline-none focus:border-[var(--accent-color)]`}
               onKeyDown={(e) => e.key === 'Enter' && handleBookmarkSubmit()}
             />
-            <div className="flex gap-2">
-              <button
-                onClick={() => setShowBookmarkForm(false)}
-                className={`flex-1 py-2 rounded text-sm cursor-pointer ${isDark ? 'bg-neutral-700 text-neutral-300' : 'bg-neutral-200 text-neutral-600'}`}
-              >
-                Annuler
-              </button>
-              <button
-                onClick={handleBookmarkSubmit}
-                className="flex-1 py-2 rounded text-sm cursor-pointer bg-[var(--accent-color)] text-white font-medium"
-              >
-                Ajouter
-              </button>
-            </div>
+            <button
+              onClick={handleBookmarkSubmit}
+              className="w-full py-2 rounded text-sm cursor-pointer bg-[var(--accent-color)] text-white font-medium"
+            >
+              Ajouter
+            </button>
           </div>
         </div>
       )}
@@ -299,7 +288,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
       {showQRModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowQRModal(false)}>
           <div className={`p-6 rounded-lg border shadow-xl w-80 ${isDark ? 'bg-neutral-800 border-neutral-700' : 'bg-white border-neutral-200'}`} onClick={(e) => e.stopPropagation()}>
-            <h3 className={`text-lg font-semibold mb-4 text-center ${isDark ? 'text-neutral-100' : 'text-neutral-900'}`}>
+            <h3 className={`text-lg font-semibold mb-4 text-center ${isDark ? 'text-neutral-300' : 'text-neutral-700'}`}>
               Synchronisation
             </h3>
             <div className="flex justify-center mb-4">
@@ -329,7 +318,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
       {showInfoModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowInfoModal(false)}>
           <div className={`p-6 rounded-lg border shadow-xl w-80 ${isDark ? 'bg-neutral-800 border-neutral-700' : 'bg-white border-neutral-200'}`} onClick={(e) => e.stopPropagation()}>
-            <h3 className={`text-lg font-semibold mb-4 ${isDark ? 'text-neutral-100' : 'text-neutral-900'}`}>
+            <h3 className={`text-lg font-semibold mb-4 ${isDark ? 'text-neutral-300' : 'text-neutral-700'}`}>
               Paaage
             </h3>
             <div className={`text-sm space-y-3 ${isDark ? 'text-neutral-300' : 'text-neutral-600'}`}>

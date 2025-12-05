@@ -44,7 +44,7 @@ export function TodoBlock({ blockId, items, onUpdate, isDark = true }: TodoBlock
     ? 'border-neutral-600 checked:bg-neutral-500 checked:border-neutral-500'
     : 'border-neutral-300 checked:bg-neutral-400 checked:border-neutral-400';
 
-  const textClass = isDark ? 'text-neutral-200' : 'text-neutral-700';
+  const textClass = isDark ? 'text-neutral-300' : 'text-neutral-700';
   const mutedClass = isDark ? 'text-neutral-500' : 'text-neutral-400';
 
   return (
@@ -85,7 +85,7 @@ export function TodoBlock({ blockId, items, onUpdate, isDark = true }: TodoBlock
           onKeyDown={handleKeyDown}
           placeholder="Nouvelle tâche..."
           className={`flex-1 bg-transparent border-none outline-none text-sm
-            ${isDark ? 'text-neutral-100 placeholder-neutral-500' : 'text-neutral-900 placeholder-neutral-400'}`}
+            ${isDark ? 'text-neutral-300 placeholder-neutral-500' : 'text-neutral-700 placeholder-neutral-400'}`}
         />
         <button
           onClick={addItem}

@@ -140,7 +140,7 @@ export function StationBlock({ name, streamUrl, isDark = true, onUpdateStation }
             )}
             <span 
               onClick={(e) => { e.stopPropagation(); onFlip(); }}
-              className={`text-sm font-medium cursor-pointer hover:underline line-clamp-1 ${isDark ? 'text-neutral-200' : 'text-neutral-700'}`}
+              className={`text-sm font-medium cursor-pointer hover:underline line-clamp-1 ${isDark ? 'text-neutral-300' : 'text-neutral-700'}`}
             >
               {name}
             </span>

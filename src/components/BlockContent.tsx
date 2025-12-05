@@ -56,7 +56,7 @@ export function BlockContent({
       );
     
     case 'weather':
-      return <WeatherBlock city={block.city} isDark={isDark} onUpdateCity={(city) => onUpdateWeatherCity(block.id, city)} />;
+      return <WeatherBlock city={block.city} isDark={isDark} width={block.layout.w} onUpdateCity={(city) => onUpdateWeatherCity(block.id, city)} />;
     
     case 'bookmark':
       return <BookmarkBlock label={block.label} url={block.url} height={block.layout.h} isDark={isDark} />;
@@ -77,7 +77,7 @@ export function BlockContent({
       return <StationBlock name={block.name} streamUrl={block.streamUrl} isDark={isDark} onUpdateStation={(name, url) => onUpdateStationUrl(block.id, name, url)} />;
     
     case 'stock':
-      return <StockBlock symbol={block.symbol} isDark={isDark} onUpdateSymbol={(symbol) => onUpdateStockSymbol(block.id, symbol)} />;
+      return <StockBlock symbol={block.symbol} isDark={isDark} width={block.layout.w} onUpdateSymbol={(symbol) => onUpdateStockSymbol(block.id, symbol)} />;
     
     case 'todo':
       return <TodoBlock blockId={block.id} items={block.items} onUpdate={onUpdateTodo} isDark={isDark} />;

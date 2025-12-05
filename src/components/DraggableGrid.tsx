@@ -9,12 +9,12 @@ const BLOCK_SIZE_LIMITS: Record<string, { minW: number; minH: number; maxW: numb
   bookmark: { minW: 4, minH: 2, maxW: 20, maxH: 4 },
   note: { minW: 4, minH: 1, maxW: 40, maxH: 40 },
   station: { minW: 6, minH: 2, maxW: 20, maxH: 4 },
-  weather: { minW: 15, minH: 5, maxW: 25, maxH: 8 },
-  stock: { minW: 8, minH: 5, maxW: 20, maxH: 6 },
+  weather: { minW: 6, minH: 5, maxW: 25, maxH: 8 },
+  stock: { minW: 6, minH: 5, maxW: 20, maxH: 6 },
   radio: { minW: 10, minH: 6, maxW: 30, maxH: 20 },
   todo: { minW: 8, minH: 4, maxW: 30, maxH: 40 },
   clock: { minW: 9, minH: 6, maxW: 20, maxH: 6 },
-  news: { minW: 16, minH: 5, maxW: 30, maxH: 40 },
+  news: { minW: 14, minH: 5, maxW: 30, maxH: 40 },
   default: { minW: 4, minH: 2, maxW: 40, maxH: 30 },
 };
 

@@ -6,6 +6,7 @@ import { FlipCard } from './FlipCard';
 interface StockBlockProps {
   symbol: string;
   isDark?: boolean;
+  width?: number;
   onUpdateSymbol?: (symbol: string) => void;
 }
 
@@ -27,7 +28,7 @@ async function validateSymbol(symbol: string): Promise<boolean> {
   }
 }
 
-export function StockBlock({ symbol, isDark = true, onUpdateSymbol }: StockBlockProps) {
+export function StockBlock({ symbol, isDark = true, width = 12, onUpdateSymbol }: StockBlockProps) {
   const [stock, setStock] = useState<StockData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -133,12 +134,14 @@ export function StockBlock({ symbol, isDark = true, onUpdateSymbol }: StockBlock
               ${stock.price.toFixed(2)}
             </p>
           </div>
-          <div className={`flex items-center gap-1 ${trendColor}`}>
-            <TrendIcon className="w-4 h-4" />
-            <span className="text-sm font-medium">
-              {isPositive ? '+' : ''}{stock.changePercent.toFixed(2)}%
-            </span>
-          </div>
+          {width >= 12 && (
+            <div className={`flex items-center gap-1 ${trendColor}`}>
+              <TrendIcon className="w-4 h-4" />
+              <span className="text-sm font-medium">
+                {isPositive ? '+' : ''}{stock.changePercent.toFixed(2)}%
+              </span>
+            </div>
+          )}
         </div>
       )}
     </FlipCard>

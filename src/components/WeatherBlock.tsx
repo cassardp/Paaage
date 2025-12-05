@@ -6,6 +6,7 @@ import { FlipCard } from './FlipCard';
 interface WeatherBlockProps {
   city?: string;
   isDark?: boolean;
+  width?: number;
   onUpdateCity?: (city: string) => void;
 }
 
@@ -46,7 +47,7 @@ async function validateCity(city: string): Promise<boolean> {
   return !!data.results?.[0];
 }
 
-export function WeatherBlock({ city = 'Toulon', isDark = true, onUpdateCity }: WeatherBlockProps) {
+export function WeatherBlock({ city = 'Toulon', isDark = true, width = 2, onUpdateCity }: WeatherBlockProps) {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -129,10 +130,12 @@ export function WeatherBlock({ city = 'Toulon', isDark = true, onUpdateCity }: W
               </p>
             </div>
           </div>
-          <div className={`flex items-center gap-1 text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
-            <Wind className="w-4 h-4" />
-            <span>{weather.windSpeed} km/h</span>
-          </div>
+          {width >= 14 && (
+            <div className={`flex items-center gap-1 text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
+              <Wind className="w-4 h-4" />
+              <span>{weather.windSpeed} km/h</span>
+            </div>
+          )}
         </div>
       )}
     </FlipCard>

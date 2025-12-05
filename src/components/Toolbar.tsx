@@ -48,6 +48,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
   const [bookmarkLabel, setBookmarkLabel] = useState('');
   const [toastMessage, setToastMessage] = useState('');
   const [showInfoModal, setShowInfoModal] = useState(false);
+  const [showQRModal, setShowQRModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const shareUrl = getShareUrl();
@@ -134,7 +135,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
     { icon: Upload, action: handleExport, label: 'Exporter', active: false },
     { icon: dragLocked ? Lock : Unlock, action: onToggleDragLock, label: dragLocked ? 'Déverrouiller' : 'Verrouiller', active: dragLocked },
     ...(hasNotesOrTodos ? [{ icon: notesHidden ? EyeOff : Eye, action: onToggleNotesHidden, label: notesHidden ? 'Afficher notes' : 'Masquer notes', active: notesHidden }] : []),
-    { icon: Cloud, action: handleCopyShareUrl, label: 'Copier le lien', active: !!syncId, syncing },
+    { icon: Cloud, action: () => setShowQRModal(true), label: 'QR Code sync', active: !!syncId, syncing },
     { icon: Info, action: () => setShowInfoModal(true), label: 'À propos', active: false },
   ];
 
@@ -293,6 +294,36 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
       )}
 
       <Toast message={toastMessage} visible={!!toastMessage} onHide={() => setToastMessage('')} />
+
+      {/* Modal QR Code */}
+      {showQRModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowQRModal(false)}>
+          <div className={`p-6 rounded-lg border shadow-xl w-80 ${isDark ? 'bg-neutral-800 border-neutral-700' : 'bg-white border-neutral-200'}`} onClick={(e) => e.stopPropagation()}>
+            <h3 className={`text-lg font-semibold mb-4 text-center ${isDark ? 'text-neutral-100' : 'text-neutral-900'}`}>
+              Synchronisation
+            </h3>
+            <div className="flex justify-center mb-4">
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareUrl)}`}
+                alt="QR Code"
+                className="w-48 h-48 rounded"
+              />
+            </div>
+            <p className={`text-xs text-center mb-3 ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
+              Scannez ce QR code pour synchroniser sur un autre appareil
+            </p>
+            <p className={`text-xs text-center font-mono mb-4 ${isDark ? 'text-neutral-500' : 'text-neutral-400'}`}>
+              ID: {syncId}
+            </p>
+            <button
+              onClick={() => { handleCopyShareUrl(); setShowQRModal(false); }}
+              className="w-full py-2 rounded text-sm cursor-pointer bg-[var(--accent-color)] text-white font-medium"
+            >
+              Copier le lien
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Modal À propos */}
       {showInfoModal && (

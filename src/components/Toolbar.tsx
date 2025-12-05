@@ -139,7 +139,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
     { icon: Info, action: () => setShowInfoModal(true), label: 'À propos', active: false },
   ];
 
-  const radius = 80;
+  const radius = 90;
   const startAngle = -180;
   const endAngle = 0;
 
@@ -173,7 +173,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
               key={`util-${index}`}
               onClick={item.action}
               title={item.label}
-              className={`absolute w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-200 cursor-pointer ${fabClass}
+              className={`absolute w-11 h-11 rounded-full border flex items-center justify-center transition-all duration-200 cursor-pointer ${fabClass}
                 ${'active' in item && item.active ? 'text-[var(--accent-color)]' : ''}`}
               style={{
                 left: '50%',
@@ -200,7 +200,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
               key={`add-${index}`}
               onClick={item.action}
               title={item.label}
-              className={`absolute w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-200 cursor-pointer ${fabClass}`}
+              className={`absolute w-11 h-11 rounded-full border flex items-center justify-center transition-all duration-200 cursor-pointer ${fabClass}`}
               style={{
                 left: '50%',
                 bottom: 0,

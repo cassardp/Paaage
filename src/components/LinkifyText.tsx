@@ -19,7 +19,7 @@ export function LinkifyText({ text, className, isDark = true }: LinkifyTextProps
             <a
               key={i}
               href={part}
-              target="_blank"
+              target="_self"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
               className={`underline cursor-pointer ${isDark ? 'text-neutral-400 hover:text-neutral-200' : 'text-neutral-500 hover:text-neutral-700'}`}

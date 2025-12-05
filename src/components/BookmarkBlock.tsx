@@ -12,7 +12,7 @@ export function BookmarkBlock({ label, url, height, isDark = true }: BookmarkBlo
   return (
     <a
       href={url}
-      target="_blank"
+      target="_self"
       rel="noopener noreferrer"
       className="w-full h-full flex items-center justify-center group"
     >

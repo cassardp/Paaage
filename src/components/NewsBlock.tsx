@@ -63,7 +63,7 @@ export function NewsBlock({ isDark = true }: NewsBlockProps) {
           <a
             key={i}
             href={item.url}
-            target="_blank"
+            target="_self"
             rel="noopener noreferrer"
             className={`block py-1.5 text-sm underline ${isDark ? 'text-neutral-200 hover:text-neutral-400' : 'text-neutral-700 hover:text-neutral-500'} transition-colors`}
           >

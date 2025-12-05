@@ -12,7 +12,7 @@ export function SearchBlock({ searchEngine, isDark = true }: SearchBlockProps) {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (query.trim()) {
-      window.open(searchEngine + encodeURIComponent(query.trim()), '_blank');
+      window.open(searchEngine + encodeURIComponent(query.trim()), '_self');
       setQuery('');
     }
   };

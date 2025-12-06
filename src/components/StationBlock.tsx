@@ -141,7 +141,7 @@ export function StationBlock({ name, streamUrl, isDark = true, onUpdateStation }
       onSave={handleSave}
       validate={validateStation}
       isDark={isDark}
-      placeholder="Nom de la station"
+      placeholder="Station name"
     >
       {(onFlip: () => void) => (
         <div className="h-full flex items-center gap-2">

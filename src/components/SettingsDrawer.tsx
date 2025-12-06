@@ -46,7 +46,7 @@ export function SettingsDrawer({ open, onClose, config }: SettingsDrawerProps) {
                 <div className={`px-4 py-4 border-b ${isDark ? 'border-neutral-700' : 'border-neutral-200'}`}>
                   <div className="flex items-center justify-between">
                     <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-neutral-900'}`}>
-                      Paramètres
+                      Settings
                     </h2>
                     <button
                       onClick={onClose}
@@ -60,7 +60,7 @@ export function SettingsDrawer({ open, onClose, config }: SettingsDrawerProps) {
                 {/* Content - temporairement vide */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-6">
                   <p className={`text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
-                    Aucun paramètre disponible pour le moment.
+                    No settings available yet.
                   </p>
                 </div>
 

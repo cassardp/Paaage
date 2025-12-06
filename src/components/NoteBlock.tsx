@@ -85,7 +85,7 @@ export function NoteBlock({ blockId, content, onUpdate, isDark = true, autoFocus
           onBlur={handleBlur}
           className={`w-full h-full resize-none bg-transparent border-none outline-none text-sm
                      ${isDark ? 'text-neutral-300 placeholder-neutral-500' : 'text-neutral-700 placeholder-neutral-400'}`}
-          placeholder="Écrivez votre note..."
+          placeholder="Write your note..."
         />
       ) : (
         <div 
@@ -96,7 +96,7 @@ export function NoteBlock({ blockId, content, onUpdate, isDark = true, autoFocus
             <LinkifyText text={value} isDark={isDark} />
           ) : (
             <span className={isDark ? 'text-neutral-500' : 'text-neutral-400'}>
-              Écrivez votre note...
+              Write your note...
             </span>
           )}
         </div>

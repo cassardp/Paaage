@@ -92,12 +92,12 @@ export function RssBlock({ feedUrl = 'https://news.ycombinator.com/rss', isDark 
   if (error) {
     return (
       <div className="h-full flex flex-col items-center justify-center gap-2">
-        <div className={`${mutedClass} text-sm`}>Erreur de chargement</div>
+        <div className={`${mutedClass} text-sm`}>Loading error</div>
         <span
           onClick={handleEdit}
           className={`text-xs cursor-pointer hover:underline ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}
         >
-          Modifier l'URL
+          Edit URL
         </span>
         {isEditing && (
           <input
@@ -107,7 +107,7 @@ export function RssBlock({ feedUrl = 'https://news.ycombinator.com/rss', isDark 
             onChange={(e) => setEditUrl(e.target.value)}
             onKeyDown={handleKeyDown}
             onBlur={handleSave}
-            placeholder="URL du flux RSS"
+            placeholder="RSS feed URL"
             className={`mt-2 bg-transparent border-none outline-none text-xs text-center w-full ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}
           />
         )}
@@ -125,14 +125,14 @@ export function RssBlock({ feedUrl = 'https://news.ycombinator.com/rss', isDark 
           onChange={(e) => setEditUrl(e.target.value)}
           onKeyDown={handleKeyDown}
           onBlur={handleSave}
-          placeholder="URL du flux RSS"
+          placeholder="RSS feed URL"
           className={`mb-2 bg-transparent border-none outline-none text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}
         />
       ) : (
         <span 
           onClick={handleEdit}
           className={`text-xs ${mutedClass} mb-2 truncate cursor-pointer hover:underline`}
-          title="Cliquer pour modifier l'URL"
+          title="Click to edit URL"
         >
           {new URL(feedUrl).hostname}
         </span>

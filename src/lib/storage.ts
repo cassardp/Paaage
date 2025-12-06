@@ -20,13 +20,13 @@ export function importConfig(file: File): Promise<Config> {
         if (config.version && config.blocks) {
           resolve(config);
         } else {
-          reject(new Error('Format de configuration invalide'));
+          reject(new Error('Invalid configuration format'));
         }
       } catch {
-        reject(new Error('Fichier JSON invalide'));
+        reject(new Error('Invalid JSON file'));
       }
     };
-    reader.onerror = () => reject(new Error('Erreur lecture fichier'));
+    reader.onerror = () => reject(new Error('File read error'));
     reader.readAsText(file);
   });
 }

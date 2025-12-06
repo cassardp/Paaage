@@ -105,7 +105,7 @@ function App() {
       <div className="min-h-screen bg-[var(--grid-color)] p-4 flex items-center justify-center">
         <div className="bg-white/90 backdrop-blur-sm border border-neutral-200 rounded-2xl p-6 text-center max-w-sm">
           <p className="text-neutral-700 text-sm">
-            Cette application est optimisée pour une utilisation sur desktop uniquement.
+            This app is optimized for desktop use only.
           </p>
         </div>
         <SpeedInsights />

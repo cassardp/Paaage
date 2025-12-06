@@ -45,7 +45,7 @@ export function StockBlock({ symbol, isDark = true, width = 12, onUpdateSymbol }
         );
         
         if (!res.ok) {
-          setError('Symbole non trouvé');
+          setError('Symbol not found');
           setLoading(false);
           return;
         }
@@ -55,14 +55,14 @@ export function StockBlock({ symbol, isDark = true, width = 12, onUpdateSymbol }
         try {
           data = JSON.parse(text);
         } catch {
-          setError('Symbole non trouvé');
+          setError('Symbol not found');
           setLoading(false);
           return;
         }
         
         const quote = data.chart?.result?.[0];
         if (!quote) {
-          setError('Symbole non trouvé');
+          setError('Symbol not found');
           setLoading(false);
           return;
         }
@@ -72,7 +72,7 @@ export function StockBlock({ symbol, isDark = true, width = 12, onUpdateSymbol }
         const previousClose = meta?.chartPreviousClose || meta?.previousClose;
         
         if (price == null || previousClose == null) {
-          setError('Données non disponibles');
+          setError('Data not available');
           setLoading(false);
           return;
         }
@@ -83,7 +83,7 @@ export function StockBlock({ symbol, isDark = true, width = 12, onUpdateSymbol }
         setStock({ price, change, changePercent });
         setLoading(false);
       } catch {
-        setError('Erreur de chargement');
+        setError('Loading error');
         setLoading(false);
       }
     }
@@ -119,7 +119,7 @@ export function StockBlock({ symbol, isDark = true, width = 12, onUpdateSymbol }
       onSave={(value) => onUpdateSymbol?.(value.toUpperCase())}
       validate={validateSymbol}
       isDark={isDark}
-      placeholder="Symbole"
+      placeholder="Symbol"
     >
       {(onFlip: () => void) => (
         <div className="h-full flex items-center justify-between">

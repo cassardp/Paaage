@@ -61,7 +61,7 @@ export function WeatherBlock({ city = 'Toulon', isDark = true, width = 2, onUpda
         const geoData = await geoRes.json();
         
         if (!geoData.results?.[0]) {
-          setError('Ville non trouvée');
+          setError('City not found');
           setLoading(false);
           return;
         }
@@ -80,7 +80,7 @@ export function WeatherBlock({ city = 'Toulon', isDark = true, width = 2, onUpda
         });
         setLoading(false);
       } catch {
-        setError('Erreur de chargement');
+        setError('Loading error');
         setLoading(false);
       }
     }
@@ -114,7 +114,7 @@ export function WeatherBlock({ city = 'Toulon', isDark = true, width = 2, onUpda
       onSave={(value) => onUpdateCity?.(value)}
       validate={validateCity}
       isDark={isDark}
-      placeholder="Ville"
+      placeholder="City"
     >
       {(onFlip: () => void) => (
         <div className="h-full flex items-center justify-between">

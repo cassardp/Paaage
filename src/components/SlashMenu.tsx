@@ -42,15 +42,15 @@ export function SlashMenu({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const allItems: SlashMenuItem[] = [
-    ...(!hasSearchBlock ? [{ id: 'search', icon: Search, label: 'Recherche', description: 'Barre de recherche', action: onAddSearch }] : []),
-    { id: 'weather', icon: CloudSun, label: 'Météo', description: 'Afficher la météo', action: onAddWeather },
-    { id: 'bookmark', icon: Bookmark, label: 'Lien', description: 'Raccourci vers un site', action: onAddBookmark },
-    { id: 'note', icon: FileText, label: 'Note', description: 'Bloc de texte', action: onAddNote },
-    { id: 'radio', icon: Headphones, label: 'Radio', description: 'Station de radio', action: onAddStation },
-    { id: 'stock', icon: TrendingUp, label: 'Stock', description: 'Cours de bourse', action: onAddStock },
-    { id: 'todo', icon: ListTodo, label: 'Todo', description: 'Liste de tâches', action: onAddTodo },
-    { id: 'clock', icon: Clock, label: 'Horloge', description: 'Heure d\'une ville', action: onAddClock },
-    { id: 'rss', icon: Rss, label: 'RSS', description: 'Flux RSS personnalisé', action: onAddRss },
+    ...(!hasSearchBlock ? [{ id: 'search', icon: Search, label: 'Search', description: 'Search bar', action: onAddSearch }] : []),
+    { id: 'weather', icon: CloudSun, label: 'Weather', description: 'Display weather', action: onAddWeather },
+    { id: 'bookmark', icon: Bookmark, label: 'Link', description: 'Shortcut to a website', action: onAddBookmark },
+    { id: 'note', icon: FileText, label: 'Note', description: 'Text block', action: onAddNote },
+    { id: 'radio', icon: Headphones, label: 'Radio', description: 'Radio station', action: onAddStation },
+    { id: 'stock', icon: TrendingUp, label: 'Stock', description: 'Stock price', action: onAddStock },
+    { id: 'todo', icon: ListTodo, label: 'Todo', description: 'Task list', action: onAddTodo },
+    { id: 'clock', icon: Clock, label: 'Clock', description: 'City time', action: onAddClock },
+    { id: 'rss', icon: Rss, label: 'RSS', description: 'Custom RSS feed', action: onAddRss },
   ];
 
   const filteredItems = allItems.filter(item =>
@@ -126,7 +126,7 @@ export function SlashMenu({
             value={filter}
             onChange={e => setFilter(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Rechercher un bloc..."
+            placeholder="Search for a block..."
             className={`w-full px-3 py-2 rounded text-sm bg-transparent border-none outline-none ${
               isDark ? 'text-neutral-300 placeholder-neutral-500' : 'text-neutral-700 placeholder-neutral-400'
             }`}
@@ -135,7 +135,7 @@ export function SlashMenu({
         <div className="max-h-64 overflow-auto p-1">
           {filteredItems.length === 0 ? (
             <p className={`px-3 py-2 text-sm ${isDark ? 'text-neutral-500' : 'text-neutral-400'}`}>
-              Aucun résultat
+              No results
             </p>
           ) : (
             filteredItems.map((item, index) => {

@@ -12,9 +12,9 @@ export const DEFAULT_CONFIG: Config = {
     searchEngine: 'https://www.google.com/search?q=',
   },
   blocks: [
-    { id: 'yrnxsch', type: 'note', content: 'Bienvenue sur Paaage.app !!\n\nVous pouvez ajouter, déplacer, supprimer des blocs, et créer votre propre page de démarrage. ', layout: { x: 29, y: 7, w: 21, h: 9 } },
-    { id: 'k0nmq2x', type: 'note', content: 'Shift L  -> locker\nShift M -> masquer\nShift U  -> undo', layout: { x: 37, y: 18, w: 12, h: 6 } },
-    { id: '52p4xxg', type: 'note', content: 'Tapez / pour afficher un menu d\'ajout.', layout: { x: 47, y: 14, w: 12, h: 5 } },
-    { id: 'fohf9ph', type: 'note', content: 'Humm... c\'est très intéressant ! \n\nhttps://www.youtube.com/watch?v=xvFZjo5PgG0', layout: { x: 55, y: 29, w: 20, h: 8 } },
+    { id: 'yrnxsch', type: 'note', content: 'Welcome to Paaage.app!!\n\nYou can add, move, delete blocks, and create your own start page.', layout: { x: 29, y: 7, w: 21, h: 9 } },
+    { id: 'k0nmq2x', type: 'note', content: 'Shift L  -> lock\nShift M -> hide\nShift U  -> undo', layout: { x: 37, y: 18, w: 12, h: 6 } },
+    { id: '52p4xxg', type: 'note', content: 'Type / to open the add menu.', layout: { x: 47, y: 14, w: 12, h: 5 } },
+    { id: 'fohf9ph', type: 'note', content: 'Hmm... this is very interesting!\n\nhttps://www.youtube.com/watch?v=xvFZjo5PgG0', layout: { x: 55, y: 29, w: 20, h: 8 } },
   ],
 };

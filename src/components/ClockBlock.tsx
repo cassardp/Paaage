@@ -66,7 +66,7 @@ export function ClockBlock({ city, timezone, isDark = true, onUpdateCity }: Cloc
       onSave={handleSave}
       validate={validateCity}
       isDark={isDark}
-      placeholder="Ville"
+      placeholder="City"
     >
       {(onFlip: () => void) => (
         <div className="h-full flex flex-col items-center justify-center">

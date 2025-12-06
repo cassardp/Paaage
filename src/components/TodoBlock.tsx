@@ -126,7 +126,7 @@ export function TodoBlock({ blockId, items, onUpdate, isDark = true }: TodoBlock
           value={newText}
           onChange={(e) => setNewText(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Nouvelle tâche..."
+          placeholder="New task..."
           className={`flex-1 bg-transparent border-none outline-none text-sm
             ${isDark ? 'text-neutral-300 placeholder-neutral-500' : 'text-neutral-700 placeholder-neutral-400'}`}
         />

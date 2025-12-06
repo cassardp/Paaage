@@ -68,7 +68,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
         const imported = await importConfig(file);
         onImport(imported);
       } catch (err) {
-        alert(err instanceof Error ? err.message : 'Erreur import');
+        alert(err instanceof Error ? err.message : 'Import error');
       }
     }
     if (fileInputRef.current) {
@@ -110,33 +110,33 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
   const handleCopyShareUrl = () => {
     if (shareUrl) {
       navigator.clipboard.writeText(shareUrl);
-      setToastMessage('Lien copié !');
+      setToastMessage('Link copied!');
     }
   };
 
   // Actions d'ajout (apparaissent au hover)
   const addActions = [
-    ...(!hasSearchBlock ? [{ icon: Search, action: () => handleAddBlock('search'), label: 'Recherche' }] : []),
-    { icon: CloudSun, action: () => handleAddBlock('weather'), label: 'Météo' },
-    { icon: Bookmark, action: handleBookmarkClick, label: 'Lien' },
+    ...(!hasSearchBlock ? [{ icon: Search, action: () => handleAddBlock('search'), label: 'Search' }] : []),
+    { icon: CloudSun, action: () => handleAddBlock('weather'), label: 'Weather' },
+    { icon: Bookmark, action: handleBookmarkClick, label: 'Link' },
     { icon: StickyNote, action: () => { onAddNote(''); setIsHovered(false); }, label: 'Note' },
     { icon: Music, action: () => { onAddStation(); setIsHovered(false); }, label: 'Radio' },
     { icon: TrendingUp, action: () => { onAddStock(); setIsHovered(false); }, label: 'Stock' },
     { icon: ListTodo, action: () => { onAddTodo(); setIsHovered(false); }, label: 'Todo' },
-    { icon: Clock, action: () => { onAddClock(); setIsHovered(false); }, label: 'Horloge' },
+    { icon: Clock, action: () => { onAddClock(); setIsHovered(false); }, label: 'Clock' },
     { icon: Rss, action: () => { onAddRss(); setIsHovered(false); }, label: 'RSS' },
   ];
 
   // Actions utilitaires (apparaissent au clic)
   const utilActions = [
-    ...(canUndo ? [{ icon: Undo2, action: onUndo, label: 'Annuler', active: false }] : []),
-    { icon: isDark ? Sun : Moon, action: onToggleTheme, label: isDark ? 'Mode clair' : 'Mode sombre', active: false },
-    { icon: Download, action: handleImportClick, label: 'Importer', active: false },
-    { icon: Upload, action: handleExport, label: 'Exporter', active: false },
-    { icon: dragLocked ? Lock : Unlock, action: onToggleDragLock, label: dragLocked ? 'Déverrouiller' : 'Verrouiller', active: dragLocked },
-    ...(hasNotesOrTodos ? [{ icon: notesHidden ? EyeOff : Eye, action: onToggleNotesHidden, label: notesHidden ? 'Afficher notes' : 'Masquer notes', active: notesHidden }] : []),
+    ...(canUndo ? [{ icon: Undo2, action: onUndo, label: 'Undo', active: false }] : []),
+    { icon: isDark ? Sun : Moon, action: onToggleTheme, label: isDark ? 'Light mode' : 'Dark mode', active: false },
+    { icon: Download, action: handleImportClick, label: 'Import', active: false },
+    { icon: Upload, action: handleExport, label: 'Export', active: false },
+    { icon: dragLocked ? Lock : Unlock, action: onToggleDragLock, label: dragLocked ? 'Unlock' : 'Lock', active: dragLocked },
+    ...(hasNotesOrTodos ? [{ icon: notesHidden ? EyeOff : Eye, action: onToggleNotesHidden, label: notesHidden ? 'Show notes' : 'Hide notes', active: notesHidden }] : []),
     { icon: Cloud, action: () => setShowQRModal(true), label: 'QR Code sync', active: !!syncId, syncing },
-    { icon: Info, action: () => setShowInfoModal(true), label: 'À propos', active: false },
+    { icon: Info, action: () => setShowInfoModal(true), label: 'About', active: false },
   ];
 
   const radius = 90;
@@ -278,7 +278,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
               type="text"
               value={bookmarkLabel}
               onChange={(e) => setBookmarkLabel(e.target.value)}
-              placeholder="Nom (optionnel)"
+              placeholder="Name (optional)"
               className={`w-full px-3 py-2 mb-2 rounded border text-sm
                 ${isDark ? 'bg-neutral-900 border-neutral-700 text-neutral-300 placeholder-neutral-500' : 'bg-white border-neutral-300 text-neutral-700 placeholder-neutral-400'}
                 focus:outline-none focus:border-[var(--accent-color)]`}
@@ -288,7 +288,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
               onClick={handleBookmarkSubmit}
               className="w-full py-2 rounded text-sm cursor-pointer bg-[var(--accent-color)] text-white font-medium"
             >
-              Ajouter
+              Add
             </button>
           </div>
         </div>
@@ -301,7 +301,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowQRModal(false)}>
           <div className={`p-6 rounded-lg border shadow-xl w-80 ${isDark ? 'bg-neutral-800 border-neutral-700' : 'bg-white border-neutral-200'}`} onClick={(e) => e.stopPropagation()}>
             <h3 className={`text-lg font-semibold mb-4 text-center ${isDark ? 'text-neutral-300' : 'text-neutral-700'}`}>
-              Synchronisation
+              Sync
             </h3>
             <div className="flex justify-center mb-4">
               <img
@@ -311,7 +311,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
               />
             </div>
             <p className={`text-xs text-center mb-3 ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
-              Scannez ce QR code pour synchroniser sur un autre appareil
+              Scan this QR code to sync on another device
             </p>
             <p className={`text-xs text-center font-mono mb-4 ${isDark ? 'text-neutral-500' : 'text-neutral-400'}`}>
               ID: {syncId}
@@ -320,7 +320,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
               onClick={() => { handleCopyShareUrl(); setShowQRModal(false); }}
               className="w-full py-2 rounded text-sm cursor-pointer bg-[var(--accent-color)] text-white font-medium"
             >
-              Copier le lien
+              Copy link
             </button>
           </div>
         </div>
@@ -334,20 +334,20 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
               Paaage
             </h3>
             <div className={`text-sm space-y-3 ${isDark ? 'text-neutral-300' : 'text-neutral-600'}`}>
-              <p>Une page d'accueil personnalisable pour votre navigateur.</p>
+              <p>A customizable homepage for your browser.</p>
               <div>
-                <p className="font-medium mb-1">Fonctionnement</p>
-                <p>Glissez-déposez les blocs pour organiser votre page. Tapez "/" pour ajouter rapidement un bloc.</p>
+                <p className="font-medium mb-1">How it works</p>
+                <p>Drag and drop blocks to organize your page. Type "/" to quickly add a block.</p>
               </div>
               <div>
-                <p className="font-medium mb-1">Données</p>
-                <p>Stockées dans le cloud en json sur Val Town, sans authentification. Partagez le lien pour synchroniser entre appareils.</p>
+                <p className="font-medium mb-1">Data</p>
+                <p>Stored in the cloud as JSON on Val Town, without authentication. Share the link to sync between devices.</p>
               </div>
               <div>
                 <p className="font-medium mb-1">Technologies</p>
                 <p>React 19 • TypeScript • Tailwind CSS • Vite</p>
               </div>
-              <p className="opacity-70">Version alpha</p>
+              <p className="opacity-70">Alpha version</p>
             </div>
           </div>
         </div>

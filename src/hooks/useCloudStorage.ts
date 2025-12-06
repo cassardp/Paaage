@@ -18,7 +18,7 @@ function getSyncId(): string {
   // Sinon, récupérer ou créer un ID
   let id = localStorage.getItem(SYNC_ID_KEY);
   if (!id) {
-    id = crypto.randomUUID().slice(0, 8);
+    id = crypto.randomUUID();
     localStorage.setItem(SYNC_ID_KEY, id);
   }
   return id;

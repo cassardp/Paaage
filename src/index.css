@@ -42,9 +42,9 @@ input[type="checkbox"]:checked {
 
 /* Dark mode checkbox */
 input[type="checkbox"].checkbox-dark:checked {
-  background-color: rgb(115 115 115);
-  /* neutral-500 */
-  border-color: rgb(115 115 115);
+  background-color: rgb(38 38 38);
+  /* neutral-800 */
+  border-color: rgb(38 38 38);
 }
 
 /* Light mode checkbox */

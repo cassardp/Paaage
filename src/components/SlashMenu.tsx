@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, ListTodo, Clock, Rss } from 'lucide-react';
+import { Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, ListTodo, Clock, Rss, Link2 } from 'lucide-react';
 
 interface SlashMenuItem {
   id: string;
@@ -19,6 +19,7 @@ interface SlashMenuProps {
   onAddTodo: () => void;
   onAddClock: () => void;
   onAddRss: () => void;
+  onAddLinks: () => void;
   hasSearchBlock: boolean;
   isDark: boolean;
 }
@@ -33,6 +34,7 @@ export function SlashMenu({
   onAddTodo,
   onAddClock,
   onAddRss,
+  onAddLinks,
   hasSearchBlock,
   isDark,
 }: SlashMenuProps) {
@@ -51,6 +53,7 @@ export function SlashMenu({
     { id: 'todo', icon: ListTodo, label: 'Todo', description: 'Task list', action: onAddTodo },
     { id: 'clock', icon: Clock, label: 'Clock', description: 'City time', action: onAddClock },
     { id: 'rss', icon: Rss, label: 'RSS', description: 'Custom RSS feed', action: onAddRss },
+    { id: 'links', icon: Link2, label: 'Links', description: 'Link list with import', action: onAddLinks },
   ];
 
   const filteredItems = allItems.filter(item =>

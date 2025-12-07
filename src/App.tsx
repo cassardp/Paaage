@@ -48,6 +48,8 @@ function App() {
     addClock,
     addRss,
     updateRssFeedUrl,
+    addLinks,
+    updateLinks,
     selectStation,
     toggleTheme,
     undo,
@@ -84,6 +86,7 @@ function App() {
       onUpdateStockSymbol={updateStockSymbol}
       onUpdateStationUrl={updateStationUrl}
       onUpdateRssFeedUrl={updateRssFeedUrl}
+      onUpdateLinks={updateLinks}
       isDark={isDark}
       focusedNoteId={focusedNoteId}
       onNoteFocused={() => setFocusedNoteId(null)}
@@ -131,6 +134,7 @@ function App() {
         onAddTodo={addTodo}
         onAddClock={addClock}
         onAddRss={addRss}
+        onAddLinks={addLinks}
         onUndo={undo}
         canUndo={canUndo}
         isDark={isDark}
@@ -159,6 +163,7 @@ function App() {
         onAddTodo={addTodo}
         onAddClock={addClock}
         onAddRss={addRss}
+        onAddLinks={addLinks}
         hasSearchBlock={config.blocks.some(b => b.type === 'search')}
         isDark={isDark}
       />

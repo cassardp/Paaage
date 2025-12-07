@@ -79,7 +79,18 @@ export interface RssBlock extends BaseBlock {
   feedUrl?: string;
 }
 
-export type Block = SearchBlock | RadioBlock | WeatherBlock | BookmarkBlock | NoteBlock | StationBlock | StockBlock | TodoBlock | ClockBlock | RssBlock;
+export interface LinkItem {
+  id: string;
+  label: string;
+  url: string;
+}
+
+export interface LinksBlock extends BaseBlock {
+  type: 'links';
+  items: LinkItem[];
+}
+
+export type Block = SearchBlock | RadioBlock | WeatherBlock | BookmarkBlock | NoteBlock | StationBlock | StockBlock | TodoBlock | ClockBlock | RssBlock | LinksBlock;
 
 export interface Settings {
   theme: 'light' | 'dark';

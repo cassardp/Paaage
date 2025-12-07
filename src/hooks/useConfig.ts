@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react';
-import type { Config, Block, BlockLayout, TodoItem } from '../types/config';
+import type { Config, Block, BlockLayout, TodoItem, LinkItem } from '../types/config';
 import { useCloudStorage } from './useCloudStorage';
 import { generateId } from '../lib/utils';
 import { CELL_SIZE } from '../lib/defaultConfig';
@@ -300,6 +300,40 @@ export function useConfig() {
     }));
   }, [updateConfig]);
 
+  // Ajouter un bloc links
+  const addLinks = useCallback(() => {
+    const id = generateId();
+    const pos = getCenteredPosition(26, 3);
+    const newBlock: Block = { 
+      id, 
+      type: 'links',
+      items: [
+        { id: generateId(), label: 'Google', url: 'https://google.com' },
+        { id: generateId(), label: 'GitHub', url: 'https://github.com' },
+        { id: generateId(), label: 'YouTube', url: 'https://youtube.com' },
+      ],
+      layout: { ...pos, w: 26, h: 3 } 
+    };
+
+    updateConfig((prev) => ({
+      ...prev,
+      blocks: [...prev.blocks, newBlock],
+    }));
+  }, [updateConfig]);
+
+  // Mettre à jour les liens d'un bloc links
+  const updateLinks = useCallback((blockId: string, items: LinkItem[]) => {
+    updateConfig((prev) => ({
+      ...prev,
+      blocks: prev.blocks.map((block) => {
+        if (block.id === blockId && block.type === 'links') {
+          return { ...block, items };
+        }
+        return block;
+      }),
+    }));
+  }, [updateConfig]);
+
   // Radio
   const selectStation = useCallback((blockId: string, stationId: string | null) => {
     updateConfig((prev) => ({
@@ -348,6 +382,8 @@ export function useConfig() {
     addClock,
     addRss,
     updateRssFeedUrl,
+    addLinks,
+    updateLinks,
     selectStation,
     toggleTheme,
     undo,

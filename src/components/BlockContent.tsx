@@ -1,4 +1,4 @@
-import type { Block, TodoItem } from '../types/config';
+import type { Block, TodoItem, LinkItem } from '../types/config';
 import { SearchBlock } from './SearchBlock';
 import { RadioBlock } from './RadioBlock';
 import { WeatherBlock } from './WeatherBlock';
@@ -9,6 +9,7 @@ import { StockBlock } from './StockBlock';
 import { TodoBlock } from './TodoBlock';
 import { ClockBlock } from './ClockBlock';
 import { RssBlock } from './RssBlock';
+import { LinksBlock } from './LinksBlock';
 
 interface BlockContentProps {
   block: Block;
@@ -21,6 +22,7 @@ interface BlockContentProps {
   onUpdateStockSymbol: (blockId: string, symbol: string) => void;
   onUpdateStationUrl: (blockId: string, name: string, streamUrl: string) => void;
   onUpdateRssFeedUrl: (blockId: string, feedUrl: string) => void;
+  onUpdateLinks: (blockId: string, items: LinkItem[]) => void;
   isDark?: boolean;
   focusedNoteId?: string | null;
   onNoteFocused?: () => void;
@@ -37,6 +39,7 @@ export function BlockContent({
   onUpdateStockSymbol,
   onUpdateStationUrl,
   onUpdateRssFeedUrl,
+  onUpdateLinks,
   isDark = true,
   focusedNoteId,
   onNoteFocused,
@@ -89,6 +92,9 @@ export function BlockContent({
     
     case 'rss':
       return <RssBlock feedUrl={block.feedUrl} isDark={isDark} onUpdateFeedUrl={(url) => onUpdateRssFeedUrl(block.id, url)} />;
+    
+    case 'links':
+      return <LinksBlock blockId={block.id} items={block.items} width={block.layout.w} height={block.layout.h} onUpdate={onUpdateLinks} isDark={isDark} />;
     
     default:
       return null;

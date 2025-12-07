@@ -15,6 +15,7 @@ const BLOCK_SIZE_LIMITS: Record<string, { minW: number; minH: number; maxW: numb
   todo: { minW: 8, minH: 4, maxW: 30, maxH: 40 },
   clock: { minW: 9, minH: 6, maxW: 20, maxH: 6 },
   news: { minW: 14, minH: 5, maxW: 30, maxH: 40 },
+  links: { minW: 4, minH: 2, maxW: 100, maxH: 100 },
   default: { minW: 4, minH: 2, maxW: 40, maxH: 30 },
 };
 

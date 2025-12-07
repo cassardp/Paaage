@@ -73,7 +73,7 @@ export function TodoBlock({ blockId, items, onUpdate, isDark = true, config }: T
   };
 
   const checkboxClass = isDark
-    ? 'border-neutral-600 checked:bg-neutral-500 checked:border-neutral-500'
+    ? 'border-neutral-500 checked:bg-neutral-500 checked:border-neutral-500'
     : 'border-neutral-300 checked:bg-neutral-400 checked:border-neutral-400';
 
   const textClass = isDark ? 'text-neutral-300' : 'text-neutral-700';

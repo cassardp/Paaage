@@ -110,9 +110,9 @@ export function RadioBlock({ blockId, title, stations, currentStationId, onSelec
               `}
             >
               {isActive ? (
-                <Pause className="w-3 h-3 text-[var(--accent-color)] flex-shrink-0" />
+                <Pause className={`w-3 h-3 flex-shrink-0 ${isDark ? 'text-neutral-200' : 'text-neutral-700'}`} />
               ) : (
-                <Play className={`w-3 h-3 flex-shrink-0 ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`} />
+                <Play className={`w-3 h-3 flex-shrink-0 ${isDark ? 'text-neutral-500' : 'text-neutral-400'}`} />
               )}
               <span className="text-xs truncate">
                 {station.name}

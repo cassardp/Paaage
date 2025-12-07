@@ -85,7 +85,7 @@ export function TodoBlock({ blockId, items, onUpdate, isDark = true, config }: T
               type="checkbox"
               checked={item.done}
               onChange={() => toggleItem(item.id)}
-              className={`w-4 h-4 mt-0.5 rounded cursor-pointer flex-shrink-0 ${isDark ? 'text-neutral-500 border-neutral-500' : 'text-neutral-400 border-neutral-300'
+              className={`w-4 h-4 mt-0.5 rounded cursor-pointer flex-shrink-0 ${isDark ? 'text-neutral-500 border-neutral-500' : 'text-neutral-700 border-neutral-300'
                 }`}
             />
             {editingId === item.id ? (

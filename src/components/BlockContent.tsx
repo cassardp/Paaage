@@ -1,4 +1,4 @@
-import type { Block, TodoItem, LinkItem } from '../types/config';
+import type { Block, TodoItem, LinkItem, Config } from '../types/config';
 import { SearchBlock } from './SearchBlock';
 import { RadioBlock } from './RadioBlock';
 import { WeatherBlock } from './WeatherBlock';
@@ -26,6 +26,7 @@ interface BlockContentProps {
   isDark?: boolean;
   focusedNoteId?: string | null;
   onNoteFocused?: () => void;
+  config: Config;
 }
 
 export function BlockContent({
@@ -43,11 +44,12 @@ export function BlockContent({
   isDark = true,
   focusedNoteId,
   onNoteFocused,
+  config,
 }: BlockContentProps) {
   switch (block.type) {
     case 'search':
-      return <SearchBlock searchEngine={searchEngine} isDark={isDark} />;
-    
+      return <SearchBlock searchEngine={searchEngine} isDark={isDark} config={config} />;
+
     case 'radio':
       return (
         <RadioBlock
@@ -59,13 +61,13 @@ export function BlockContent({
           isDark={isDark}
         />
       );
-    
+
     case 'weather':
       return <WeatherBlock city={block.city} isDark={isDark} width={block.layout.w} onUpdateCity={(city) => onUpdateWeatherCity(block.id, city)} />;
-    
+
     case 'bookmark':
-      return <BookmarkBlock label={block.label} url={block.url} height={block.layout.h} isDark={isDark} />;
-    
+      return <BookmarkBlock label={block.label} url={block.url} height={block.layout.h} isDark={isDark} config={config} />;
+
     case 'note':
       return (
         <NoteBlock
@@ -75,27 +77,28 @@ export function BlockContent({
           isDark={isDark}
           autoFocus={focusedNoteId === block.id}
           onFocused={onNoteFocused}
+          config={config}
         />
       );
-    
+
     case 'station':
       return <StationBlock name={block.name} streamUrl={block.streamUrl} isDark={isDark} onUpdateStation={(name, url) => onUpdateStationUrl(block.id, name, url)} />;
-    
+
     case 'stock':
       return <StockBlock symbol={block.symbol} isDark={isDark} width={block.layout.w} onUpdateSymbol={(symbol) => onUpdateStockSymbol(block.id, symbol)} />;
-    
+
     case 'todo':
-      return <TodoBlock blockId={block.id} items={block.items} onUpdate={onUpdateTodo} isDark={isDark} />;
-    
+      return <TodoBlock blockId={block.id} items={block.items} onUpdate={onUpdateTodo} isDark={isDark} config={config} />;
+
     case 'clock':
       return <ClockBlock city={block.city} timezone={block.timezone} isDark={isDark} onUpdateCity={(city, tz) => onUpdateClockCity(block.id, city, tz)} />;
-    
+
     case 'rss':
-      return <RssBlock feedUrl={block.feedUrl} isDark={isDark} onUpdateFeedUrl={(url) => onUpdateRssFeedUrl(block.id, url)} />;
-    
+      return <RssBlock feedUrl={block.feedUrl} isDark={isDark} onUpdateFeedUrl={(url) => onUpdateRssFeedUrl(block.id, url)} config={config} />;
+
     case 'links':
-      return <LinksBlock blockId={block.id} items={block.items} width={block.layout.w} height={block.layout.h} onUpdate={onUpdateLinks} isDark={isDark} />;
-    
+      return <LinksBlock blockId={block.id} items={block.items} width={block.layout.w} height={block.layout.h} onUpdate={onUpdateLinks} isDark={isDark} config={config} />;
+
     default:
       return null;
   }

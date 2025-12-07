@@ -52,6 +52,7 @@ function App() {
     updateLinks,
     selectStation,
     toggleTheme,
+    toggleLinkTarget,
     undo,
     canUndo,
   } = useConfig();
@@ -70,8 +71,8 @@ function App() {
   }
 
   const isDark = config.settings.theme === 'dark';
-  const visibleBlocks = notesHidden 
-    ? config.blocks.filter(b => b.type === 'search' || b.type === 'bookmark') 
+  const visibleBlocks = notesHidden
+    ? config.blocks.filter(b => b.type === 'search' || b.type === 'bookmark')
     : config.blocks;
 
   const renderBlockContent = (block: Block) => (
@@ -90,6 +91,7 @@ function App() {
       isDark={isDark}
       focusedNoteId={focusedNoteId}
       onNoteFocused={() => setFocusedNoteId(null)}
+      config={config}
     />
   );
 
@@ -143,6 +145,7 @@ function App() {
         onToggleNotesHidden={() => setNotesHidden(!notesHidden)}
         showBookmarkForm={showBookmarkModal}
         onShowBookmarkForm={setShowBookmarkModal}
+        onToggleLinkTarget={toggleLinkTarget}
       />
       <DraggableGrid
         blocks={visibleBlocks}

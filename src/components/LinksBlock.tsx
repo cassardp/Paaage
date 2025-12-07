@@ -19,8 +19,9 @@ import {
   horizontalListSortingStrategy,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import type { LinkItem } from '../types/config';
+import type { LinkItem, Config } from '../types/config';
 import { generateId } from '../lib/utils';
+import { getLinkTarget } from '../constants/links';
 
 interface LinksBlockProps {
   blockId: string;
@@ -29,6 +30,7 @@ interface LinksBlockProps {
   height: number;
   onUpdate: (blockId: string, items: LinkItem[]) => void;
   isDark?: boolean;
+  config: Config;
 }
 
 // Parser HTML bookmarks (Safari/Chrome export)
@@ -54,9 +56,10 @@ interface SortableLinkProps {
   isDark: boolean;
   onRemove: (id: string) => void;
   isDraggingAny: boolean;
+  config: Config;
 }
 
-function SortableLink({ item, isDark, onRemove, isDraggingAny }: SortableLinkProps) {
+function SortableLink({ item, isDark, onRemove, isDraggingAny, config }: SortableLinkProps) {
   const [isHovering, setIsHovering] = useState(false);
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -69,7 +72,7 @@ function SortableLink({ item, isDark, onRemove, isDraggingAny }: SortableLinkPro
     isDragging,
   } = useSortable({ id: item.id });
 
-  
+
   const handleMouseEnter = () => {
     hoverTimerRef.current = setTimeout(() => setIsHovering(true), 1000);
   };
@@ -79,7 +82,7 @@ function SortableLink({ item, isDark, onRemove, isDraggingAny }: SortableLinkPro
     if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
   };
 
-  
+
   useEffect(() => {
     return () => {
       if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
@@ -107,6 +110,8 @@ function SortableLink({ item, isDark, onRemove, isDraggingAny }: SortableLinkPro
     >
       <a
         href={item.url}
+        target={getLinkTarget(config)}
+        rel="noopener noreferrer"
         style={{ cursor: 'inherit', pointerEvents: isDraggingAny ? 'none' : 'auto' }}
         className={`text-sm leading-none whitespace-nowrap transition-colors ${textClass}`}
       >
@@ -124,7 +129,7 @@ function SortableLink({ item, isDark, onRemove, isDraggingAny }: SortableLinkPro
 }
 
 
-export function LinksBlock({ blockId, items, width, height, onUpdate, isDark = true }: LinksBlockProps) {
+export function LinksBlock({ blockId, items, width, height, onUpdate, isDark = true, config }: LinksBlockProps) {
   const [newUrl, setNewUrl] = useState('');
   const [newLabel, setNewLabel] = useState('');
   const [showForm, setShowForm] = useState(false);
@@ -232,69 +237,70 @@ export function LinksBlock({ blockId, items, width, height, onUpdate, isDark = t
 
   return (
     <>
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      modifiers={[restrictToAxis]}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-    >
-      <div 
-        className={`scrollbar-hide ${isHorizontal ? 'h-full flex items-center gap-4 overflow-x-auto overflow-y-hidden' : 'h-full flex flex-col gap-1.5 overflow-auto'}`}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        modifiers={[restrictToAxis]}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
       >
-        <SortableContext
-          items={items.map(item => item.id)}
-          strategy={isHorizontal ? horizontalListSortingStrategy : verticalListSortingStrategy}
+        <div
+          className={`scrollbar-hide ${isHorizontal ? 'h-full flex items-center gap-4 overflow-x-auto overflow-y-hidden' : 'h-full flex flex-col gap-1.5 overflow-auto'}`}
         >
-          {items.map(item => (
-            <SortableLink
-              key={item.id}
-              item={item}
-              isDark={isDark}
-              onRemove={removeLink}
-              isDraggingAny={isDraggingAny}
-            />
-          ))}
-        </SortableContext>
-        {actions}
-      </div>
-    </DndContext>
-
-    {/* Modal formulaire ajout lien - rendu via portal pour être centré sur l'écran */}
-    {showForm && createPortal(
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowForm(false)}>
-        <div className={`p-3 rounded-lg border shadow-xl w-72 ${isDark ? 'bg-neutral-800 border-neutral-700' : 'bg-white border-neutral-200'}`} onClick={(e) => e.stopPropagation()}>
-          <input
-            type="text"
-            value={newUrl}
-            onChange={(e) => setNewUrl(e.target.value)}
-            placeholder="URL (ex: google.com)"
-            autoFocus
-            className={`w-full px-3 py-2 mb-2 rounded border text-sm
-              ${isDark ? 'bg-neutral-900 border-neutral-700 text-neutral-300 placeholder-neutral-500' : 'bg-white border-neutral-300 text-neutral-700 placeholder-neutral-400'}
-              focus:outline-none focus:border-[var(--accent-color)]`}
-            onKeyDown={(e) => e.key === 'Enter' && addLink()}
-          />
-          <input
-            type="text"
-            value={newLabel}
-            onChange={(e) => setNewLabel(e.target.value)}
-            placeholder="Name (optional)"
-            className={`w-full px-3 py-2 mb-2 rounded border text-sm
-              ${isDark ? 'bg-neutral-900 border-neutral-700 text-neutral-300 placeholder-neutral-500' : 'bg-white border-neutral-300 text-neutral-700 placeholder-neutral-400'}
-              focus:outline-none focus:border-[var(--accent-color)]`}
-            onKeyDown={(e) => e.key === 'Enter' && addLink()}
-          />
-          <button
-            onClick={addLink}
-            className="w-full py-2 rounded text-sm cursor-pointer bg-[var(--accent-color)] text-white font-medium"
+          <SortableContext
+            items={items.map(item => item.id)}
+            strategy={isHorizontal ? horizontalListSortingStrategy : verticalListSortingStrategy}
           >
-            Add
-          </button>
+            {items.map(item => (
+              <SortableLink
+                key={item.id}
+                item={item}
+                isDark={isDark}
+                onRemove={removeLink}
+                isDraggingAny={isDraggingAny}
+                config={config}
+              />
+            ))}
+          </SortableContext>
+          {actions}
         </div>
-      </div>,
-      document.body
-    )}
+      </DndContext>
+
+      {/* Modal formulaire ajout lien - rendu via portal pour être centré sur l'écran */}
+      {showForm && createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowForm(false)}>
+          <div className={`p-3 rounded-lg border shadow-xl w-72 ${isDark ? 'bg-neutral-800 border-neutral-700' : 'bg-white border-neutral-200'}`} onClick={(e) => e.stopPropagation()}>
+            <input
+              type="text"
+              value={newUrl}
+              onChange={(e) => setNewUrl(e.target.value)}
+              placeholder="URL (ex: google.com)"
+              autoFocus
+              className={`w-full px-3 py-2 mb-2 rounded border text-sm
+              ${isDark ? 'bg-neutral-900 border-neutral-700 text-neutral-300 placeholder-neutral-500' : 'bg-white border-neutral-300 text-neutral-700 placeholder-neutral-400'}
+              focus:outline-none focus:border-[var(--accent-color)]`}
+              onKeyDown={(e) => e.key === 'Enter' && addLink()}
+            />
+            <input
+              type="text"
+              value={newLabel}
+              onChange={(e) => setNewLabel(e.target.value)}
+              placeholder="Name (optional)"
+              className={`w-full px-3 py-2 mb-2 rounded border text-sm
+              ${isDark ? 'bg-neutral-900 border-neutral-700 text-neutral-300 placeholder-neutral-500' : 'bg-white border-neutral-300 text-neutral-700 placeholder-neutral-400'}
+              focus:outline-none focus:border-[var(--accent-color)]`}
+              onKeyDown={(e) => e.key === 'Enter' && addLink()}
+            />
+            <button
+              onClick={addLink}
+              className="w-full py-2 rounded text-sm cursor-pointer bg-[var(--accent-color)] text-white font-medium"
+            >
+              Add
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
     </>
   );
 }

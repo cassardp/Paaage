@@ -1,18 +1,22 @@
+import { getLinkTarget } from '../constants/links';
+import type { Config } from '../types/config';
+
 interface BookmarkBlockProps {
   label: string;
   url: string;
   height: number;
   isDark?: boolean;
+  config: Config;
 }
 
-export function BookmarkBlock({ label, url, height, isDark = true }: BookmarkBlockProps) {
+export function BookmarkBlock({ label, url, height, isDark = true, config }: BookmarkBlockProps) {
   // Taille du texte selon la hauteur (2, 3 ou 4 cellules)
   const textSize = height <= 2 ? 'text-sm' : height === 3 ? 'text-lg' : 'text-2xl';
 
   return (
     <a
       href={url}
-      target="_self"
+      target={getLinkTarget(config)}
       rel="noopener noreferrer"
       className="w-full h-full flex items-center justify-center group"
     >

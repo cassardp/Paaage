@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { LinkifyText } from './LinkifyText';
+import type { Config } from '../types/config';
 
 interface NoteBlockProps {
   blockId: string;
@@ -8,9 +9,10 @@ interface NoteBlockProps {
   isDark?: boolean;
   autoFocus?: boolean;
   onFocused?: () => void;
+  config: Config;
 }
 
-export function NoteBlock({ blockId, content, onUpdate, isDark = true, autoFocus, onFocused }: NoteBlockProps) {
+export function NoteBlock({ blockId, content, onUpdate, isDark = true, autoFocus, onFocused, config }: NoteBlockProps) {
   const [value, setValue] = useState(content);
   const [isEditing, setIsEditing] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -41,7 +43,7 @@ export function NoteBlock({ blockId, content, onUpdate, isDark = true, autoFocus
   // Sauvegarde automatique 1s après la dernière modification (debounce)
   useEffect(() => {
     if (value === content) return;
-    
+
     const timeout = setTimeout(() => {
       onUpdate(blockId, value);
     }, 1000);
@@ -88,12 +90,12 @@ export function NoteBlock({ blockId, content, onUpdate, isDark = true, autoFocus
           placeholder="Write your note..."
         />
       ) : (
-        <div 
+        <div
           onClick={handleClick}
           className={`w-full h-full text-sm whitespace-pre-wrap cursor-text ${textClass}`}
         >
           {value ? (
-            <LinkifyText text={value} isDark={isDark} />
+            <LinkifyText text={value} isDark={isDark} config={config} />
           ) : (
             <span className={isDark ? 'text-neutral-500' : 'text-neutral-400'}>
               Write your note...

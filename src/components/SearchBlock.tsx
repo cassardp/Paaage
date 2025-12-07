@@ -1,18 +1,21 @@
 import { useState, type FormEvent } from 'react';
 import { Search } from 'lucide-react';
+import { getLinkTarget } from '../constants/links';
+import type { Config } from '../types/config';
 
 interface SearchBlockProps {
   searchEngine: string;
   isDark?: boolean;
+  config: Config;
 }
 
-export function SearchBlock({ searchEngine, isDark = true }: SearchBlockProps) {
+export function SearchBlock({ searchEngine, isDark = true, config }: SearchBlockProps) {
   const [query, setQuery] = useState('');
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (query.trim()) {
-      window.open(searchEngine + encodeURIComponent(query.trim()), '_self');
+      window.open(searchEngine + encodeURIComponent(query.trim()), getLinkTarget(config));
       setQuery('');
     }
   };

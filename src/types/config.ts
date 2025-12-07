@@ -96,6 +96,7 @@ export interface Settings {
   theme: 'light' | 'dark';
   accentColor?: string; // Deprecated - non utilisé
   searchEngine: string;
+  linkTarget: '_blank' | '_self';
 }
 
 export interface Config {

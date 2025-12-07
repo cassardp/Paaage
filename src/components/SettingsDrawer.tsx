@@ -6,9 +6,10 @@ interface SettingsDrawerProps {
   open: boolean;
   onClose: () => void;
   config: Config;
+  onToggleLinkTarget: () => void;
 }
 
-export function SettingsDrawer({ open, onClose, config }: SettingsDrawerProps) {
+export function SettingsDrawer({ open, onClose, config, onToggleLinkTarget }: SettingsDrawerProps) {
   const drawerRef = useRef<HTMLDivElement>(null);
   const isDark = config.settings.theme === 'dark';
 
@@ -57,11 +58,31 @@ export function SettingsDrawer({ open, onClose, config }: SettingsDrawerProps) {
                   </div>
                 </div>
 
-                {/* Content - temporairement vide */}
+                {/* Content */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-6">
-                  <p className={`text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
-                    No settings available yet.
-                  </p>
+                  {/* Link Target Setting */}
+                  <div className="space-y-2">
+                    <h3 className={`text-sm font-medium ${isDark ? 'text-neutral-200' : 'text-neutral-800'}`}>
+                      Links
+                    </h3>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`}>
+                        Open links in new tab
+                      </span>
+                      <button
+                        onClick={onToggleLinkTarget}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${config.settings.linkTarget === '_blank'
+                            ? 'bg-[var(--accent-color)]'
+                            : isDark ? 'bg-neutral-600' : 'bg-neutral-300'
+                          }`}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${config.settings.linkTarget === '_blank' ? 'translate-x-6' : 'translate-x-1'
+                            }`}
+                        />
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
               </div>

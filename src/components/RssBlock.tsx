@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Spinner } from './Spinner';
+import { getLinkTarget } from '../constants/links';
+import type { Config } from '../types/config';
 
 interface RssItem {
   title: string;
@@ -10,9 +12,10 @@ interface RssBlockProps {
   feedUrl?: string;
   isDark?: boolean;
   onUpdateFeedUrl?: (url: string) => void;
+  config: Config;
 }
 
-export function RssBlock({ feedUrl = 'https://news.ycombinator.com/rss', isDark = true, onUpdateFeedUrl }: RssBlockProps) {
+export function RssBlock({ feedUrl = 'https://news.ycombinator.com/rss', isDark = true, onUpdateFeedUrl, config }: RssBlockProps) {
   const [items, setItems] = useState<RssItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -28,13 +31,13 @@ export function RssBlock({ feedUrl = 'https://news.ycombinator.com/rss', isDark 
         const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`;
         const res = await fetch(proxyUrl);
         const text = await res.text();
-        
+
         const parser = new DOMParser();
         const xml = parser.parseFromString(text, 'text/xml');
-        
+
         const itemElements = xml.querySelectorAll('item');
         const parsedItems: RssItem[] = [];
-        
+
         itemElements.forEach((item, index) => {
           if (index < 20) {
             const title = item.querySelector('title')?.textContent || '';
@@ -44,7 +47,7 @@ export function RssBlock({ feedUrl = 'https://news.ycombinator.com/rss', isDark 
             }
           }
         });
-        
+
         setItems(parsedItems);
       } catch {
         setError(true);
@@ -80,7 +83,7 @@ export function RssBlock({ feedUrl = 'https://news.ycombinator.com/rss', isDark 
   };
 
   const mutedClass = isDark ? 'text-neutral-500' : 'text-neutral-400';
-  
+
   if (loading) {
     return (
       <div className="h-full flex items-center justify-center">
@@ -129,7 +132,7 @@ export function RssBlock({ feedUrl = 'https://news.ycombinator.com/rss', isDark 
           className={`mb-2 bg-transparent border-none outline-none text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}
         />
       ) : (
-        <span 
+        <span
           onClick={handleEdit}
           className={`text-xs ${mutedClass} mb-2 truncate cursor-pointer hover:underline`}
           title="Click to edit URL"
@@ -142,7 +145,7 @@ export function RssBlock({ feedUrl = 'https://news.ycombinator.com/rss', isDark 
           <a
             key={i}
             href={item.link}
-            target="_self"
+            target={getLinkTarget(config)}
             rel="noopener noreferrer"
             className={`block py-1.5 text-sm hover:underline ${isDark ? 'text-neutral-300 hover:text-neutral-400' : 'text-neutral-700 hover:text-neutral-500'} transition-colors`}
           >

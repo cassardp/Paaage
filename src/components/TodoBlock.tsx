@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { Plus, X } from 'lucide-react';
-import type { TodoItem } from '../types/config';
+import type { TodoItem, Config } from '../types/config';
 import { generateId } from '../lib/utils';
 import { LinkifyText } from './LinkifyText';
 
@@ -9,9 +9,10 @@ interface TodoBlockProps {
   items: TodoItem[];
   onUpdate: (blockId: string, items: TodoItem[]) => void;
   isDark?: boolean;
+  config: Config;
 }
 
-export function TodoBlock({ blockId, items, onUpdate, isDark = true }: TodoBlockProps) {
+export function TodoBlock({ blockId, items, onUpdate, isDark = true, config }: TodoBlockProps) {
   const [newText, setNewText] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
@@ -19,7 +20,7 @@ export function TodoBlock({ blockId, items, onUpdate, isDark = true }: TodoBlock
   const editInputRef = useRef<HTMLInputElement>(null);
 
   const toggleItem = (itemId: string) => {
-    const updated = items.map(item => 
+    const updated = items.map(item =>
       item.id === itemId ? { ...item, done: !item.done } : item
     );
     onUpdate(blockId, updated);
@@ -101,11 +102,11 @@ export function TodoBlock({ blockId, items, onUpdate, isDark = true }: TodoBlock
                 className={`flex-1 text-sm bg-transparent border-none outline-none ${textClass}`}
               />
             ) : (
-              <span 
+              <span
                 onClick={() => startEdit(item)}
                 className={`flex-1 text-sm cursor-pointer ${item.done ? `line-through ${mutedClass}` : textClass}`}
               >
-                <LinkifyText text={item.text} isDark={isDark} />
+                <LinkifyText text={item.text} isDark={isDark} config={config} />
               </span>
             )}
             <button

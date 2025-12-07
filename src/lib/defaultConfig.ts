@@ -10,6 +10,7 @@ export const DEFAULT_CONFIG: Config = {
     theme: 'light',
     accentColor: '#FF6B00',
     searchEngine: 'https://www.google.com/search?q=',
+    linkTarget: '_blank',
   },
   blocks: [
     { id: '52p4xxg', type: 'note', content: '/ to open the insert menu.', layout: { x: 39, y: 17, w: 12, h: 5 } },

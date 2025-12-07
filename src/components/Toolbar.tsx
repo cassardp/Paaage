@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Plus, Search, CloudSun, Bookmark, StickyNote, Music, TrendingUp, Lock, Unlock, Eye, EyeOff, ListTodo, Clock, Rss, Cloud, Sun, Moon, Download, Upload, Undo2, Settings2, Info } from 'lucide-react';
+import { Plus, Search, CloudSun, Bookmark, StickyNote, Music, TrendingUp, Lock, Unlock, Eye, EyeOff, ListTodo, Clock, Rss, Cloud, Sun, Moon, Download, Upload, Undo2, Settings2, Info, ToggleLeft, ToggleRight } from 'lucide-react';
 import { getShareUrl } from '../hooks/useCloudStorage';
 import { exportConfig, importConfig } from '../lib/storage';
 import type { Config } from '../types/config';
@@ -28,17 +28,18 @@ interface ToolbarProps {
   onToggleNotesHidden: () => void;
   showBookmarkForm?: boolean;
   onShowBookmarkForm?: (show: boolean) => void;
+  onToggleLinkTarget: () => void;
 }
 
-export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAddBlock, onAddBookmark, onAddNote, onAddStation, onAddStock, onAddTodo, onAddClock, onAddRss, onUndo, canUndo, isDark, dragLocked, onToggleDragLock, notesHidden, onToggleNotesHidden, showBookmarkForm: externalShowBookmark, onShowBookmarkForm }: ToolbarProps) {
+export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAddBlock, onAddBookmark, onAddNote, onAddStation, onAddStock, onAddTodo, onAddClock, onAddRss, onUndo, canUndo, isDark, dragLocked, onToggleDragLock, notesHidden, onToggleNotesHidden, showBookmarkForm: externalShowBookmark, onShowBookmarkForm, onToggleLinkTarget }: ToolbarProps) {
   const [isHovered, setIsHovered] = useState(false); // Hover = actions utilitaires
   const [isClicked, setIsClicked] = useState(false); // Clic = actions d'ajout
   const [internalShowBookmark, setInternalShowBookmark] = useState(false);
-  
+
   // Synchroniser avec le state externe si fourni
   const showBookmarkForm = externalShowBookmark ?? internalShowBookmark;
   const setShowBookmarkForm = onShowBookmarkForm ?? setInternalShowBookmark;
-  
+
   useEffect(() => {
     if (externalShowBookmark !== undefined) {
       setInternalShowBookmark(externalShowBookmark);
@@ -50,7 +51,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const shareUrl = getShareUrl();
 
   const handleExport = () => {
@@ -114,6 +115,12 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
     }
   };
 
+  const handleToggleLinkTarget = () => {
+    onToggleLinkTarget();
+    const newTarget = config.settings.linkTarget === '_blank' ? '_self' : '_blank';
+    setToastMessage(newTarget === '_blank' ? 'Links open in new tab' : 'Links open in same tab');
+  };
+
   // Actions d'ajout (apparaissent au hover)
   const addActions = [
     ...(!hasSearchBlock ? [{ icon: Search, action: () => handleAddBlock('search'), label: 'Search' }] : []),
@@ -131,6 +138,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
   const utilActions = [
     ...(canUndo ? [{ icon: Undo2, action: onUndo, label: 'Undo', active: false }] : []),
     { icon: isDark ? Sun : Moon, action: onToggleTheme, label: isDark ? 'Light mode' : 'Dark mode', active: false },
+    { icon: config.settings.linkTarget === '_blank' ? ToggleRight : ToggleLeft, action: handleToggleLinkTarget, label: config.settings.linkTarget === '_blank' ? 'Open in same tab' : 'Open in new tab', active: config.settings.linkTarget === '_blank' },
     { icon: Download, action: handleImportClick, label: 'Import', active: false },
     { icon: Upload, action: handleExport, label: 'Export', active: false },
     { icon: dragLocked ? Lock : Unlock, action: onToggleDragLock, label: dragLocked ? 'Unlock' : 'Lock', active: dragLocked },

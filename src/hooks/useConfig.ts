@@ -65,7 +65,7 @@ export function useConfig() {
   // Ajouter un bloc
   const addBlock = useCallback((type: 'search' | 'weather') => {
     const id = generateId();
-    
+
     let newBlock: Block;
     switch (type) {
       case 'search': {
@@ -90,12 +90,12 @@ export function useConfig() {
   const addBookmark = useCallback((label: string, url: string) => {
     const id = generateId();
     const pos = getCenteredPosition(7, 3);
-    const newBlock: Block = { 
-      id, 
-      type: 'bookmark', 
-      label, 
-      url, 
-      layout: { ...pos, w: 7, h: 2 } 
+    const newBlock: Block = {
+      id,
+      type: 'bookmark',
+      label,
+      url,
+      layout: { ...pos, w: 7, h: 2 }
     };
 
     updateConfig((prev) => ({
@@ -108,11 +108,11 @@ export function useConfig() {
   const addSingleNote = useCallback((content: string): string => {
     const id = generateId();
     const pos = getCenteredPosition(20, 10);
-    const newBlock: Block = { 
-      id, 
-      type: 'note', 
-      content, 
-      layout: { ...pos, w: 20, h: 10 } 
+    const newBlock: Block = {
+      id,
+      type: 'note',
+      content,
+      layout: { ...pos, w: 20, h: 10 }
     };
 
     updateConfig((prev) => ({
@@ -204,11 +204,11 @@ export function useConfig() {
   const addTodo = useCallback(() => {
     const id = generateId();
     const pos = getCenteredPosition(15, 20);
-    const newBlock: Block = { 
-      id, 
-      type: 'todo', 
+    const newBlock: Block = {
+      id,
+      type: 'todo',
       items: [],
-      layout: { ...pos, w: 15, h: 20 } 
+      layout: { ...pos, w: 15, h: 20 }
     };
 
     updateConfig((prev) => ({
@@ -221,12 +221,12 @@ export function useConfig() {
   const addStation = useCallback(() => {
     const id = generateId();
     const pos = getCenteredPosition(12, 4);
-    const newBlock: Block = { 
-      id, 
-      type: 'station', 
-      name: 'FIP', 
-      streamUrl: 'https://icecast.radiofrance.fr/fip-midfi.mp3', 
-      layout: { ...pos, w: 12, h: 4 } 
+    const newBlock: Block = {
+      id,
+      type: 'station',
+      name: 'FIP',
+      streamUrl: 'https://icecast.radiofrance.fr/fip-midfi.mp3',
+      layout: { ...pos, w: 12, h: 4 }
     };
 
     updateConfig((prev) => ({
@@ -239,11 +239,11 @@ export function useConfig() {
   const addStock = useCallback(() => {
     const id = generateId();
     const pos = getCenteredPosition(12, 4);
-    const newBlock: Block = { 
-      id, 
-      type: 'stock', 
-      symbol: 'AAPL', 
-      layout: { ...pos, w: 14, h: 5 } 
+    const newBlock: Block = {
+      id,
+      type: 'stock',
+      symbol: 'AAPL',
+      layout: { ...pos, w: 14, h: 5 }
     };
 
     updateConfig((prev) => ({
@@ -256,12 +256,12 @@ export function useConfig() {
   const addClock = useCallback(() => {
     const id = generateId();
     const pos = getCenteredPosition(9, 6);
-    const newBlock: Block = { 
-      id, 
+    const newBlock: Block = {
+      id,
       type: 'clock',
       city: 'Paris',
       timezone: 'Europe/Paris',
-      layout: { ...pos, w: 9, h: 6 } 
+      layout: { ...pos, w: 9, h: 6 }
     };
 
     updateConfig((prev) => ({
@@ -274,11 +274,11 @@ export function useConfig() {
   const addRss = useCallback(() => {
     const id = generateId();
     const pos = getCenteredPosition(15, 20);
-    const newBlock: Block = { 
-      id, 
+    const newBlock: Block = {
+      id,
       type: 'rss',
       feedUrl: 'https://news.ycombinator.com/rss',
-      layout: { ...pos, w: 15, h: 20 } 
+      layout: { ...pos, w: 15, h: 20 }
     };
 
     updateConfig((prev) => ({
@@ -304,15 +304,15 @@ export function useConfig() {
   const addLinks = useCallback(() => {
     const id = generateId();
     const pos = getCenteredPosition(26, 3);
-    const newBlock: Block = { 
-      id, 
+    const newBlock: Block = {
+      id,
       type: 'links',
       items: [
         { id: generateId(), label: 'Google', url: 'https://google.com' },
         { id: generateId(), label: 'GitHub', url: 'https://github.com' },
         { id: generateId(), label: 'YouTube', url: 'https://youtube.com' },
       ],
-      layout: { ...pos, w: 26, h: 3 } 
+      layout: { ...pos, w: 26, h: 3 }
     };
 
     updateConfig((prev) => ({
@@ -358,6 +358,17 @@ export function useConfig() {
     }));
   }, [updateConfig]);
 
+  // Link Target
+  const toggleLinkTarget = useCallback(() => {
+    updateConfig((prev) => ({
+      ...prev,
+      settings: {
+        ...prev.settings,
+        linkTarget: prev.settings.linkTarget === '_blank' ? '_self' : '_blank',
+      },
+    }));
+  }, [updateConfig]);
+
   return {
     config,
     isLoading,
@@ -386,6 +397,7 @@ export function useConfig() {
     updateLinks,
     selectStation,
     toggleTheme,
+    toggleLinkTarget,
     undo,
     canUndo: historyRef.current.length > 0,
   };

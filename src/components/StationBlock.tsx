@@ -153,14 +153,14 @@ export function StationBlock({ name, streamUrl, isDark = true, onUpdateStation }
             {isPlaying ? (
               <EqualizerBars />
             ) : (
-              <Play className={`w-4 h-4 shrink-0 ${isDark ? 'text-neutral-300' : 'text-neutral-700'}`} fill="currentColor" />
+              <Play className={`w-4 h-4 shrink-0 ${isDark ? 'text-neutral-500' : 'text-neutral-400'}`} fill="currentColor" />
             )}
           </button>
 
           {/* Nom de la station */}
           <span
             onClick={(e) => { e.stopPropagation(); onFlip(); }}
-            className={`text-sm font-medium cursor-pointer hover:underline truncate ${isPlaying ? 'text-[var(--accent-color)]' : isDark ? 'text-neutral-300' : 'text-neutral-700'
+            className={`text-sm font-medium cursor-pointer hover:underline truncate ${isPlaying ? isDark ? 'text-neutral-200' : 'text-neutral-700' : isDark ? 'text-neutral-500' : 'text-neutral-400'
               }`}
           >
             {name}

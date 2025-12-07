@@ -50,7 +50,6 @@ function App() {
     updateRssFeedUrl,
     addLinks,
     updateLinks,
-    selectStation,
     toggleTheme,
     toggleLinkTarget,
     undo,
@@ -79,7 +78,6 @@ function App() {
     <BlockContent
       block={block}
       searchEngine={config.settings.searchEngine}
-      onSelectStation={selectStation}
       onUpdateNote={updateNote}
       onUpdateTodo={updateTodo}
       onUpdateWeatherCity={updateWeatherCity}

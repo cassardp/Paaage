@@ -334,19 +334,6 @@ export function useConfig() {
     }));
   }, [updateConfig]);
 
-  // Radio
-  const selectStation = useCallback((blockId: string, stationId: string | null) => {
-    updateConfig((prev) => ({
-      ...prev,
-      blocks: prev.blocks.map((block) => {
-        if (block.id === blockId && block.type === 'radio') {
-          return { ...block, currentStationId: stationId ?? undefined };
-        }
-        return block;
-      }),
-    }));
-  }, [updateConfig]);
-
   // Theme
   const toggleTheme = useCallback(() => {
     updateConfig((prev) => ({
@@ -395,7 +382,6 @@ export function useConfig() {
     updateRssFeedUrl,
     addLinks,
     updateLinks,
-    selectStation,
     toggleTheme,
     toggleLinkTarget,
     undo,

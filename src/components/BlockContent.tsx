@@ -1,6 +1,5 @@
 import type { Block, TodoItem, LinkItem, Config } from '../types/config';
 import { SearchBlock } from './SearchBlock';
-import { RadioBlock } from './RadioBlock';
 import { WeatherBlock } from './WeatherBlock';
 import { BookmarkBlock } from './BookmarkBlock';
 import { NoteBlock } from './NoteBlock';
@@ -14,7 +13,6 @@ import { LinksBlock } from './LinksBlock';
 interface BlockContentProps {
   block: Block;
   searchEngine: string;
-  onSelectStation: (blockId: string, stationId: string | null) => void;
   onUpdateNote: (blockId: string, content: string) => void;
   onUpdateTodo: (blockId: string, items: TodoItem[]) => void;
   onUpdateWeatherCity: (blockId: string, city: string) => void;
@@ -32,7 +30,6 @@ interface BlockContentProps {
 export function BlockContent({
   block,
   searchEngine,
-  onSelectStation,
   onUpdateNote,
   onUpdateTodo,
   onUpdateWeatherCity,
@@ -49,18 +46,6 @@ export function BlockContent({
   switch (block.type) {
     case 'search':
       return <SearchBlock searchEngine={searchEngine} isDark={isDark} config={config} />;
-
-    case 'radio':
-      return (
-        <RadioBlock
-          blockId={block.id}
-          title={block.title}
-          stations={block.stations}
-          currentStationId={block.currentStationId}
-          onSelectStation={onSelectStation}
-          isDark={isDark}
-        />
-      );
 
     case 'weather':
       return <WeatherBlock city={block.city} isDark={isDark} width={block.layout.w} onUpdateCity={(city) => onUpdateWeatherCity(block.id, city)} />;

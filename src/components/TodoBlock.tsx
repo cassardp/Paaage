@@ -72,10 +72,6 @@ export function TodoBlock({ blockId, items, onUpdate, isDark = true, config }: T
     }
   };
 
-  const checkboxClass = isDark
-    ? 'border-neutral-500 checked:bg-neutral-500 checked:border-neutral-500'
-    : 'border-neutral-300 checked:bg-neutral-400 checked:border-neutral-400';
-
   const textClass = isDark ? 'text-neutral-300' : 'text-neutral-700';
   const mutedClass = isDark ? 'text-neutral-500' : 'text-neutral-400';
 
@@ -89,7 +85,8 @@ export function TodoBlock({ blockId, items, onUpdate, isDark = true, config }: T
               type="checkbox"
               checked={item.done}
               onChange={() => toggleItem(item.id)}
-              className={`w-4 h-4 mt-0.5 rounded cursor-pointer accent-neutral-700 flex-shrink-0 ${checkboxClass}`}
+              className={`w-4 h-4 mt-0.5 rounded cursor-pointer flex-shrink-0 ${isDark ? 'text-neutral-500 border-neutral-500' : 'text-neutral-400 border-neutral-300'
+                }`}
             />
             {editingId === item.id ? (
               <input

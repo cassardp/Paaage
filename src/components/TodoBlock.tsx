@@ -78,9 +78,9 @@ export function TodoBlock({ blockId, items, onUpdate, isDark = true, config }: T
   return (
     <div className="h-full flex flex-col">
       {/* Liste des tâches */}
-      <div className="flex-1 overflow-auto space-y-2">
+      <div className="flex-1 overflow-auto flex flex-col gap-2">
         {items.map(item => (
-          <div key={item.id} className="flex items-start gap-2 group/todo">
+          <div key={item.id} className="flex items-start gap-2 group/todo py-1">
             <input
               type="checkbox"
               checked={item.done}

@@ -76,14 +76,14 @@ function SortableLink({ item, isDark, onRemove }: SortableLinkProps) {
     <div
       ref={setNodeRef}
       style={style}
-      className="group/link flex items-center gap-1 flex-shrink-0 px-2 py-1.5 -mx-2 -my-1.5 cursor-grab active:cursor-grabbing rounded"
+      className="group/link flex items-center gap-1 flex-shrink-0 px-2 py-0.5 -mx-2 cursor-grab active:cursor-grabbing rounded"
       {...attributes}
       {...listeners}
     >
       <a
         href={item.url}
         onPointerDown={(e) => e.stopPropagation()}
-        className={`text-sm whitespace-nowrap transition-colors cursor-pointer ${textClass}`}
+        className={`text-sm leading-none whitespace-nowrap transition-colors cursor-pointer ${textClass}`}
       >
         {item.label}
       </a>
@@ -103,7 +103,6 @@ export function LinksBlock({ blockId, items, width, height, onUpdate, isDark = t
   const [newUrl, setNewUrl] = useState('');
   const [newLabel, setNewLabel] = useState('');
   const [showForm, setShowForm] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Orientation basée sur le ratio du bloc
@@ -129,12 +128,7 @@ export function LinksBlock({ blockId, items, width, height, onUpdate, isDark = t
     })
   );
 
-  const handleDragStart = () => {
-    setIsDragging(true);
-  };
-
   const handleDragEnd = (event: DragEndEvent) => {
-    setIsDragging(false);
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
@@ -206,11 +200,10 @@ export function LinksBlock({ blockId, items, width, height, onUpdate, isDark = t
       sensors={sensors}
       collisionDetection={closestCenter}
       modifiers={[restrictToAxis]}
-      onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
       <div 
-        className={`h-full overflow-auto scrollbar-hide ${isHorizontal ? 'flex items-center gap-4' : 'flex flex-col gap-1'} ${isDragging && isHorizontal ? 'overflow-y-hidden' : ''}`}
+        className={`scrollbar-hide ${isHorizontal ? 'h-full flex items-center gap-4 overflow-x-auto overflow-y-hidden' : 'h-full flex flex-col gap-1 overflow-auto'}`}
       >
         <SortableContext
           items={items.map(item => item.id)}

@@ -94,7 +94,7 @@ function App() {
   );
 
   const renderBlock = (block: Block, isDragging: boolean) => {
-    const isCompact = block.layout.h <= 2;
+    const isCompact = block.layout.h <= 2 || (block.type === 'links' && block.layout.w > block.layout.h * 2);
     return (
       <BlockWrapper isDragging={isDragging} isDark={isDark} compact={isCompact}>
         {renderBlockContent(block)}

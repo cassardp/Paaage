@@ -5,9 +5,10 @@ interface BlockWrapperProps {
   isDragging?: boolean;
   isDark?: boolean;
   compact?: boolean;
+  overflowVisible?: boolean;
 }
 
-export function BlockWrapper({ children, isDragging, isDark = true, compact = false }: BlockWrapperProps) {
+export function BlockWrapper({ children, isDragging, isDark = true, compact = false, overflowVisible = false }: BlockWrapperProps) {
   const bgClass = isDark ? 'bg-neutral-900/50 backdrop-blur-sm' : 'bg-white/90 backdrop-blur-sm';
   const borderClass = isDark 
     ? 'border-neutral-700 hover:border-neutral-600' 
@@ -23,7 +24,7 @@ export function BlockWrapper({ children, isDragging, isDark = true, compact = fa
       className={`relative w-full h-full ${paddingClass} rounded-[12px] transition-all duration-200
                  border ${bgClass} ${borderClass} ${shadowClass}`}
     >
-      <div className={`h-full overflow-hidden ${textClass}`}>
+      <div className={`h-full ${overflowVisible ? 'overflow-visible' : 'overflow-hidden'} ${textClass}`}>
         {children}
       </div>
     </div>

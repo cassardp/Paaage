@@ -28,7 +28,7 @@ export function RssBlock({ feedUrl = 'https://news.ycombinator.com/rss', isDark 
       setLoading(true);
       setError(false);
       try {
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`;
+        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(feedUrl)}`;
         const res = await fetch(proxyUrl);
         const text = await res.text();
 

@@ -144,7 +144,7 @@ export function StationBlock({ name, streamUrl, isDark = true, onUpdateStation }
       placeholder="Station name"
     >
       {(onFlip: () => void) => (
-        <div className="h-full flex items-center gap-2">
+        <div className="h-full flex items-center gap-2 group">
           {/* Play/Pause button - equalizer devient le bouton pause */}
           <button
             onClick={togglePlay}
@@ -153,14 +153,16 @@ export function StationBlock({ name, streamUrl, isDark = true, onUpdateStation }
             {isPlaying ? (
               <EqualizerBars />
             ) : (
-              <Play className={`w-4 h-4 shrink-0 ${isDark ? 'text-neutral-500' : 'text-neutral-400'}`} fill="currentColor" />
+              <Play className={`w-4 h-4 shrink-0 transition-colors ${isDark ? 'text-neutral-500 group-hover:text-neutral-200' : 'text-neutral-500 group-hover:text-neutral-700'}`} fill="currentColor" />
             )}
           </button>
 
           {/* Nom de la station */}
           <span
             onClick={(e) => { e.stopPropagation(); onFlip(); }}
-            className={`text-sm font-medium cursor-pointer hover:underline truncate ${isPlaying ? isDark ? 'text-neutral-200' : 'text-neutral-700' : isDark ? 'text-neutral-500' : 'text-neutral-400'
+            className={`text-sm font-medium cursor-pointer hover:underline truncate transition-colors ${isPlaying
+              ? isDark ? 'text-neutral-200' : 'text-neutral-700'
+              : isDark ? 'text-neutral-500 group-hover:text-neutral-200' : 'text-neutral-500 group-hover:text-neutral-700'
               }`}
           >
             {name}
@@ -170,4 +172,3 @@ export function StationBlock({ name, streamUrl, isDark = true, onUpdateStation }
     </FlipCard>
   );
 }
-

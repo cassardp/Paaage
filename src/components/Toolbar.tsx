@@ -4,6 +4,7 @@ import { getShareUrl } from '../hooks/useCloudStorage';
 import { exportConfig, importConfig } from '../lib/storage';
 import type { Config } from '../types/config';
 import { Toast } from './Toast';
+import { Tooltip } from './Tooltip';
 
 interface ToolbarProps {
   config: Config;
@@ -50,6 +51,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
   const [toastMessage, setToastMessage] = useState('');
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
+  const [hoveredButton, setHoveredButton] = useState<{ label: string; x: number; y: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const shareUrl = getShareUrl();
@@ -190,11 +192,20 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
                 transition: 'all 200ms',
                 transitionDelay: showUtil ? `${index * 20}ms` : '0ms',
                 pointerEvents: showUtil ? 'auto' : 'none',
+                zIndex: hoveredButton?.label === item.label ? 100 : 'auto',
               }}
             >
               <button
                 onClick={item.action}
-                title={item.label}
+                onMouseEnter={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  setHoveredButton({
+                    label: item.label,
+                    x: rect.left + rect.width / 2,
+                    y: rect.top,
+                  });
+                }}
+                onMouseLeave={() => setHoveredButton(null)}
                 className={`w-11 h-11 rounded-full border flex items-center justify-center transition-transform duration-150 cursor-pointer hover:scale-110 ${fabClass}
                   ${'active' in item && item.active ? 'text-[var(--accent-color)]' : ''}`}
               >
@@ -223,11 +234,20 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
                 transition: 'all 200ms',
                 transitionDelay: showAdd ? `${index * 20}ms` : '0ms',
                 pointerEvents: showAdd ? 'auto' : 'none',
+                zIndex: hoveredButton?.label === item.label ? 100 : 'auto',
               }}
             >
               <button
                 onClick={item.action}
-                title={item.label}
+                onMouseEnter={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  setHoveredButton({
+                    label: item.label,
+                    x: rect.left + rect.width / 2,
+                    y: rect.top,
+                  });
+                }}
+                onMouseLeave={() => setHoveredButton(null)}
                 className={`w-11 h-11 rounded-full border flex items-center justify-center transition-transform duration-150 cursor-pointer hover:scale-110 ${fabClass}`}
               >
                 <Icon className="w-4 h-4" />
@@ -359,6 +379,17 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
             </div>
           </div>
         </div>
+      )}
+
+      {/* Custom Tooltip */}
+      {hoveredButton && (
+        <Tooltip
+          text={hoveredButton.label}
+          visible={true}
+          x={hoveredButton.x}
+          y={hoveredButton.y}
+          isDark={isDark}
+        />
       )}
     </>
   );

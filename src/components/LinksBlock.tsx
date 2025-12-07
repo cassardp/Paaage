@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Plus, X, Upload } from 'lucide-react';
 import {
@@ -53,16 +53,38 @@ interface SortableLinkProps {
   item: LinkItem;
   isDark: boolean;
   onRemove: (id: string) => void;
+  isDraggingAny: boolean;
 }
 
-function SortableLink({ item, isDark, onRemove }: SortableLinkProps) {
+function SortableLink({ item, isDark, onRemove, isDraggingAny }: SortableLinkProps) {
+  const [isHovering, setIsHovering] = useState(false);
+  const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const {
     attributes,
     listeners,
     setNodeRef,
     transform,
     transition,
+    isDragging,
   } = useSortable({ id: item.id });
+
+  
+  const handleMouseEnter = () => {
+    hoverTimerRef.current = setTimeout(() => setIsHovering(true), 1000);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovering(false);
+    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+  };
+
+  
+  useEffect(() => {
+    return () => {
+      if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+    };
+  }, []);
 
   const style = {
     transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
@@ -71,19 +93,22 @@ function SortableLink({ item, isDark, onRemove }: SortableLinkProps) {
 
   const textClass = isDark ? 'text-neutral-400 hover:text-neutral-400' : 'text-neutral-600 hover:text-neutral-400';
   const mutedClass = isDark ? 'text-neutral-500' : 'text-neutral-400';
+  const cursor = isDragging ? 'grabbing' : isHovering ? 'grab' : 'pointer';
 
   return (
     <div
       ref={setNodeRef}
-      style={style}
-      className="group/link flex items-center gap-1 flex-shrink-0 px-2 py-0.5 -mx-2 cursor-grab active:cursor-grabbing rounded"
+      style={{ ...style, cursor }}
+      className="group/link flex items-center gap-1 flex-shrink-0 px-2 py-0.5 -mx-2 rounded"
       {...attributes}
       {...listeners}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <a
         href={item.url}
-        onPointerDown={(e) => e.stopPropagation()}
-        className={`text-sm leading-none whitespace-nowrap transition-colors cursor-pointer ${textClass}`}
+        style={{ cursor: 'inherit', pointerEvents: isDraggingAny ? 'none' : 'auto' }}
+        className={`text-sm leading-none whitespace-nowrap transition-colors ${textClass}`}
       >
         {item.label}
       </a>
@@ -103,6 +128,7 @@ export function LinksBlock({ blockId, items, width, height, onUpdate, isDark = t
   const [newUrl, setNewUrl] = useState('');
   const [newLabel, setNewLabel] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [isDraggingAny, setIsDraggingAny] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Orientation basée sur le ratio du bloc
@@ -128,6 +154,10 @@ export function LinksBlock({ blockId, items, width, height, onUpdate, isDark = t
     })
   );
 
+  const handleDragStart = () => {
+    setIsDraggingAny(true);
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
@@ -136,6 +166,11 @@ export function LinksBlock({ blockId, items, width, height, onUpdate, isDark = t
       const newIndex = items.findIndex((item) => item.id === over.id);
       onUpdate(blockId, arrayMove(items, oldIndex, newIndex));
     }
+
+    // Unblock clicks after a short delay
+    setTimeout(() => {
+      setIsDraggingAny(false);
+    }, 100);
   };
 
   const addLink = () => {
@@ -201,6 +236,7 @@ export function LinksBlock({ blockId, items, width, height, onUpdate, isDark = t
       sensors={sensors}
       collisionDetection={closestCenter}
       modifiers={[restrictToAxis]}
+      onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
       <div 
@@ -216,6 +252,7 @@ export function LinksBlock({ blockId, items, width, height, onUpdate, isDark = t
               item={item}
               isDark={isDark}
               onRemove={removeLink}
+              isDraggingAny={isDraggingAny}
             />
           ))}
         </SortableContext>

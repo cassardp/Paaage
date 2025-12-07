@@ -134,7 +134,6 @@ function App() {
         onAddTodo={addTodo}
         onAddClock={addClock}
         onAddRss={addRss}
-        onAddLinks={addLinks}
         onUndo={undo}
         canUndo={canUndo}
         isDark={isDark}

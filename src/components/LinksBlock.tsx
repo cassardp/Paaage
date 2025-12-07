@@ -69,7 +69,7 @@ function SortableLink({ item, isDark, onRemove }: SortableLinkProps) {
     transition,
   };
 
-  const textClass = isDark ? 'text-neutral-300' : 'text-neutral-700';
+  const textClass = isDark ? 'text-neutral-400 hover:text-neutral-400' : 'text-neutral-600 hover:text-neutral-400';
   const mutedClass = isDark ? 'text-neutral-500' : 'text-neutral-400';
 
   return (
@@ -83,14 +83,14 @@ function SortableLink({ item, isDark, onRemove }: SortableLinkProps) {
       <a
         href={item.url}
         onPointerDown={(e) => e.stopPropagation()}
-        className={`text-sm whitespace-nowrap hover:text-[var(--accent-color)] transition-colors cursor-pointer ${textClass}`}
+        className={`text-sm whitespace-nowrap transition-colors cursor-pointer ${textClass}`}
       >
         {item.label}
       </a>
       <button
         onClick={() => onRemove(item.id)}
         onPointerDown={(e) => e.stopPropagation()}
-        className={`opacity-0 group-hover/link:opacity-100 p-0.5 cursor-pointer ${mutedClass}`}
+        className={`opacity-0 group-hover/link:opacity-100 p-0.5 cursor-pointer transition-opacity delay-[1000ms] ${mutedClass}`}
       >
         <X className="w-3 h-3" />
       </button>

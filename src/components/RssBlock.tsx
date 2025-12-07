@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Spinner } from './Spinner';
+import { useDataCache } from '../hooks/useDataCache';
 
 interface RssItem {
   title: string;
@@ -12,48 +13,49 @@ interface RssBlockProps {
   onUpdateFeedUrl?: (url: string) => void;
 }
 
+// Cache TTL: 15 minutes for RSS data
+const RSS_CACHE_TTL = 15 * 60 * 1000;
+
+async function fetchRssData(feedUrl: string): Promise<RssItem[]> {
+  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`;
+  const res = await fetch(proxyUrl);
+  const text = await res.text();
+  
+  const parser = new DOMParser();
+  const xml = parser.parseFromString(text, 'text/xml');
+  
+  const itemElements = xml.querySelectorAll('item');
+  const parsedItems: RssItem[] = [];
+  
+  itemElements.forEach((item, index) => {
+    if (index < 20) {
+      const title = item.querySelector('title')?.textContent || '';
+      const link = item.querySelector('link')?.textContent || '';
+      if (title && link) {
+        parsedItems.push({ title, link });
+      }
+    }
+  });
+  
+  if (parsedItems.length === 0) {
+    throw new Error('No items found');
+  }
+  
+  return parsedItems;
+}
+
 export function RssBlock({ feedUrl = 'https://news.ycombinator.com/rss', isDark = true, onUpdateFeedUrl }: RssBlockProps) {
-  const [items, setItems] = useState<RssItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editUrl, setEditUrl] = useState(feedUrl);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    const fetchRss = async () => {
-      setLoading(true);
-      setError(false);
-      try {
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`;
-        const res = await fetch(proxyUrl);
-        const text = await res.text();
-        
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(text, 'text/xml');
-        
-        const itemElements = xml.querySelectorAll('item');
-        const parsedItems: RssItem[] = [];
-        
-        itemElements.forEach((item, index) => {
-          if (index < 20) {
-            const title = item.querySelector('title')?.textContent || '';
-            const link = item.querySelector('link')?.textContent || '';
-            if (title && link) {
-              parsedItems.push({ title, link });
-            }
-          }
-        });
-        
-        setItems(parsedItems);
-      } catch {
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchRss();
-  }, [feedUrl]);
+  const fetcher = useCallback(() => fetchRssData(feedUrl), [feedUrl]);
+  
+  const { data: items, loading, error } = useDataCache<RssItem[]>({
+    key: `rss_${feedUrl}`,
+    ttl: RSS_CACHE_TTL,
+    fetcher,
+  });
 
   useEffect(() => {
     if (isEditing) {
@@ -89,10 +91,10 @@ export function RssBlock({ feedUrl = 'https://news.ycombinator.com/rss', isDark 
     );
   }
 
-  if (error) {
+  if (error || !items) {
     return (
       <div className="h-full flex flex-col items-center justify-center gap-2">
-        <div className={`${mutedClass} text-sm`}>Loading error</div>
+        <div className={`${mutedClass} text-sm`}>{error || 'Loading error'}</div>
         <span
           onClick={handleEdit}
           className={`text-xs cursor-pointer hover:underline ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}

@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useCallback } from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { Spinner } from './Spinner';
 import { FlipCard } from './FlipCard';
+import { useDataCache } from '../hooks/useDataCache';
 
 interface StockBlockProps {
   symbol: string;
@@ -28,70 +29,54 @@ async function validateSymbol(symbol: string): Promise<boolean> {
   }
 }
 
+// Cache TTL: 5 minutes for stock data
+const STOCK_CACHE_TTL = 5 * 60 * 1000;
+
+async function fetchStockData(symbol: string): Promise<StockData> {
+  const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`;
+  const res = await fetch(
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(yahooUrl)}`
+  );
+  
+  if (!res.ok) {
+    throw new Error('Symbol not found');
+  }
+  
+  const text = await res.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error('Symbol not found');
+  }
+  
+  const quote = data.chart?.result?.[0];
+  if (!quote) {
+    throw new Error('Symbol not found');
+  }
+
+  const meta = quote.meta;
+  const price = meta?.regularMarketPrice;
+  const previousClose = meta?.chartPreviousClose || meta?.previousClose;
+  
+  if (price == null || previousClose == null) {
+    throw new Error('Data not available');
+  }
+  
+  const change = price - previousClose;
+  const changePercent = (change / previousClose) * 100;
+
+  return { price, change, changePercent };
+}
+
 export function StockBlock({ symbol, isDark = true, width = 12, onUpdateSymbol }: StockBlockProps) {
-  const [stock, setStock] = useState<StockData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchStock() {
-      setLoading(true);
-      setError(null);
-      
-      try {
-        const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`;
-        const res = await fetch(
-          `https://api.allorigins.win/raw?url=${encodeURIComponent(yahooUrl)}`
-        );
-        
-        if (!res.ok) {
-          setError('Symbol not found');
-          setLoading(false);
-          return;
-        }
-        
-        const text = await res.text();
-        let data;
-        try {
-          data = JSON.parse(text);
-        } catch {
-          setError('Symbol not found');
-          setLoading(false);
-          return;
-        }
-        
-        const quote = data.chart?.result?.[0];
-        if (!quote) {
-          setError('Symbol not found');
-          setLoading(false);
-          return;
-        }
-
-        const meta = quote.meta;
-        const price = meta?.regularMarketPrice;
-        const previousClose = meta?.chartPreviousClose || meta?.previousClose;
-        
-        if (price == null || previousClose == null) {
-          setError('Data not available');
-          setLoading(false);
-          return;
-        }
-        
-        const change = price - previousClose;
-        const changePercent = (change / previousClose) * 100;
-
-        setStock({ price, change, changePercent });
-        setLoading(false);
-      } catch {
-        setError('Loading error');
-        setLoading(false);
-      }
-    }
-
-    fetchStock();
-    const interval = setInterval(fetchStock, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [symbol]);
+  const fetcher = useCallback(() => fetchStockData(symbol), [symbol]);
+  
+  const { data: stock, loading, error } = useDataCache<StockData>({
+    key: `stock_${symbol}`,
+    ttl: STOCK_CACHE_TTL,
+    fetcher,
+  });
 
   if (loading) {
     return (

@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useCallback } from 'react';
 import { Cloud, Sun, CloudRain, CloudSnow, CloudLightning, Wind } from 'lucide-react';
 import { Spinner } from './Spinner';
 import { FlipCard } from './FlipCard';
+import { useDataCache } from '../hooks/useDataCache';
 
 interface WeatherBlockProps {
   city?: string;
@@ -47,48 +48,41 @@ async function validateCity(city: string): Promise<boolean> {
   return !!data.results?.[0];
 }
 
+// Cache TTL: 30 minutes for weather data
+const WEATHER_CACHE_TTL = 30 * 60 * 1000;
+
+async function fetchWeatherData(city: string): Promise<WeatherData> {
+  const geoRes = await fetch(
+    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`
+  );
+  const geoData = await geoRes.json();
+  
+  if (!geoData.results?.[0]) {
+    throw new Error('City not found');
+  }
+
+  const { latitude, longitude } = geoData.results[0];
+
+  const weatherRes = await fetch(
+    `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code,wind_speed_10m`
+  );
+  const weatherData = await weatherRes.json();
+
+  return {
+    temperature: Math.round(weatherData.current.temperature_2m),
+    weatherCode: weatherData.current.weather_code,
+    windSpeed: Math.round(weatherData.current.wind_speed_10m),
+  };
+}
+
 export function WeatherBlock({ city = 'Toulon', isDark = true, width = 2, onUpdateCity }: WeatherBlockProps) {
-  const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchWeather() {
-      try {
-        const geoRes = await fetch(
-          `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`
-        );
-        const geoData = await geoRes.json();
-        
-        if (!geoData.results?.[0]) {
-          setError('City not found');
-          setLoading(false);
-          return;
-        }
-
-        const { latitude, longitude } = geoData.results[0];
-
-        const weatherRes = await fetch(
-          `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code,wind_speed_10m`
-        );
-        const weatherData = await weatherRes.json();
-
-        setWeather({
-          temperature: Math.round(weatherData.current.temperature_2m),
-          weatherCode: weatherData.current.weather_code,
-          windSpeed: Math.round(weatherData.current.wind_speed_10m),
-        });
-        setLoading(false);
-      } catch {
-        setError('Loading error');
-        setLoading(false);
-      }
-    }
-
-    fetchWeather();
-    const interval = setInterval(fetchWeather, 30 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [city]);
+  const fetcher = useCallback(() => fetchWeatherData(city), [city]);
+  
+  const { data: weather, loading, error } = useDataCache<WeatherData>({
+    key: `weather_${city}`,
+    ttl: WEATHER_CACHE_TTL,
+    fetcher,
+  });
 
   if (loading) {
     return (

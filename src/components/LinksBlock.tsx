@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import { Plus, X, Upload } from 'lucide-react';
+import { FormModal } from './FormModal';
 import {
   DndContext,
   closestCenter,
@@ -266,41 +266,29 @@ export function LinksBlock({ blockId, items, width, height, onUpdate, isDark = t
         </div>
       </DndContext>
 
-      {/* Modal formulaire ajout lien - rendu via portal pour être centré sur l'écran */}
-      {showForm && createPortal(
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowForm(false)}>
-          <div className={`p-3 rounded-lg border shadow-xl w-72 ${isDark ? 'bg-neutral-800 border-neutral-700' : 'bg-white border-neutral-200'}`} onClick={(e) => e.stopPropagation()}>
-            <input
-              type="text"
-              value={newUrl}
-              onChange={(e) => setNewUrl(e.target.value)}
-              placeholder="URL (ex: google.com)"
-              autoFocus
-              className={`w-full px-3 py-2 mb-2 rounded border text-sm
-              ${isDark ? 'bg-neutral-900 border-neutral-700 text-neutral-300 placeholder-neutral-500' : 'bg-white border-neutral-300 text-neutral-700 placeholder-neutral-400'}
-              focus:outline-none focus:border-[var(--accent-color)]`}
-              onKeyDown={(e) => e.key === 'Enter' && addLink()}
-            />
-            <input
-              type="text"
-              value={newLabel}
-              onChange={(e) => setNewLabel(e.target.value)}
-              placeholder="Name (optional)"
-              className={`w-full px-3 py-2 mb-2 rounded border text-sm
-              ${isDark ? 'bg-neutral-900 border-neutral-700 text-neutral-300 placeholder-neutral-500' : 'bg-white border-neutral-300 text-neutral-700 placeholder-neutral-400'}
-              focus:outline-none focus:border-[var(--accent-color)]`}
-              onKeyDown={(e) => e.key === 'Enter' && addLink()}
-            />
-            <button
-              onClick={addLink}
-              className="w-full py-2 rounded text-sm cursor-pointer bg-[var(--accent-color)] text-white font-medium"
-            >
-              Add
-            </button>
-          </div>
-        </div>,
-        document.body
-      )}
+      <FormModal
+        isOpen={showForm}
+        onClose={() => setShowForm(false)}
+        onSubmit={addLink}
+        submitLabel="Add Link"
+        isDark={isDark}
+        fields={[
+          {
+            label: 'URL',
+            value: newUrl,
+            onChange: setNewUrl,
+            placeholder: 'google.com',
+            autoFocus: true,
+          },
+          {
+            label: 'Name',
+            value: newLabel,
+            onChange: setNewLabel,
+            placeholder: 'My Link',
+            optional: true,
+          },
+        ]}
+      />
     </>
   );
 }

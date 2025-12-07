@@ -5,6 +5,7 @@ import { exportConfig, importConfig } from '../lib/storage';
 import type { Config } from '../types/config';
 import { Toast } from './Toast';
 import { Tooltip } from './Tooltip';
+import { FormModal } from './FormModal';
 
 interface ToolbarProps {
   config: Config;
@@ -287,40 +288,29 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
         className="hidden"
       />
 
-      {/* Modal formulaire bookmark */}
-      {showBookmarkForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowBookmarkForm(false)}>
-          <div className={`p-3 rounded-lg border shadow-xl w-72 ${isDark ? 'bg-neutral-800 border-neutral-700' : 'bg-white border-neutral-200'}`} onClick={(e) => e.stopPropagation()}>
-            <input
-              type="text"
-              value={bookmarkUrl}
-              onChange={(e) => setBookmarkUrl(e.target.value)}
-              placeholder="URL (ex: google.com)"
-              autoFocus
-              className={`w-full px-3 py-2 mb-2 rounded border text-sm
-                ${isDark ? 'bg-neutral-900 border-neutral-700 text-neutral-300 placeholder-neutral-500' : 'bg-white border-neutral-300 text-neutral-700 placeholder-neutral-400'}
-                focus:outline-none focus:border-[var(--accent-color)]`}
-              onKeyDown={(e) => e.key === 'Enter' && handleBookmarkSubmit()}
-            />
-            <input
-              type="text"
-              value={bookmarkLabel}
-              onChange={(e) => setBookmarkLabel(e.target.value)}
-              placeholder="Name (optional)"
-              className={`w-full px-3 py-2 mb-2 rounded border text-sm
-                ${isDark ? 'bg-neutral-900 border-neutral-700 text-neutral-300 placeholder-neutral-500' : 'bg-white border-neutral-300 text-neutral-700 placeholder-neutral-400'}
-                focus:outline-none focus:border-[var(--accent-color)]`}
-              onKeyDown={(e) => e.key === 'Enter' && handleBookmarkSubmit()}
-            />
-            <button
-              onClick={handleBookmarkSubmit}
-              className="w-full py-2 rounded text-sm cursor-pointer bg-[var(--accent-color)] text-white font-medium"
-            >
-              Add
-            </button>
-          </div>
-        </div>
-      )}
+      <FormModal
+        isOpen={showBookmarkForm}
+        onClose={() => setShowBookmarkForm(false)}
+        onSubmit={handleBookmarkSubmit}
+        submitLabel="Add Bookmark"
+        isDark={isDark}
+        fields={[
+          {
+            label: 'URL',
+            value: bookmarkUrl,
+            onChange: setBookmarkUrl,
+            placeholder: 'google.com',
+            autoFocus: true,
+          },
+          {
+            label: 'Name',
+            value: bookmarkLabel,
+            onChange: setBookmarkLabel,
+            placeholder: 'My Bookmark',
+            optional: true,
+          },
+        ]}
+      />
 
       <Toast message={toastMessage} visible={!!toastMessage} onHide={() => setToastMessage('')} />
 

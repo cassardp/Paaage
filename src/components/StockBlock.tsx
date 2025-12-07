@@ -20,7 +20,7 @@ interface StockData {
 async function validateSymbol(symbol: string): Promise<boolean> {
   try {
     const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol.toUpperCase()}?interval=1d&range=1d`;
-    const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(yahooUrl)}`);
+    const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(yahooUrl)}`);
     const data = await res.json();
     return !!data.chart?.result?.[0];
   } catch {
@@ -42,7 +42,7 @@ export function StockBlock({ symbol, isDark = true, width = 12, onUpdateSymbol }
       try {
         const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`;
         const res = await fetch(
-          `https://api.allorigins.win/raw?url=${encodeURIComponent(yahooUrl)}`
+          `https://corsproxy.io/?${encodeURIComponent(yahooUrl)}`
         );
 
         if (!res.ok) {

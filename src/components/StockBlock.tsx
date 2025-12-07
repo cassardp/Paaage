@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import { TrendingUp, TrendingDown, RefreshCw } from 'lucide-react';
 import { Spinner } from './Spinner';
 import { FlipCard } from './FlipCard';
 
@@ -32,24 +32,25 @@ export function StockBlock({ symbol, isDark = true, width = 12, onUpdateSymbol }
   const [stock, setStock] = useState<StockData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     async function fetchStock() {
       setLoading(true);
       setError(null);
-      
+
       try {
         const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`;
         const res = await fetch(
           `https://api.allorigins.win/raw?url=${encodeURIComponent(yahooUrl)}`
         );
-        
+
         if (!res.ok) {
           setError('Symbol not found');
           setLoading(false);
           return;
         }
-        
+
         const text = await res.text();
         let data;
         try {
@@ -59,7 +60,7 @@ export function StockBlock({ symbol, isDark = true, width = 12, onUpdateSymbol }
           setLoading(false);
           return;
         }
-        
+
         const quote = data.chart?.result?.[0];
         if (!quote) {
           setError('Symbol not found');
@@ -70,13 +71,13 @@ export function StockBlock({ symbol, isDark = true, width = 12, onUpdateSymbol }
         const meta = quote.meta;
         const price = meta?.regularMarketPrice;
         const previousClose = meta?.chartPreviousClose || meta?.previousClose;
-        
+
         if (price == null || previousClose == null) {
           setError('Data not available');
           setLoading(false);
           return;
         }
-        
+
         const change = price - previousClose;
         const changePercent = (change / previousClose) * 100;
 
@@ -91,7 +92,11 @@ export function StockBlock({ symbol, isDark = true, width = 12, onUpdateSymbol }
     fetchStock();
     const interval = setInterval(fetchStock, 5 * 60 * 1000);
     return () => clearInterval(interval);
-  }, [symbol]);
+  }, [symbol, retryCount]);
+
+  const handleRetry = () => {
+    setRetryCount(prev => prev + 1);
+  };
 
   if (loading) {
     return (
@@ -103,8 +108,15 @@ export function StockBlock({ symbol, isDark = true, width = 12, onUpdateSymbol }
 
   if (error || !stock) {
     return (
-      <div className="h-full flex items-center justify-center">
+      <div className="h-full flex flex-col items-center justify-center gap-2">
         <p className={`text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>{error}</p>
+        <button
+          onClick={handleRetry}
+          className={`p-1.5 rounded-lg transition-colors cursor-pointer ${isDark ? 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-700' : 'text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100'}`}
+          title="Retry"
+        >
+          <RefreshCw className="w-4 h-4" />
+        </button>
       </div>
     );
   }
@@ -124,7 +136,7 @@ export function StockBlock({ symbol, isDark = true, width = 12, onUpdateSymbol }
       {(onFlip: () => void) => (
         <div className="h-full flex items-center justify-between">
           <div>
-            <p 
+            <p
               onClick={onFlip}
               className={`text-xs font-medium cursor-pointer hover:underline ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}
             >

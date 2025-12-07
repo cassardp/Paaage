@@ -168,8 +168,9 @@ export function LinksBlock({ blockId, items, width, height, onUpdate, isDark = t
   const mutedClass = isDark ? 'text-neutral-500' : 'text-neutral-400';
 
   // Actions (à la fin de la ligne/colonne)
+  const borderClass = isDark ? 'border-neutral-700' : 'border-neutral-300';
   const actions = (
-    <div className={`flex-shrink-0 flex items-center gap-1 ${isHorizontal ? '' : 'pt-1'}`}>
+    <div className={`flex-shrink-0 flex items-center gap-1 ${borderClass} ${isHorizontal ? 'pl-2 ml-2 border-l' : 'pt-2 mt-1 border-t'}`}>
       <button
         onClick={() => setShowForm(true)}
         className={`p-0.5 cursor-pointer ${mutedClass} hover:text-[var(--accent-color)]`}
@@ -203,7 +204,7 @@ export function LinksBlock({ blockId, items, width, height, onUpdate, isDark = t
       onDragEnd={handleDragEnd}
     >
       <div 
-        className={`scrollbar-hide ${isHorizontal ? 'h-full flex items-center gap-4 overflow-x-auto overflow-y-hidden' : 'h-full flex flex-col gap-1 overflow-auto'}`}
+        className={`scrollbar-hide ${isHorizontal ? 'h-full flex items-center gap-4 overflow-x-auto overflow-y-hidden' : 'h-full flex flex-col gap-1.5 overflow-auto'}`}
       >
         <SortableContext
           items={items.map(item => item.id)}

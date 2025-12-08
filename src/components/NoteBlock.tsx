@@ -5,17 +5,22 @@ import type { Config } from '../types/config';
 interface NoteBlockProps {
   blockId: string;
   content: string;
+  title?: string;
   onUpdate: (blockId: string, content: string) => void;
+  onUpdateTitle?: (title: string) => void;
   isDark?: boolean;
   autoFocus?: boolean;
   onFocused?: () => void;
   config: Config;
 }
 
-export function NoteBlock({ blockId, content, onUpdate, isDark = true, autoFocus, onFocused, config }: NoteBlockProps) {
+export function NoteBlock({ blockId, content, title = 'Note', onUpdate, onUpdateTitle, isDark = true, autoFocus, onFocused, config }: NoteBlockProps) {
   const [value, setValue] = useState(content);
   const [isEditing, setIsEditing] = useState(false);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editTitle, setEditTitle] = useState(title);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const titleInputRef = useRef<HTMLInputElement>(null);
   const valueRef = useRef(value);
   const contentRef = useRef(content);
 
@@ -76,9 +81,52 @@ export function NoteBlock({ blockId, content, onUpdate, isDark = true, autoFocus
   };
 
   const textClass = isDark ? 'text-neutral-300' : 'text-neutral-700';
+  const mutedClass = isDark ? 'text-neutral-500' : 'text-neutral-400';
+
+  const handleEditTitle = () => {
+    setEditTitle(title);
+    setIsEditingTitle(true);
+    setTimeout(() => titleInputRef.current?.focus(), 0);
+  };
+
+  const handleSaveTitle = () => {
+    const trimmed = editTitle.trim();
+    if (trimmed && trimmed !== title && onUpdateTitle) {
+      onUpdateTitle(trimmed);
+    }
+    setIsEditingTitle(false);
+  };
+
+  const handleTitleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleSaveTitle();
+    if (e.key === 'Escape') setIsEditingTitle(false);
+  };
 
   return (
-    <div className="h-full">
+    <div className="h-full flex flex-col">
+      {/* Titre éditable */}
+      {isEditingTitle ? (
+        <input
+          ref={titleInputRef}
+          type="text"
+          value={editTitle}
+          onChange={(e) => setEditTitle(e.target.value)}
+          onKeyDown={handleTitleKeyDown}
+          onBlur={handleSaveTitle}
+          placeholder="Title"
+          className={`mb-2 bg-transparent border-none outline-none text-xs ${mutedClass}`}
+        />
+      ) : (
+        <span
+          onClick={handleEditTitle}
+          className={`text-xs ${mutedClass} mb-2 truncate cursor-pointer hover:underline uppercase`}
+          title="Click to edit title"
+        >
+          {title}
+        </span>
+      )}
+      {/* Contenu */}
+      <div className="flex-1 overflow-hidden">
       {isEditing ? (
         <textarea
           ref={textareaRef}
@@ -103,6 +151,7 @@ export function NoteBlock({ blockId, content, onUpdate, isDark = true, autoFocus
           )}
         </div>
       )}
+      </div>
     </div>
   );
 }

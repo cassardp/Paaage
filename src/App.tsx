@@ -37,8 +37,10 @@ function App() {
     addBookmark,
     addSingleNote,
     updateNote,
+    updateNoteTitle,
     addTodo,
     updateTodo,
+    updateTodoTitle,
     updateWeatherCity,
     updateClockCity,
     updateStockSymbol,
@@ -79,7 +81,9 @@ function App() {
       block={block}
       searchEngine={config.settings.searchEngine}
       onUpdateNote={updateNote}
+      onUpdateNoteTitle={updateNoteTitle}
       onUpdateTodo={updateTodo}
+      onUpdateTodoTitle={updateTodoTitle}
       onUpdateWeatherCity={updateWeatherCity}
       onUpdateClockCity={updateClockCity}
       onUpdateStockSymbol={updateStockSymbol}

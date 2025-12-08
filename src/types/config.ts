@@ -37,6 +37,7 @@ export interface BookmarkBlock extends BaseBlock {
 export interface NoteBlock extends BaseBlock {
   type: 'note';
   content: string;
+  title?: string;
 }
 
 export interface StockBlock extends BaseBlock {
@@ -53,6 +54,7 @@ export interface TodoItem {
 export interface TodoBlock extends BaseBlock {
   type: 'todo';
   items: TodoItem[];
+  title?: string;
 }
 
 export interface ClockBlock extends BaseBlock {

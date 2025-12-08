@@ -14,7 +14,9 @@ interface BlockContentProps {
   block: Block;
   searchEngine: string;
   onUpdateNote: (blockId: string, content: string) => void;
+  onUpdateNoteTitle: (blockId: string, title: string) => void;
   onUpdateTodo: (blockId: string, items: TodoItem[]) => void;
+  onUpdateTodoTitle: (blockId: string, title: string) => void;
   onUpdateWeatherCity: (blockId: string, city: string) => void;
   onUpdateClockCity: (blockId: string, city: string, timezone: string) => void;
   onUpdateStockSymbol: (blockId: string, symbol: string) => void;
@@ -31,7 +33,9 @@ export function BlockContent({
   block,
   searchEngine,
   onUpdateNote,
+  onUpdateNoteTitle,
   onUpdateTodo,
+  onUpdateTodoTitle,
   onUpdateWeatherCity,
   onUpdateClockCity,
   onUpdateStockSymbol,
@@ -58,7 +62,9 @@ export function BlockContent({
         <NoteBlock
           blockId={block.id}
           content={block.content}
+          title={block.title}
           onUpdate={onUpdateNote}
+          onUpdateTitle={(title) => onUpdateNoteTitle(block.id, title)}
           isDark={isDark}
           autoFocus={focusedNoteId === block.id}
           onFocused={onNoteFocused}
@@ -73,7 +79,7 @@ export function BlockContent({
       return <StockBlock symbol={block.symbol} isDark={isDark} width={block.layout.w} onUpdateSymbol={(symbol) => onUpdateStockSymbol(block.id, symbol)} />;
 
     case 'todo':
-      return <TodoBlock blockId={block.id} items={block.items} onUpdate={onUpdateTodo} isDark={isDark} config={config} />;
+      return <TodoBlock blockId={block.id} items={block.items} title={block.title} onUpdate={onUpdateTodo} onUpdateTitle={(title) => onUpdateTodoTitle(block.id, title)} isDark={isDark} config={config} />;
 
     case 'clock':
       return <ClockBlock city={block.city} timezone={block.timezone} isDark={isDark} onUpdateCity={(city, tz) => onUpdateClockCity(block.id, city, tz)} />;

@@ -135,6 +135,19 @@ export function useConfig() {
     }));
   }, [updateConfig]);
 
+  // Mettre à jour le titre d'une note
+  const updateNoteTitle = useCallback((blockId: string, title: string) => {
+    updateConfig((prev) => ({
+      ...prev,
+      blocks: prev.blocks.map((block) => {
+        if (block.id === blockId && block.type === 'note') {
+          return { ...block, title };
+        }
+        return block;
+      }),
+    }));
+  }, [updateConfig]);
+
   // Mettre à jour une todo
   const updateTodo = useCallback((blockId: string, items: TodoItem[]) => {
     updateConfig((prev) => ({
@@ -142,6 +155,19 @@ export function useConfig() {
       blocks: prev.blocks.map((block) => {
         if (block.id === blockId && block.type === 'todo') {
           return { ...block, items };
+        }
+        return block;
+      }),
+    }));
+  }, [updateConfig]);
+
+  // Mettre à jour le titre d'une todo
+  const updateTodoTitle = useCallback((blockId: string, title: string) => {
+    updateConfig((prev) => ({
+      ...prev,
+      blocks: prev.blocks.map((block) => {
+        if (block.id === blockId && block.type === 'todo') {
+          return { ...block, title };
         }
         return block;
       }),
@@ -369,8 +395,10 @@ export function useConfig() {
     addBookmark,
     addSingleNote,
     updateNote,
+    updateNoteTitle,
     addTodo,
     updateTodo,
+    updateTodoTitle,
     updateWeatherCity,
     updateClockCity,
     updateStockSymbol,

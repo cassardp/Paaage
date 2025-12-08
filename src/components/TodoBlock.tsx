@@ -7,17 +7,22 @@ import { LinkifyText } from './LinkifyText';
 interface TodoBlockProps {
   blockId: string;
   items: TodoItem[];
+  title?: string;
   onUpdate: (blockId: string, items: TodoItem[]) => void;
+  onUpdateTitle?: (title: string) => void;
   isDark?: boolean;
   config: Config;
 }
 
-export function TodoBlock({ blockId, items, onUpdate, isDark = true, config }: TodoBlockProps) {
+export function TodoBlock({ blockId, items, title = 'Todo', onUpdate, onUpdateTitle, isDark = true, config }: TodoBlockProps) {
   const [newText, setNewText] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editTitleValue, setEditTitleValue] = useState(title);
   const inputRef = useRef<HTMLInputElement>(null);
   const editInputRef = useRef<HTMLInputElement>(null);
+  const titleInputRef = useRef<HTMLInputElement>(null);
 
   const toggleItem = (itemId: string) => {
     const updated = items.map(item =>
@@ -75,8 +80,48 @@ export function TodoBlock({ blockId, items, onUpdate, isDark = true, config }: T
   const textClass = isDark ? 'text-neutral-300' : 'text-neutral-700';
   const mutedClass = isDark ? 'text-neutral-500' : 'text-neutral-400';
 
+  const handleEditTitle = () => {
+    setEditTitleValue(title);
+    setIsEditingTitle(true);
+    setTimeout(() => titleInputRef.current?.focus(), 0);
+  };
+
+  const handleSaveTitle = () => {
+    const trimmed = editTitleValue.trim();
+    if (trimmed && trimmed !== title && onUpdateTitle) {
+      onUpdateTitle(trimmed);
+    }
+    setIsEditingTitle(false);
+  };
+
+  const handleTitleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleSaveTitle();
+    if (e.key === 'Escape') setIsEditingTitle(false);
+  };
+
   return (
     <div className="h-full flex flex-col">
+      {/* Titre éditable */}
+      {isEditingTitle ? (
+        <input
+          ref={titleInputRef}
+          type="text"
+          value={editTitleValue}
+          onChange={(e) => setEditTitleValue(e.target.value)}
+          onKeyDown={handleTitleKeyDown}
+          onBlur={handleSaveTitle}
+          placeholder="Title"
+          className={`mb-2 bg-transparent border-none outline-none text-xs ${mutedClass}`}
+        />
+      ) : (
+        <span
+          onClick={handleEditTitle}
+          className={`text-xs ${mutedClass} mb-2 truncate cursor-pointer hover:underline uppercase`}
+          title="Click to edit title"
+        >
+          {title}
+        </span>
+      )}
       {/* Liste des tâches */}
       <div className="flex-1 overflow-auto space-y-2">
         {items.map(item => (

@@ -31,9 +31,11 @@ interface ToolbarProps {
   showBookmarkForm?: boolean;
   onShowBookmarkForm?: (show: boolean) => void;
   onToggleLinkTarget: () => void;
+  hasSearchBlock: boolean;
+  hasNotesOrTodos: boolean;
 }
 
-export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAddBlock, onAddBookmark, onAddNote, onAddStation, onAddStock, onAddTodo, onAddClock, onAddRss, onUndo, canUndo, isDark, dragLocked, onToggleDragLock, notesHidden, onToggleNotesHidden, showBookmarkForm: externalShowBookmark, onShowBookmarkForm, onToggleLinkTarget }: ToolbarProps) {
+export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAddBlock, onAddBookmark, onAddNote, onAddStation, onAddStock, onAddTodo, onAddClock, onAddRss, onUndo, canUndo, isDark, dragLocked, onToggleDragLock, notesHidden, onToggleNotesHidden, showBookmarkForm: externalShowBookmark, onShowBookmarkForm, onToggleLinkTarget, hasSearchBlock, hasNotesOrTodos }: ToolbarProps) {
   const [isHovered, setIsHovered] = useState(false); // Hover = actions utilitaires
   const [isClicked, setIsClicked] = useState(false); // Clic = actions d'ajout
   const [internalShowBookmark, setInternalShowBookmark] = useState(false);
@@ -83,9 +85,6 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
   const fabClass = isDark
     ? 'bg-neutral-900/80 backdrop-blur-sm border-neutral-700 text-neutral-400 hover:text-neutral-100'
     : 'bg-white/90 backdrop-blur-sm border-neutral-200 text-neutral-500 hover:text-neutral-900';
-
-  const hasSearchBlock = config.blocks.some((b) => b.type === 'search');
-  const hasNotesOrTodos = config.blocks.some(b => b.type === 'note' || b.type === 'todo');
 
   const handleAddBlock = (type: 'search' | 'weather') => {
     onAddBlock(type);
@@ -169,7 +168,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
     <>
       {/* FAB Container - zone élargie pour maintenir le hover */}
       <div
-        className="fixed bottom-6 left-1/2 z-40 flex items-end justify-center"
+        className="fixed bottom-12 left-1/2 z-40 flex items-end justify-center"
         style={{ width: radius * 2 + 56, height: radius + 56, transform: 'translateX(-50%)' }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => { setIsHovered(false); setIsClicked(false); }}

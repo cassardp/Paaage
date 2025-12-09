@@ -81,6 +81,12 @@ export interface LinksBlock extends BaseBlock {
 
 export type Block = SearchBlock | WeatherBlock | BookmarkBlock | NoteBlock | StationBlock | StockBlock | TodoBlock | ClockBlock | RssBlock | LinksBlock;
 
+export interface Desktop {
+  id: string;
+  name: string;
+  blocks: Block[];
+}
+
 export interface Settings {
   theme: 'light' | 'dark';
   accentColor?: string; // Deprecated - non utilisé
@@ -92,5 +98,8 @@ export interface Config {
   version: number;
   updatedAt: string;
   settings: Settings;
-  blocks: Block[];
+  desktops: Desktop[];
+  currentDesktopId: string;
+  // Legacy support - will be migrated to desktops
+  blocks?: Block[];
 }

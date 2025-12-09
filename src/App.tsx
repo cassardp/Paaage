@@ -3,12 +3,14 @@ import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Analytics } from '@vercel/analytics/react';
 import { useConfig } from './hooks/useConfig';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import { useSwipe } from './hooks/useSwipe';
 import { DraggableGrid } from './components/DraggableGrid';
 import { BlockWrapper } from './components/BlockWrapper';
 import { BlockContent } from './components/BlockContent';
 import { Spinner } from './components/Spinner';
 import { Toolbar } from './components/Toolbar';
 import { SlashMenu } from './components/SlashMenu';
+import { DesktopNavigator } from './components/DesktopNavigator';
 import type { Block } from './types/config';
 
 function App() {
@@ -31,6 +33,9 @@ function App() {
     syncing,
     syncId,
     setConfig,
+    getCurrentDesktop,
+    addDesktop,
+    switchDesktop,
     moveBlock,
     deleteBlock,
     addBlock,
@@ -63,6 +68,27 @@ function App() {
   const toggleHidden = useCallback(() => setNotesHidden(prev => !prev), []);
   useKeyboardShortcuts({ onToggleLock: toggleLock, onToggleHidden: toggleHidden, onUndo: undo });
 
+  // Navigation par swipe
+  const handleSwipeLeft = useCallback(() => {
+    const currentIndex = config.desktops.findIndex(d => d.id === config.currentDesktopId);
+    if (currentIndex < config.desktops.length - 1) {
+      switchDesktop(config.desktops[currentIndex + 1].id);
+    }
+  }, [config.desktops, config.currentDesktopId, switchDesktop]);
+
+  const handleSwipeRight = useCallback(() => {
+    const currentIndex = config.desktops.findIndex(d => d.id === config.currentDesktopId);
+    if (currentIndex > 0) {
+      switchDesktop(config.desktops[currentIndex - 1].id);
+    }
+  }, [config.desktops, config.currentDesktopId, switchDesktop]);
+
+  useSwipe({
+    onSwipeLeft: handleSwipeLeft,
+    onSwipeRight: handleSwipeRight,
+    minSwipeDistance: 50,
+  });
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -72,9 +98,10 @@ function App() {
   }
 
   const isDark = config.settings.theme === 'dark';
+  const currentDesktop = getCurrentDesktop();
   const visibleBlocks = notesHidden
-    ? config.blocks.filter(b => b.type === 'search' || b.type === 'bookmark')
-    : config.blocks;
+    ? currentDesktop.blocks.filter(b => b.type === 'search' || b.type === 'bookmark')
+    : currentDesktop.blocks;
 
   const renderBlockContent = (block: Block) => (
     <BlockContent
@@ -148,6 +175,8 @@ function App() {
         showBookmarkForm={showBookmarkModal}
         onShowBookmarkForm={setShowBookmarkModal}
         onToggleLinkTarget={toggleLinkTarget}
+        hasSearchBlock={currentDesktop.blocks.some(b => b.type === 'search')}
+        hasNotesOrTodos={currentDesktop.blocks.some(b => b.type === 'note' || b.type === 'todo')}
       />
       <DraggableGrid
         blocks={visibleBlocks}
@@ -168,7 +197,14 @@ function App() {
         onAddClock={addClock}
         onAddRss={addRss}
         onAddLinks={addLinks}
-        hasSearchBlock={config.blocks.some(b => b.type === 'search')}
+        hasSearchBlock={currentDesktop.blocks.some(b => b.type === 'search')}
+        isDark={isDark}
+      />
+      <DesktopNavigator
+        desktops={config.desktops}
+        currentDesktopId={config.currentDesktopId}
+        onSwitchDesktop={switchDesktop}
+        onAddDesktop={addDesktop}
         isDark={isDark}
       />
       <SpeedInsights />

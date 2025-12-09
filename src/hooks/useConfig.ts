@@ -1,8 +1,45 @@
 import { useCallback, useRef } from 'react';
-import type { Config, Block, BlockLayout, TodoItem, LinkItem } from '../types/config';
+import type { Config, Block, BlockLayout, TodoItem, LinkItem, Desktop } from '../types/config';
 import { useCloudStorage } from './useCloudStorage';
 import { generateId } from '../lib/utils';
 import { CELL_SIZE } from '../lib/defaultConfig';
+
+// Migrer une ancienne config vers le nouveau format avec desktops
+function migrateToDesktops(config: Config): Config {
+  // Si la config a déjà des desktops, pas besoin de migrer
+  if (config.desktops && config.desktops.length > 0) {
+    return config;
+  }
+
+  // Si la config a des blocks (ancien format), les migrer vers un desktop
+  if (config.blocks && config.blocks.length > 0) {
+    return {
+      ...config,
+      currentDesktopId: 'main',
+      desktops: [
+        {
+          id: 'main',
+          name: 'Main',
+          blocks: config.blocks,
+        },
+      ],
+      blocks: undefined, // Supprimer l'ancien champ
+    };
+  }
+
+  // Config vide, créer un desktop par défaut
+  return {
+    ...config,
+    currentDesktopId: 'main',
+    desktops: [
+      {
+        id: 'main',
+        name: 'Main',
+        blocks: [],
+      },
+    ],
+  };
+}
 
 // Calcule une position centrée pour un bloc
 function getCenteredPosition(w: number, h: number): { x: number; y: number } {
@@ -17,9 +54,25 @@ function getCenteredPosition(w: number, h: number): { x: number; y: number } {
 const MAX_HISTORY = 20;
 
 export function useConfig() {
-  const [config, setConfig, { loading: isLoading, syncing, syncId }] = useCloudStorage();
+  const [rawConfig, setRawConfig, { loading: isLoading, syncing, syncId }] = useCloudStorage();
+
+  // Migrer la config si nécessaire
+  const config = migrateToDesktops(rawConfig);
+  const setConfig = useCallback((updater: Config | ((prev: Config) => Config)) => {
+    setRawConfig((prev) => {
+      const migratedPrev = migrateToDesktops(prev);
+      const newConfig = typeof updater === 'function' ? updater(migratedPrev) : updater;
+      return migrateToDesktops(newConfig);
+    });
+  }, [setRawConfig]);
+
   const historyRef = useRef<Config[]>([]);
   const isUndoing = useRef(false);
+
+  // Helper pour obtenir le desktop actif
+  const getCurrentDesktop = useCallback(() => {
+    return config.desktops.find(d => d.id === config.currentDesktopId) || config.desktops[0];
+  }, [config]);
 
   const updateConfig = useCallback((updater: (prev: Config) => Config) => {
     setConfig((prev) => {
@@ -41,24 +94,91 @@ export function useConfig() {
     }
   }, [setConfig]);
 
-  // Déplacer un bloc sur la grille (et le mettre au premier plan)
-  const moveBlock = useCallback((blockId: string, layout: BlockLayout) => {
+  // === Gestion des desktops ===
+
+  const addDesktop = useCallback(() => {
+    const id = generateId();
     updateConfig((prev) => {
-      const block = prev.blocks.find((b) => b.id === blockId);
-      if (!block) return prev;
-      const others = prev.blocks.filter((b) => b.id !== blockId);
+      const name = `Desktop ${prev.desktops.length + 1}`;
       return {
         ...prev,
-        blocks: [...others, { ...block, layout }],
+        desktops: [...prev.desktops, { id, name, blocks: [] }],
+        currentDesktopId: id, // Basculer vers le nouveau desktop
       };
     });
+  }, [updateConfig]);
+
+  const deleteDesktop = useCallback((desktopId: string) => {
+    updateConfig((prev) => {
+      // Ne pas supprimer s'il n'y a qu'un seul desktop
+      if (prev.desktops.length <= 1) return prev;
+
+      const newDesktops = prev.desktops.filter(d => d.id !== desktopId);
+      const newCurrentId = prev.currentDesktopId === desktopId
+        ? newDesktops[0].id
+        : prev.currentDesktopId;
+
+      return {
+        ...prev,
+        desktops: newDesktops,
+        currentDesktopId: newCurrentId,
+      };
+    });
+  }, [updateConfig]);
+
+  const switchDesktop = useCallback((desktopId: string) => {
+    updateConfig((prev) => {
+      // Nettoyer les desktops vides (sauf si c'est le seul)
+      const nonEmptyDesktops = prev.desktops.filter(d =>
+        d.blocks.length > 0 || d.id === desktopId || prev.desktops.length === 1
+      );
+
+      // S'assurer qu'il reste au moins un desktop
+      const finalDesktops = nonEmptyDesktops.length > 0 ? nonEmptyDesktops : prev.desktops;
+
+      return {
+        ...prev,
+        desktops: finalDesktops,
+        currentDesktopId: desktopId,
+      };
+    });
+  }, [updateConfig]);
+
+  const renameDesktop = useCallback((desktopId: string, name: string) => {
+    updateConfig((prev) => ({
+      ...prev,
+      desktops: prev.desktops.map(d =>
+        d.id === desktopId ? { ...d, name } : d
+      ),
+    }));
+  }, [updateConfig]);
+
+  // === Gestion des blocs (opèrent sur le desktop actif) ===
+
+
+  // Déplacer un bloc sur la grille (et le mettre au premier plan)
+  const moveBlock = useCallback((blockId: string, layout: BlockLayout) => {
+    updateConfig((prev) => ({
+      ...prev,
+      desktops: prev.desktops.map(desktop => {
+        if (desktop.id !== prev.currentDesktopId) return desktop;
+        const block = desktop.blocks.find((b) => b.id === blockId);
+        if (!block) return desktop;
+        const others = desktop.blocks.filter((b) => b.id !== blockId);
+        return { ...desktop, blocks: [...others, { ...block, layout }] };
+      }),
+    }));
   }, [updateConfig]);
 
   // Supprimer un bloc
   const deleteBlock = useCallback((blockId: string) => {
     updateConfig((prev) => ({
       ...prev,
-      blocks: prev.blocks.filter((block) => block.id !== blockId),
+      desktops: prev.desktops.map(desktop =>
+        desktop.id === prev.currentDesktopId
+          ? { ...desktop, blocks: desktop.blocks.filter((block) => block.id !== blockId) }
+          : desktop
+      ),
     }));
   }, [updateConfig]);
 
@@ -82,7 +202,11 @@ export function useConfig() {
 
     updateConfig((prev) => ({
       ...prev,
-      blocks: [...prev.blocks, newBlock],
+      desktops: prev.desktops.map(desktop =>
+        desktop.id === prev.currentDesktopId
+          ? { ...desktop, blocks: [...desktop.blocks, newBlock] }
+          : desktop
+      ),
     }));
   }, [updateConfig]);
 
@@ -100,7 +224,11 @@ export function useConfig() {
 
     updateConfig((prev) => ({
       ...prev,
-      blocks: [...prev.blocks, newBlock],
+      desktops: prev.desktops.map(desktop =>
+        desktop.id === prev.currentDesktopId
+          ? { ...desktop, blocks: [...desktop.blocks, newBlock] }
+          : desktop
+      ),
     }));
   }, [updateConfig]);
 
@@ -117,7 +245,11 @@ export function useConfig() {
 
     updateConfig((prev) => ({
       ...prev,
-      blocks: [...prev.blocks, newBlock],
+      desktops: prev.desktops.map(desktop =>
+        desktop.id === prev.currentDesktopId
+          ? { ...desktop, blocks: [...desktop.blocks, newBlock] }
+          : desktop
+      ),
     }));
     return id;
   }, [updateConfig]);
@@ -126,12 +258,15 @@ export function useConfig() {
   const updateNote = useCallback((blockId: string, content: string) => {
     updateConfig((prev) => ({
       ...prev,
-      blocks: prev.blocks.map((block) => {
-        if (block.id === blockId && block.type === 'note') {
-          return { ...block, content };
-        }
-        return block;
-      }),
+      desktops: prev.desktops.map(desktop => ({
+        ...desktop,
+        blocks: desktop.blocks.map((block) => {
+          if (block.id === blockId && block.type === 'note') {
+            return { ...block, content };
+          }
+          return block;
+        }),
+      })),
     }));
   }, [updateConfig]);
 
@@ -139,12 +274,15 @@ export function useConfig() {
   const updateNoteTitle = useCallback((blockId: string, title: string) => {
     updateConfig((prev) => ({
       ...prev,
-      blocks: prev.blocks.map((block) => {
-        if (block.id === blockId && block.type === 'note') {
-          return { ...block, title };
-        }
-        return block;
-      }),
+      desktops: prev.desktops.map(desktop => ({
+        ...desktop,
+        blocks: desktop.blocks.map((block) => {
+          if (block.id === blockId && block.type === 'note') {
+            return { ...block, title };
+          }
+          return block;
+        }),
+      })),
     }));
   }, [updateConfig]);
 
@@ -152,12 +290,15 @@ export function useConfig() {
   const updateTodo = useCallback((blockId: string, items: TodoItem[]) => {
     updateConfig((prev) => ({
       ...prev,
-      blocks: prev.blocks.map((block) => {
-        if (block.id === blockId && block.type === 'todo') {
-          return { ...block, items };
-        }
-        return block;
-      }),
+      desktops: prev.desktops.map(desktop => ({
+        ...desktop,
+        blocks: desktop.blocks.map((block) => {
+          if (block.id === blockId && block.type === 'todo') {
+            return { ...block, items };
+          }
+          return block;
+        }),
+      })),
     }));
   }, [updateConfig]);
 
@@ -165,12 +306,15 @@ export function useConfig() {
   const updateTodoTitle = useCallback((blockId: string, title: string) => {
     updateConfig((prev) => ({
       ...prev,
-      blocks: prev.blocks.map((block) => {
-        if (block.id === blockId && block.type === 'todo') {
-          return { ...block, title };
-        }
-        return block;
-      }),
+      desktops: prev.desktops.map(desktop => ({
+        ...desktop,
+        blocks: desktop.blocks.map((block) => {
+          if (block.id === blockId && block.type === 'todo') {
+            return { ...block, title };
+          }
+          return block;
+        }),
+      })),
     }));
   }, [updateConfig]);
 
@@ -178,12 +322,15 @@ export function useConfig() {
   const updateWeatherCity = useCallback((blockId: string, city: string) => {
     updateConfig((prev) => ({
       ...prev,
-      blocks: prev.blocks.map((block) => {
-        if (block.id === blockId && block.type === 'weather') {
-          return { ...block, city };
-        }
-        return block;
-      }),
+      desktops: prev.desktops.map(desktop => ({
+        ...desktop,
+        blocks: desktop.blocks.map((block) => {
+          if (block.id === blockId && block.type === 'weather') {
+            return { ...block, city };
+          }
+          return block;
+        }),
+      })),
     }));
   }, [updateConfig]);
 
@@ -191,12 +338,15 @@ export function useConfig() {
   const updateClockCity = useCallback((blockId: string, city: string, timezone: string) => {
     updateConfig((prev) => ({
       ...prev,
-      blocks: prev.blocks.map((block) => {
-        if (block.id === blockId && block.type === 'clock') {
-          return { ...block, city, timezone };
-        }
-        return block;
-      }),
+      desktops: prev.desktops.map(desktop => ({
+        ...desktop,
+        blocks: desktop.blocks.map((block) => {
+          if (block.id === blockId && block.type === 'clock') {
+            return { ...block, city, timezone };
+          }
+          return block;
+        }),
+      })),
     }));
   }, [updateConfig]);
 
@@ -204,12 +354,15 @@ export function useConfig() {
   const updateStockSymbol = useCallback((blockId: string, symbol: string) => {
     updateConfig((prev) => ({
       ...prev,
-      blocks: prev.blocks.map((block) => {
-        if (block.id === blockId && block.type === 'stock') {
-          return { ...block, symbol };
-        }
-        return block;
-      }),
+      desktops: prev.desktops.map(desktop => ({
+        ...desktop,
+        blocks: desktop.blocks.map((block) => {
+          if (block.id === blockId && block.type === 'stock') {
+            return { ...block, symbol };
+          }
+          return block;
+        }),
+      })),
     }));
   }, [updateConfig]);
 
@@ -217,12 +370,15 @@ export function useConfig() {
   const updateStationUrl = useCallback((blockId: string, name: string, streamUrl: string) => {
     updateConfig((prev) => ({
       ...prev,
-      blocks: prev.blocks.map((block) => {
-        if (block.id === blockId && block.type === 'station') {
-          return { ...block, name, streamUrl };
-        }
-        return block;
-      }),
+      desktops: prev.desktops.map(desktop => ({
+        ...desktop,
+        blocks: desktop.blocks.map((block) => {
+          if (block.id === blockId && block.type === 'station') {
+            return { ...block, name, streamUrl };
+          }
+          return block;
+        }),
+      })),
     }));
   }, [updateConfig]);
 
@@ -239,7 +395,11 @@ export function useConfig() {
 
     updateConfig((prev) => ({
       ...prev,
-      blocks: [...prev.blocks, newBlock],
+      desktops: prev.desktops.map(desktop =>
+        desktop.id === prev.currentDesktopId
+          ? { ...desktop, blocks: [...desktop.blocks, newBlock] }
+          : desktop
+      ),
     }));
   }, [updateConfig]);
 
@@ -257,7 +417,11 @@ export function useConfig() {
 
     updateConfig((prev) => ({
       ...prev,
-      blocks: [...prev.blocks, newBlock],
+      desktops: prev.desktops.map(desktop =>
+        desktop.id === prev.currentDesktopId
+          ? { ...desktop, blocks: [...desktop.blocks, newBlock] }
+          : desktop
+      ),
     }));
   }, [updateConfig]);
 
@@ -274,7 +438,11 @@ export function useConfig() {
 
     updateConfig((prev) => ({
       ...prev,
-      blocks: [...prev.blocks, newBlock],
+      desktops: prev.desktops.map(desktop =>
+        desktop.id === prev.currentDesktopId
+          ? { ...desktop, blocks: [...desktop.blocks, newBlock] }
+          : desktop
+      ),
     }));
   }, [updateConfig]);
 
@@ -292,7 +460,11 @@ export function useConfig() {
 
     updateConfig((prev) => ({
       ...prev,
-      blocks: [...prev.blocks, newBlock],
+      desktops: prev.desktops.map(desktop =>
+        desktop.id === prev.currentDesktopId
+          ? { ...desktop, blocks: [...desktop.blocks, newBlock] }
+          : desktop
+      ),
     }));
   }, [updateConfig]);
 
@@ -309,7 +481,11 @@ export function useConfig() {
 
     updateConfig((prev) => ({
       ...prev,
-      blocks: [...prev.blocks, newBlock],
+      desktops: prev.desktops.map(desktop =>
+        desktop.id === prev.currentDesktopId
+          ? { ...desktop, blocks: [...desktop.blocks, newBlock] }
+          : desktop
+      ),
     }));
   }, [updateConfig]);
 
@@ -317,12 +493,15 @@ export function useConfig() {
   const updateRssFeedUrl = useCallback((blockId: string, feedUrl: string) => {
     updateConfig((prev) => ({
       ...prev,
-      blocks: prev.blocks.map((block) => {
-        if (block.id === blockId && block.type === 'rss') {
-          return { ...block, feedUrl };
-        }
-        return block;
-      }),
+      desktops: prev.desktops.map(desktop => ({
+        ...desktop,
+        blocks: desktop.blocks.map((block) => {
+          if (block.id === blockId && block.type === 'rss') {
+            return { ...block, feedUrl };
+          }
+          return block;
+        }),
+      })),
     }));
   }, [updateConfig]);
 
@@ -343,7 +522,11 @@ export function useConfig() {
 
     updateConfig((prev) => ({
       ...prev,
-      blocks: [...prev.blocks, newBlock],
+      desktops: prev.desktops.map(desktop =>
+        desktop.id === prev.currentDesktopId
+          ? { ...desktop, blocks: [...desktop.blocks, newBlock] }
+          : desktop
+      ),
     }));
   }, [updateConfig]);
 
@@ -351,12 +534,15 @@ export function useConfig() {
   const updateLinks = useCallback((blockId: string, items: LinkItem[]) => {
     updateConfig((prev) => ({
       ...prev,
-      blocks: prev.blocks.map((block) => {
-        if (block.id === blockId && block.type === 'links') {
-          return { ...block, items };
-        }
-        return block;
-      }),
+      desktops: prev.desktops.map(desktop => ({
+        ...desktop,
+        blocks: desktop.blocks.map((block) => {
+          if (block.id === blockId && block.type === 'links') {
+            return { ...block, items };
+          }
+          return block;
+        }),
+      })),
     }));
   }, [updateConfig]);
 
@@ -389,6 +575,11 @@ export function useConfig() {
     syncId,
     setConfig,
     updateConfig,
+    getCurrentDesktop,
+    addDesktop,
+    deleteDesktop,
+    switchDesktop,
+    renameDesktop,
     moveBlock,
     deleteBlock,
     addBlock,

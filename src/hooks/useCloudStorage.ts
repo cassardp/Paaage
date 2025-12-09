@@ -14,7 +14,7 @@ function getSyncId(): string {
     localStorage.setItem(SYNC_ID_KEY, urlId);
     return urlId;
   }
-  
+
   // Sinon, récupérer ou créer un ID
   let id = localStorage.getItem(SYNC_ID_KEY);
   if (!id) {
@@ -39,7 +39,7 @@ export function useCloudStorage(): [
   const [config, setConfig] = useState<Config>({ ...DEFAULT_CONFIG, updatedAt: new Date().toISOString() });
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
-  
+
   // Ref pour le debounce de sauvegarde
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingDataRef = useRef<Config | null>(null);
@@ -51,7 +51,8 @@ export function useCloudStorage(): [
       const res = await fetch(`${API_URL}?id=${syncId}`);
       if (!res.ok) throw new Error('Failed to load');
       const json = await res.json();
-      if (json && json.blocks) {
+      // Accepter les deux formats: ancien (blocks) et nouveau (desktops)
+      if (json && (json.blocks || json.desktops)) {
         setConfig(json as Config);
       }
     } catch (e) {
@@ -70,15 +71,15 @@ export function useCloudStorage(): [
   // Sauvegarder avec debounce
   const saveToCloud = useCallback(async (newConfig: Config) => {
     pendingDataRef.current = newConfig;
-    
+
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
     }
-    
+
     saveTimeoutRef.current = setTimeout(async () => {
       const dataToSave = pendingDataRef.current;
       if (!dataToSave) return;
-      
+
       setSyncing(true);
       try {
         const res = await fetch(`${API_URL}?id=${syncId}`, {

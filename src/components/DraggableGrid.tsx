@@ -46,8 +46,6 @@ export function DraggableGrid({ blocks, onMoveBlock, onMoveBlockToNextDesktop, o
     currentPxW: number;
     currentPxH: number;
   } | null>(null);
-  const [isNearRightEdge, setIsNearRightEdge] = useState(false);
-  const [isNearLeftEdge, setIsNearLeftEdge] = useState(false);
   const edgeTimerRef = useRef<number | null>(null);
 
   const startDrag = (e: React.MouseEvent, block: Block, mode: DragMode) => {
@@ -103,9 +101,6 @@ export function DraggableGrid({ blocks, onMoveBlock, onMoveBlockToNextDesktop, o
         const EDGE_THRESHOLD = 10;
         const isNearRight = !!(onMoveBlockToNextDesktop && (pxX + dragState.currentPxW >= rect.width - EDGE_THRESHOLD));
         const isNearLeft = !!(onMoveBlockToPrevDesktop && currentDesktopIndex > 0 && pxX <= EDGE_THRESHOLD);
-
-        setIsNearRightEdge(isNearRight);
-        setIsNearLeftEdge(isNearLeft);
 
         // Auto-switch desktop après 300ms près du bord
         if (isNearRight || isNearLeft) {
@@ -193,8 +188,6 @@ export function DraggableGrid({ blocks, onMoveBlock, onMoveBlockToNextDesktop, o
 
       if (!gridRef.current) {
         setDragState(null);
-        setIsNearRightEdge(false);
-        setIsNearLeftEdge(false);
         return;
       }
 
@@ -220,8 +213,6 @@ export function DraggableGrid({ blocks, onMoveBlock, onMoveBlockToNextDesktop, o
       onMoveBlock(block.id, newLayout);
 
       setDragState(null);
-      setIsNearRightEdge(false);
-      setIsNearLeftEdge(false);
     };
 
     window.addEventListener('mousemove', handleMouseMove);

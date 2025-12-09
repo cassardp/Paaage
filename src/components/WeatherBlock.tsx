@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
 import { Cloud, Sun, CloudRain, CloudSnow, CloudLightning, Wind } from 'lucide-react';
 import { Spinner } from './Spinner';
 import { FlipCard } from './FlipCard';
+import { useDataCache } from '../hooks/useDataCache';
 
 interface WeatherBlockProps {
   city?: string;
@@ -48,47 +48,33 @@ async function validateCity(city: string): Promise<boolean> {
 }
 
 export function WeatherBlock({ city = 'Toulon', isDark = true, width = 2, onUpdateCity }: WeatherBlockProps) {
-  const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: weather, loading, error } = useDataCache<WeatherData>({
+    cacheKey: `weather-${city}`,
+    fetchFn: async () => {
+      const geoRes = await fetch(
+        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`
+      );
+      const geoData = await geoRes.json();
 
-  useEffect(() => {
-    async function fetchWeather() {
-      try {
-        const geoRes = await fetch(
-          `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`
-        );
-        const geoData = await geoRes.json();
-        
-        if (!geoData.results?.[0]) {
-          setError('City not found');
-          setLoading(false);
-          return;
-        }
-
-        const { latitude, longitude } = geoData.results[0];
-
-        const weatherRes = await fetch(
-          `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code,wind_speed_10m`
-        );
-        const weatherData = await weatherRes.json();
-
-        setWeather({
-          temperature: Math.round(weatherData.current.temperature_2m),
-          weatherCode: weatherData.current.weather_code,
-          windSpeed: Math.round(weatherData.current.wind_speed_10m),
-        });
-        setLoading(false);
-      } catch {
-        setError('Loading error');
-        setLoading(false);
+      if (!geoData.results?.[0]) {
+        throw new Error('City not found');
       }
-    }
 
-    fetchWeather();
-    const interval = setInterval(fetchWeather, 30 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [city]);
+      const { latitude, longitude } = geoData.results[0];
+
+      const weatherRes = await fetch(
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code,wind_speed_10m`
+      );
+      const weatherData = await weatherRes.json();
+
+      return {
+        temperature: Math.round(weatherData.current.temperature_2m),
+        weatherCode: weatherData.current.weather_code,
+        windSpeed: Math.round(weatherData.current.wind_speed_10m),
+      };
+    },
+    ttl: 30 * 60 * 1000, // 30 minutes
+  });
 
   if (loading) {
     return (
@@ -122,7 +108,7 @@ export function WeatherBlock({ city = 'Toulon', isDark = true, width = 2, onUpda
             <WeatherIcon className={`w-10 h-10 ${isDark ? 'text-neutral-300' : 'text-neutral-700'}`} strokeWidth={1.5} />
             <div>
               <p className={`text-2xl font-medium ${isDark ? 'text-neutral-300' : 'text-neutral-700'}`}>{weather.temperature}°C</p>
-              <p 
+              <p
                 onClick={onFlip}
                 className={`text-sm cursor-pointer hover:underline truncate max-w-[120px] ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}
               >

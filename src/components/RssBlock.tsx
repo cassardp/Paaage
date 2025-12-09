@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Spinner } from './Spinner';
 import { getLinkTarget } from '../constants/links';
 import type { Config } from '../types/config';
+import { useDataCache } from '../hooks/useDataCache';
 
 interface RssItem {
   title: string;
@@ -16,47 +17,41 @@ interface RssBlockProps {
 }
 
 export function RssBlock({ feedUrl = 'https://news.ycombinator.com/rss', isDark = true, onUpdateFeedUrl, config }: RssBlockProps) {
-  const [items, setItems] = useState<RssItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editUrl, setEditUrl] = useState(feedUrl);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    const fetchRss = async () => {
-      setLoading(true);
-      setError(false);
-      try {
-        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(feedUrl)}`;
-        const res = await fetch(proxyUrl);
-        const text = await res.text();
+  const { data: items, loading, error } = useDataCache<RssItem[]>({
+    cacheKey: `rss-${feedUrl}`,
+    fetchFn: async () => {
+      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(feedUrl)}`;
+      const res = await fetch(proxyUrl);
+      const text = await res.text();
 
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(text, 'text/xml');
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(text, 'text/xml');
 
-        const itemElements = xml.querySelectorAll('item');
-        const parsedItems: RssItem[] = [];
+      const itemElements = xml.querySelectorAll('item');
+      const parsedItems: RssItem[] = [];
 
-        itemElements.forEach((item, index) => {
-          if (index < 20) {
-            const title = item.querySelector('title')?.textContent || '';
-            const link = item.querySelector('link')?.textContent || '';
-            if (title && link) {
-              parsedItems.push({ title, link });
-            }
+      itemElements.forEach((item, index) => {
+        if (index < 20) {
+          const title = item.querySelector('title')?.textContent || '';
+          const link = item.querySelector('link')?.textContent || '';
+          if (title && link) {
+            parsedItems.push({ title, link });
           }
-        });
+        }
+      });
 
-        setItems(parsedItems);
-      } catch {
-        setError(true);
-      } finally {
-        setLoading(false);
+      if (parsedItems.length === 0) {
+        throw new Error('Loading error');
       }
-    };
-    fetchRss();
-  }, [feedUrl]);
+
+      return parsedItems;
+    },
+    ttl: 15 * 60 * 1000, // 15 minutes
+  });
 
   useEffect(() => {
     if (isEditing) {
@@ -141,7 +136,7 @@ export function RssBlock({ feedUrl = 'https://news.ycombinator.com/rss', isDark 
         </span>
       )}
       <div className="flex-1 overflow-y-auto space-y-1 scrollbar-hide">
-        {items.map((item, i) => (
+        {items?.map((item, i) => (
           <a
             key={i}
             href={item.link}

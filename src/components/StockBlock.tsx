@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
 import { TrendingUp, TrendingDown, RefreshCw } from 'lucide-react';
 import { Spinner } from './Spinner';
 import { FlipCard } from './FlipCard';
+import { useDataCache } from '../hooks/useDataCache';
 
 interface StockBlockProps {
   symbol: string;
@@ -29,74 +29,46 @@ async function validateSymbol(symbol: string): Promise<boolean> {
 }
 
 export function StockBlock({ symbol, isDark = true, width = 12, onUpdateSymbol }: StockBlockProps) {
-  const [stock, setStock] = useState<StockData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [retryCount, setRetryCount] = useState(0);
+  const { data: stock, loading, error, refetch } = useDataCache<StockData>({
+    cacheKey: `stock-${symbol}`,
+    fetchFn: async () => {
+      const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`;
+      const res = await fetch(
+        `https://corsproxy.io/?${encodeURIComponent(yahooUrl)}`
+      );
 
-  useEffect(() => {
-    async function fetchStock() {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`;
-        const res = await fetch(
-          `https://corsproxy.io/?${encodeURIComponent(yahooUrl)}`
-        );
-
-        if (!res.ok) {
-          setError('Symbol not found');
-          setLoading(false);
-          return;
-        }
-
-        const text = await res.text();
-        let data;
-        try {
-          data = JSON.parse(text);
-        } catch {
-          setError('Symbol not found');
-          setLoading(false);
-          return;
-        }
-
-        const quote = data.chart?.result?.[0];
-        if (!quote) {
-          setError('Symbol not found');
-          setLoading(false);
-          return;
-        }
-
-        const meta = quote.meta;
-        const price = meta?.regularMarketPrice;
-        const previousClose = meta?.chartPreviousClose || meta?.previousClose;
-
-        if (price == null || previousClose == null) {
-          setError('Data not available');
-          setLoading(false);
-          return;
-        }
-
-        const change = price - previousClose;
-        const changePercent = (change / previousClose) * 100;
-
-        setStock({ price, change, changePercent });
-        setLoading(false);
-      } catch {
-        setError('Loading error');
-        setLoading(false);
+      if (!res.ok) {
+        throw new Error('Symbol not found');
       }
-    }
 
-    fetchStock();
-    const interval = setInterval(fetchStock, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [symbol, retryCount]);
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error('Symbol not found');
+      }
 
-  const handleRetry = () => {
-    setRetryCount(prev => prev + 1);
-  };
+      const quote = data.chart?.result?.[0];
+      if (!quote) {
+        throw new Error('Symbol not found');
+      }
+
+      const meta = quote.meta;
+      const price = meta?.regularMarketPrice;
+      const previousClose = meta?.chartPreviousClose || meta?.previousClose;
+
+      if (price == null || previousClose == null) {
+        throw new Error('Data not available');
+      }
+
+      const change = price - previousClose;
+      const changePercent = (change / previousClose) * 100;
+
+      return { price, change, changePercent };
+    },
+    ttl: 5 * 60 * 1000, // 5 minutes
+  });
 
   if (loading) {
     return (
@@ -111,7 +83,7 @@ export function StockBlock({ symbol, isDark = true, width = 12, onUpdateSymbol }
       <div className="h-full flex flex-col items-center justify-center gap-2">
         <p className={`text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>{error}</p>
         <button
-          onClick={handleRetry}
+          onClick={refetch}
           className={`p-1.5 rounded-lg transition-colors cursor-pointer ${isDark ? 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-700' : 'text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100'}`}
           title="Retry"
         >

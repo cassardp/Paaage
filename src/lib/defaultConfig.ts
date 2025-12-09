@@ -1,7 +1,17 @@
 import type { Config } from '../types/config';
 
 // Configuration de la grille
-export const CELL_SIZE = 16; // px - taille d'une cellule
+export const CELL_SIZE = 16; // px - taille d'une cellule (base desktop)
+
+/**
+ * Get responsive cell size based on viewport width
+ * This is used by the responsive grid system
+ */
+export function getResponsiveCellSize(width: number): number {
+  if (width < 768) return 20; // Mobile: larger for touch
+  if (width < 1024) return 18; // Tablet: medium
+  return CELL_SIZE; // Desktop: base
+}
 
 export const DEFAULT_CONFIG: Config = {
   version: 1,

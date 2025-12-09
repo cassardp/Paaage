@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react';
-import type { Config, Block, BlockLayout, TodoItem, LinkItem, Desktop } from '../types/config';
+import type { Config, Block, BlockLayout, TodoItem, LinkItem } from '../types/config';
 import { useCloudStorage } from './useCloudStorage';
 import { generateId } from '../lib/utils';
 import { CELL_SIZE } from '../lib/defaultConfig';

@@ -65,6 +65,13 @@ function App() {
     canUndo,
   } = useConfig();
 
+  // Mettre à jour theme-color pour Safari
+  useEffect(() => {
+    const themeColor = config.settings.theme === 'dark' ? '#0a0a0a' : '#ffffff';
+    const metas = document.querySelectorAll('meta[name="theme-color"]');
+    metas.forEach(meta => meta.setAttribute('content', themeColor));
+  }, [config.settings.theme]);
+
   // Raccourcis clavier
   const toggleLock = useCallback(() => setDragLocked(prev => !prev), []);
   const toggleHidden = useCallback(() => setNotesHidden(prev => !prev), []);

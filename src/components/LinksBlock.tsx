@@ -94,7 +94,7 @@ function SortableLink({ item, isDark, onRemove, isDraggingAny, config }: Sortabl
     transition,
   };
 
-  const textClass = isDark ? 'text-neutral-400 hover:text-neutral-400' : 'text-neutral-600 hover:text-neutral-400';
+  const textClass = isDark ? 'text-neutral-500 hover:text-neutral-300' : 'text-neutral-600 hover:text-neutral-400';
   const mutedClass = isDark ? 'text-neutral-500' : 'text-neutral-400';
   const cursor = isDragging ? 'grabbing' : isHovering ? 'grab' : 'pointer';
 

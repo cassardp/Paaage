@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Config } from '../types/config';
 import { DEFAULT_CONFIG } from '../lib/defaultConfig';
 
-const API_URL = 'https://cassardp--86ac705cd0fb11f0873e42dde27851f2.web.val.run';
+const API_URL = import.meta.env.VITE_SYNC_API_URL;
 const SYNC_ID_KEY = 'paaage-sync-id';
 
 // Récupérer ou créer l'ID de sync

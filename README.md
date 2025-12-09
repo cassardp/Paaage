@@ -38,17 +38,6 @@ Paaage turns your new tab into a personalized command center. Drag blocks, drop 
 
 React · TypeScript · Vite · Tailwind · react-grid-layout · [Val.town](https://val.town)
 
-## Setup
-
-```bash
-npm install
-npm run dev
-```
-
-## Environment
-
-Copy `.env.example` to `.env` and configure your sync API URL if needed.
-
 ---
 
 <div align="center">

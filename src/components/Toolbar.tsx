@@ -364,6 +364,14 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
                 <p className="font-medium mb-1">Technologies</p>
                 <p>React 19 • TypeScript • Tailwind CSS • Vite</p>
               </div>
+              <a 
+                href="https://github.com/CassardMusic/Paaage" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className={`block hover:underline ${isDark ? 'text-neutral-400 hover:text-neutral-300' : 'text-neutral-500 hover:text-neutral-700'}`}
+              >
+                GitHub
+              </a>
               <p className="opacity-70">Alpha version</p>
             </div>
           </div>

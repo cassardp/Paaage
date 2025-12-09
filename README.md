@@ -1,79 +1,58 @@
-# Paaage
+<div align="center">
 
-**Minimalist, drag-and-drop homepage builder**
+# ✦ Paaage
 
-Paaage is a customizable homepage builder that lets you create your perfect start page with drag-and-drop simplicity. Build a personalized dashboard with various blocks including links, bookmarks, notes, todos, RSS feeds, radio stations, and more.
+**Your browser's new home.**
 
-## Features
+A minimalist, drag-and-drop homepage builder.
 
-- 🎨 Minimalist, modern design
-- 🖱️ Drag-and-drop interface for easy customization
-- 📦 Multiple block types (links, bookmarks, notes, todos, RSS, radio, etc.)
-- 💾 Local storage for your configuration
-- 🌓 Dark mode support
-- 📱 Responsive design
+[Live Demo](https://paaage.vercel.app) · [Report Bug](https://github.com/cassardp/Paaage/issues)
 
-## Tech Stack
+</div>
 
-Built with React, TypeScript, and Vite for a fast, modern development experience.
+---
 
-## Expanding the ESLint configuration
+## What is this?
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Paaage turns your new tab into a personalized command center. Drag blocks, drop them anywhere, make it yours.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Blocks
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+| | | |
+|---|---|---|
+| 🔗 **Links** | 📝 **Notes** | ✅ **Todos** |
+| 🔖 **Bookmarks** | 📡 **RSS Feeds** | 📻 **Radio** |
+| 🌤️ **Weather** | 📈 **Stocks** | 🕐 **Clocks** |
+| 🔍 **Search** | | |
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Shortcuts
+
+```
+/        → Insert block
+⇧ + L    → Lock layout
+⇧ + M    → Mask mode
+⇧ + U    → Undo
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Stack
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+React · TypeScript · Vite · Tailwind · react-grid-layout
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Setup
+
+```bash
+npm install
+npm run dev
 ```
+
+## Environment
+
+Copy `.env.example` to `.env` and configure your sync API URL if needed.
+
+---
+
+<div align="center">
+
+Made with ☕ by [@cassardp](https://github.com/cassardp)
+
+</div>

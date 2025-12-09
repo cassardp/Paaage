@@ -365,7 +365,7 @@ export function Toolbar({ config, syncId, syncing, onImport, onToggleTheme, onAd
                 <p>React 19 • TypeScript • Tailwind CSS • Vite</p>
               </div>
               <a 
-                href="https://github.com/CassardMusic/Paaage" 
+                href="https://github.com/cassardp/Paaage" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className={`block hover:underline ${isDark ? 'text-neutral-400 hover:text-neutral-300' : 'text-neutral-500 hover:text-neutral-700'}`}

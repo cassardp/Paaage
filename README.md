@@ -20,10 +20,10 @@ Paaage turns your new tab into a personalized command center. Drag blocks, drop 
 
 | | | |
 |---|---|---|
-| 🔗 **Links** | 📝 **Notes** | ✅ **Todos** |
-| 🔖 **Bookmarks** | 📡 **RSS Feeds** | 📻 **Radio** |
-| 🌤️ **Weather** | 📈 **Stocks** | 🕐 **Clocks** |
-| 🔍 **Search** | | |
+| **Links** | **Notes** | **Todos** |
+| **Bookmarks** | **RSS Feeds** | **Radio** |
+| **Weather** | **Stocks** | **Clocks** |
+| **Search** | | |
 
 ## Shortcuts
 
@@ -36,7 +36,7 @@ Paaage turns your new tab into a personalized command center. Drag blocks, drop 
 
 ## Stack
 
-React · TypeScript · Vite · Tailwind · react-grid-layout · Val.town
+React · TypeScript · Vite · Tailwind · react-grid-layout · [Val.town](https://val.town)
 
 ## Setup
 
@@ -53,8 +53,6 @@ Copy `.env.example` to `.env` and configure your sync API URL if needed.
 
 <div align="center">
 
-Made with ☕ by [@cassardp](https://github.com/cassardp)
-
-📬 [cassard@gmail.com](mailto:cassard@gmail.com)
+Made by [@cassardp](https://github.com/cassardp) · [cassard@gmail.com](mailto:cassard@gmail.com)
 
 </div>

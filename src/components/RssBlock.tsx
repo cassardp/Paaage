@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Spinner } from './Spinner';
 import { getLinkTarget } from '../constants/links';
 import type { Config } from '../types/config';
@@ -21,35 +21,37 @@ export function RssBlock({ feedUrl = 'https://news.ycombinator.com/rss', isDark 
   const [editUrl, setEditUrl] = useState(feedUrl);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const fetchRss = useCallback(async () => {
+    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(feedUrl)}`;
+    const res = await fetch(proxyUrl);
+    const text = await res.text();
+
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(text, 'text/xml');
+
+    const itemElements = xml.querySelectorAll('item');
+    const parsedItems: RssItem[] = [];
+
+    itemElements.forEach((item, index) => {
+      if (index < 20) {
+        const title = item.querySelector('title')?.textContent || '';
+        const link = item.querySelector('link')?.textContent || '';
+        if (title && link) {
+          parsedItems.push({ title, link });
+        }
+      }
+    });
+
+    if (parsedItems.length === 0) {
+      throw new Error('Loading error');
+    }
+
+    return parsedItems;
+  }, [feedUrl]);
+
   const { data: items, loading, error } = useDataCache<RssItem[]>({
     cacheKey: `rss-${feedUrl}`,
-    fetchFn: async () => {
-      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(feedUrl)}`;
-      const res = await fetch(proxyUrl);
-      const text = await res.text();
-
-      const parser = new DOMParser();
-      const xml = parser.parseFromString(text, 'text/xml');
-
-      const itemElements = xml.querySelectorAll('item');
-      const parsedItems: RssItem[] = [];
-
-      itemElements.forEach((item, index) => {
-        if (index < 20) {
-          const title = item.querySelector('title')?.textContent || '';
-          const link = item.querySelector('link')?.textContent || '';
-          if (title && link) {
-            parsedItems.push({ title, link });
-          }
-        }
-      });
-
-      if (parsedItems.length === 0) {
-        throw new Error('Loading error');
-      }
-
-      return parsedItems;
-    },
+    fetchFn: fetchRss,
     ttl: 15 * 60 * 1000, // 15 minutes
   });
 
@@ -67,7 +69,12 @@ export function RssBlock({ feedUrl = 'https://news.ycombinator.com/rss', isDark 
   const handleSave = () => {
     const trimmed = editUrl.trim();
     if (trimmed && trimmed !== feedUrl && onUpdateFeedUrl) {
-      onUpdateFeedUrl(trimmed);
+      try {
+        new URL(trimmed); // Validate URL before saving
+        onUpdateFeedUrl(trimmed);
+      } catch {
+        // Invalid URL, don't save
+      }
     }
     setIsEditing(false);
   };
@@ -132,7 +139,7 @@ export function RssBlock({ feedUrl = 'https://news.ycombinator.com/rss', isDark 
           className={`text-xs ${mutedClass} mb-2 truncate cursor-pointer hover:underline`}
           title="Click to edit URL"
         >
-          {new URL(feedUrl).hostname}
+          {(() => { try { return new URL(feedUrl).hostname; } catch { return feedUrl; } })()}
         </span>
       )}
       <div className="flex-1 overflow-y-auto space-y-1 scrollbar-hide">

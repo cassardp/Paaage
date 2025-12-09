@@ -17,7 +17,8 @@ export function importConfig(file: File): Promise<Config> {
     reader.onload = (e) => {
       try {
         const config = JSON.parse(e.target?.result as string) as Config;
-        if (config.version && config.blocks) {
+        // Support both old format (blocks) and new format (desktops)
+        if (config.version && (config.blocks || config.desktops)) {
           resolve(config);
         } else {
           reject(new Error('Invalid configuration format'));

@@ -153,6 +153,94 @@ export function useConfig() {
     }));
   }, [updateConfig]);
 
+  // Déplacer un bloc vers le desktop suivant (ou créer un nouveau desktop)
+  const moveBlockToNextDesktop = useCallback((blockId: string, layout: BlockLayout) => {
+    updateConfig((prev) => {
+      const currentIndex = prev.desktops.findIndex(d => d.id === prev.currentDesktopId);
+      const currentDesktop = prev.desktops[currentIndex];
+      const block = currentDesktop.blocks.find(b => b.id === blockId);
+
+      if (!block) return prev;
+
+      // Supprimer le bloc du desktop actuel
+      const updatedCurrentDesktop = {
+        ...currentDesktop,
+        blocks: currentDesktop.blocks.filter(b => b.id !== blockId)
+      };
+
+      let targetDesktop;
+      let newDesktops = [...prev.desktops];
+      let targetDesktopId: string;
+
+      // Si on est sur le dernier desktop, créer un nouveau desktop
+      if (currentIndex === prev.desktops.length - 1) {
+        const newDesktopId = generateId();
+        targetDesktop = {
+          id: newDesktopId,
+          name: `Desktop ${prev.desktops.length + 1}`,
+          blocks: [{ ...block, layout }]
+        };
+        newDesktops[currentIndex] = updatedCurrentDesktop;
+        newDesktops.push(targetDesktop);
+        targetDesktopId = newDesktopId;
+      } else {
+        // Sinon, ajouter au desktop suivant
+        const nextDesktop = prev.desktops[currentIndex + 1];
+        targetDesktop = {
+          ...nextDesktop,
+          blocks: [...nextDesktop.blocks, { ...block, layout }]
+        };
+        newDesktops[currentIndex] = updatedCurrentDesktop;
+        newDesktops[currentIndex + 1] = targetDesktop;
+        targetDesktopId = nextDesktop.id;
+      }
+
+      return {
+        ...prev,
+        desktops: newDesktops,
+        currentDesktopId: targetDesktopId
+      };
+    });
+  }, [updateConfig]);
+
+  // Déplacer un bloc vers le desktop précédent
+  const moveBlockToPrevDesktop = useCallback((blockId: string, layout: BlockLayout) => {
+    updateConfig((prev) => {
+      const currentIndex = prev.desktops.findIndex(d => d.id === prev.currentDesktopId);
+
+      // Ne pas permettre de revenir en arrière depuis le premier desktop
+      if (currentIndex === 0) return prev;
+
+      const currentDesktop = prev.desktops[currentIndex];
+      const block = currentDesktop.blocks.find(b => b.id === blockId);
+
+      if (!block) return prev;
+
+      // Supprimer le bloc du desktop actuel
+      const updatedCurrentDesktop = {
+        ...currentDesktop,
+        blocks: currentDesktop.blocks.filter(b => b.id !== blockId)
+      };
+
+      // Ajouter au desktop précédent
+      const prevDesktop = prev.desktops[currentIndex - 1];
+      const targetDesktop = {
+        ...prevDesktop,
+        blocks: [...prevDesktop.blocks, { ...block, layout }]
+      };
+
+      const newDesktops = [...prev.desktops];
+      newDesktops[currentIndex] = updatedCurrentDesktop;
+      newDesktops[currentIndex - 1] = targetDesktop;
+
+      return {
+        ...prev,
+        desktops: newDesktops,
+        currentDesktopId: prevDesktop.id
+      };
+    });
+  }, [updateConfig]);
+
   // === Gestion des blocs (opèrent sur le desktop actif) ===
 
 
@@ -580,6 +668,8 @@ export function useConfig() {
     deleteDesktop,
     switchDesktop,
     renameDesktop,
+    moveBlockToNextDesktop,
+    moveBlockToPrevDesktop,
     moveBlock,
     deleteBlock,
     addBlock,

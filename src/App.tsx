@@ -36,6 +36,8 @@ function App() {
     addDesktop,
     switchDesktop,
     moveBlock,
+    moveBlockToNextDesktop,
+    moveBlockToPrevDesktop,
     deleteBlock,
     addBlock,
     addBookmark,
@@ -187,10 +189,13 @@ function App() {
       <DraggableGrid
         blocks={visibleBlocks}
         onMoveBlock={moveBlock}
+        onMoveBlockToNextDesktop={moveBlockToNextDesktop}
+        onMoveBlockToPrevDesktop={moveBlockToPrevDesktop}
         onDeleteBlock={deleteBlock}
         renderBlock={renderBlock}
         isDark={isDark}
         dragLocked={dragLocked}
+        currentDesktopIndex={config.desktops.findIndex(d => d.id === config.currentDesktopId)}
       />
       <SlashMenu
         onAddSearch={() => addBlock('search')}

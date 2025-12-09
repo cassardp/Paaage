@@ -1,5 +1,6 @@
 {
   "name": "paaage",
+  "description": "Minimalist, drag-and-drop homepage builder",
   "private": true,
   "version": "0.0.0",
   "type": "module",

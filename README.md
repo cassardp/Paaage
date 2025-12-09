@@ -1,15 +1,21 @@
-# React + TypeScript + Vite
+# Paaage
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Minimalist, drag-and-drop homepage builder**
 
-Currently, two official plugins are available:
+Paaage is a customizable homepage builder that lets you create your perfect start page with drag-and-drop simplicity. Build a personalized dashboard with various blocks including links, bookmarks, notes, todos, RSS feeds, radio stations, and more.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## React Compiler
+- 🎨 Minimalist, modern design
+- 🖱️ Drag-and-drop interface for easy customization
+- 📦 Multiple block types (links, bookmarks, notes, todos, RSS, radio, etc.)
+- 💾 Local storage for your configuration
+- 🌓 Dark mode support
+- 📱 Responsive design
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
+
+Built with React, TypeScript, and Vite for a fast, modern development experience.
 
 ## Expanding the ESLint configuration
 

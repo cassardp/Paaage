@@ -65,9 +65,12 @@ function App() {
     canUndo,
   } = useConfig();
 
-  // Mettre à jour theme-color pour Safari
+  // Mettre à jour theme-color et background pour Safari
   useEffect(() => {
-    const themeColor = config.settings.theme === 'dark' ? '#0a0a0a' : '#ffffff';
+    const isDarkTheme = config.settings.theme === 'dark';
+    const themeColor = isDarkTheme ? '#0a0a0a' : '#ffffff';
+    
+    // Mettre à jour la balise meta theme-color
     let meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null;
     if (!meta) {
       meta = document.createElement('meta');
@@ -75,6 +78,9 @@ function App() {
       document.head.appendChild(meta);
     }
     meta.content = themeColor;
+    
+    // Mettre à jour le background du body (Safari utilise ça pour la barre d'adresse)
+    document.body.style.backgroundColor = themeColor;
   }, [config.settings.theme]);
 
   // Raccourcis clavier

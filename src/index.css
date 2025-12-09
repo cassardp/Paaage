@@ -15,6 +15,12 @@ body {
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #ffffff;
+}
+
+.dark body,
+body:has(.dark) {
+  background-color: #0a0a0a;
 }
 
 .scrollbar-hide::-webkit-scrollbar {

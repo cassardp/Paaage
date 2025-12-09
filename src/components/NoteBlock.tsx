@@ -127,30 +127,30 @@ export function NoteBlock({ blockId, content, title = 'Note', onUpdate, onUpdate
       )}
       {/* Contenu */}
       <div className="flex-1 overflow-hidden">
-      {isEditing ? (
-        <textarea
-          ref={textareaRef}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          onBlur={handleBlur}
-          className={`w-full h-full resize-none bg-transparent border-none outline-none text-sm
+        {isEditing ? (
+          <textarea
+            ref={textareaRef}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onBlur={handleBlur}
+            className={`w-full h-full resize-none bg-transparent border-none outline-none text-sm
                      ${isDark ? 'text-neutral-300 placeholder-neutral-500' : 'text-neutral-700 placeholder-neutral-400'}`}
-          placeholder="Write your note..."
-        />
-      ) : (
-        <div
-          onClick={handleClick}
-          className={`w-full h-full text-sm whitespace-pre-wrap cursor-text ${textClass}`}
-        >
-          {value ? (
-            <LinkifyText text={value} isDark={isDark} config={config} />
-          ) : (
-            <span className={isDark ? 'text-neutral-500' : 'text-neutral-400'}>
-              Write your note...
-            </span>
-          )}
-        </div>
-      )}
+            placeholder="Write your note..."
+          />
+        ) : (
+          <div
+            onClick={handleClick}
+            className={`w-full h-full text-sm whitespace-pre-wrap cursor-text overflow-auto scrollbar-hide ${textClass}`}
+          >
+            {value ? (
+              <LinkifyText text={value} isDark={isDark} config={config} />
+            ) : (
+              <span className={isDark ? 'text-neutral-500' : 'text-neutral-400'}>
+                Write your note...
+              </span>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

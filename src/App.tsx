@@ -10,6 +10,7 @@ import { Spinner } from './components/Spinner';
 import { Toolbar } from './components/Toolbar';
 import { SlashMenu } from './components/SlashMenu';
 import { DesktopNavigator } from './components/DesktopNavigator';
+import { DesktopCarousel } from './components/DesktopCarousel';
 import type { Block } from './types/config';
 
 function App() {
@@ -68,14 +69,11 @@ function App() {
   const toggleLock = useCallback(() => setDragLocked(prev => !prev), []);
   const toggleHidden = useCallback(() => setNotesHidden(prev => !prev), []);
 
-  // Navigation entre desktops avec les flèches
+  // Navigation entre desktops avec les flèches (sans boucle)
   const navigateLeft = useCallback(() => {
     const currentIndex = config.desktops.findIndex(d => d.id === config.currentDesktopId);
     if (currentIndex > 0) {
       switchDesktop(config.desktops[currentIndex - 1].id);
-    } else {
-      // Boucler vers le dernier desktop
-      switchDesktop(config.desktops[config.desktops.length - 1].id);
     }
   }, [config.desktops, config.currentDesktopId, switchDesktop]);
 
@@ -83,9 +81,6 @@ function App() {
     const currentIndex = config.desktops.findIndex(d => d.id === config.currentDesktopId);
     if (currentIndex < config.desktops.length - 1) {
       switchDesktop(config.desktops[currentIndex + 1].id);
-    } else {
-      // Boucler vers le premier desktop
-      switchDesktop(config.desktops[0].id);
     }
   }, [config.desktops, config.currentDesktopId, switchDesktop]);
 
@@ -97,6 +92,13 @@ function App() {
     onNavigateRight: navigateRight
   });
 
+  // Callback pour le carrousel
+  const handleCarouselIndexChange = useCallback((index: number) => {
+    if (index >= 0 && index < config.desktops.length) {
+      switchDesktop(config.desktops[index].id);
+    }
+  }, [config.desktops, switchDesktop]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -107,9 +109,6 @@ function App() {
 
   const isDark = config.settings.theme === 'dark';
   const currentDesktop = getCurrentDesktop();
-  const visibleBlocks = notesHidden
-    ? currentDesktop.blocks.filter(b => b.type === 'search' || b.type === 'bookmark')
-    : currentDesktop.blocks;
 
   const renderBlockContent = (block: Block) => (
     <BlockContent
@@ -186,17 +185,32 @@ function App() {
         hasSearchBlock={currentDesktop.blocks.some(b => b.type === 'search')}
         hasNotesOrTodos={currentDesktop.blocks.some(b => b.type === 'note' || b.type === 'todo')}
       />
-      <DraggableGrid
-        blocks={visibleBlocks}
-        onMoveBlock={moveBlock}
-        onMoveBlockToNextDesktop={moveBlockToNextDesktop}
-        onMoveBlockToPrevDesktop={moveBlockToPrevDesktop}
-        onDeleteBlock={deleteBlock}
-        renderBlock={renderBlock}
+      <DesktopCarousel
+        currentIndex={config.desktops.findIndex(d => d.id === config.currentDesktopId)}
+        onChangeIndex={handleCarouselIndexChange}
         isDark={isDark}
-        dragLocked={dragLocked}
-        currentDesktopIndex={config.desktops.findIndex(d => d.id === config.currentDesktopId)}
-      />
+      >
+        {config.desktops.map((desktop, index) => {
+          const desktopBlocks = notesHidden
+            ? desktop.blocks.filter(b => b.type === 'search' || b.type === 'bookmark')
+            : desktop.blocks;
+          
+          return (
+            <DraggableGrid
+              key={desktop.id}
+              blocks={desktopBlocks}
+              onMoveBlock={moveBlock}
+              onMoveBlockToNextDesktop={moveBlockToNextDesktop}
+              onMoveBlockToPrevDesktop={moveBlockToPrevDesktop}
+              onDeleteBlock={deleteBlock}
+              renderBlock={renderBlock}
+              isDark={isDark}
+              dragLocked={dragLocked}
+              currentDesktopIndex={index}
+            />
+          );
+        })}
+      </DesktopCarousel>
       <SlashMenu
         onAddSearch={() => addBlock('search')}
         onAddWeather={() => addBlock('weather')}

@@ -225,14 +225,11 @@ export function DraggableGrid({ blocks, onMoveBlock, onMoveBlockToNextDesktop, o
   }, [dragState, blocks, onMoveBlock, onMoveBlockToNextDesktop, onMoveBlockToPrevDesktop, currentDesktopIndex]);
 
   const gridColor = isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.04)';
-  const bgClass = isDark
-    ? 'bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950'
-    : 'bg-gradient-to-br from-neutral-100 via-neutral-50 to-white';
 
   return (
     <div
       ref={gridRef}
-      className={`relative w-full min-h-screen select-none ${bgClass}`}
+      className="relative w-full h-full min-h-screen select-none"
     >
       {/* Quadrillage subtil */}
       <div

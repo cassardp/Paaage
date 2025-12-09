@@ -3,7 +3,6 @@ import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Analytics } from '@vercel/analytics/react';
 import { useConfig } from './hooks/useConfig';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
-import { useSwipe } from './hooks/useSwipe';
 import { DraggableGrid } from './components/DraggableGrid';
 import { BlockWrapper } from './components/BlockWrapper';
 import { BlockContent } from './components/BlockContent';
@@ -67,27 +66,6 @@ function App() {
   const toggleLock = useCallback(() => setDragLocked(prev => !prev), []);
   const toggleHidden = useCallback(() => setNotesHidden(prev => !prev), []);
   useKeyboardShortcuts({ onToggleLock: toggleLock, onToggleHidden: toggleHidden, onUndo: undo });
-
-  // Navigation par swipe
-  const handleSwipeLeft = useCallback(() => {
-    const currentIndex = config.desktops.findIndex(d => d.id === config.currentDesktopId);
-    if (currentIndex < config.desktops.length - 1) {
-      switchDesktop(config.desktops[currentIndex + 1].id);
-    }
-  }, [config.desktops, config.currentDesktopId, switchDesktop]);
-
-  const handleSwipeRight = useCallback(() => {
-    const currentIndex = config.desktops.findIndex(d => d.id === config.currentDesktopId);
-    if (currentIndex > 0) {
-      switchDesktop(config.desktops[currentIndex - 1].id);
-    }
-  }, [config.desktops, config.currentDesktopId, switchDesktop]);
-
-  useSwipe({
-    onSwipeLeft: handleSwipeLeft,
-    onSwipeRight: handleSwipeRight,
-    minSwipeDistance: 50,
-  });
 
   if (isLoading) {
     return (

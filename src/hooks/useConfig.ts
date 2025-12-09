@@ -155,25 +155,6 @@ export function useConfig() {
 
   // === Gestion des blocs (opèrent sur le desktop actif) ===
 
-  // Réordonner un bloc (pour mobile - déplacer vers le haut ou le bas)
-  const reorderBlock = useCallback((blockId: string, direction: 'up' | 'down') => {
-    updateConfig((prev) => ({
-      ...prev,
-      desktops: prev.desktops.map(desktop => {
-        if (desktop.id !== prev.currentDesktopId) return desktop;
-        const index = desktop.blocks.findIndex(b => b.id === blockId);
-        if (index === -1) return desktop;
-
-        const newIndex = direction === 'up' ? index - 1 : index + 1;
-        if (newIndex < 0 || newIndex >= desktop.blocks.length) return desktop;
-
-        const newBlocks = [...desktop.blocks];
-        [newBlocks[index], newBlocks[newIndex]] = [newBlocks[newIndex], newBlocks[index]];
-
-        return { ...desktop, blocks: newBlocks };
-      }),
-    }));
-  }, [updateConfig]);
 
   // Déplacer un bloc sur la grille (et le mettre au premier plan)
   const moveBlock = useCallback((blockId: string, layout: BlockLayout) => {
@@ -599,7 +580,6 @@ export function useConfig() {
     deleteDesktop,
     switchDesktop,
     renameDesktop,
-    reorderBlock,
     moveBlock,
     deleteBlock,
     addBlock,

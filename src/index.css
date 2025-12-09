@@ -12,15 +12,9 @@ body {
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   height: 100vh;
+  overflow: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-/* Block horizontal scroll on desktop only */
-@media (min-width: 768px) {
-  body {
-    overflow-x: hidden;
-  }
 }
 
 .scrollbar-hide::-webkit-scrollbar {

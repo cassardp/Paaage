@@ -1,19 +1,7 @@
 import { useState, useRef, useEffect, type ReactNode } from 'react';
 import { CELL_SIZE } from '../lib/defaultConfig';
+import { gridToPixel, gridSizeToPixel, pixelToGrid } from './Grid';
 import type { Block, BlockLayout } from '../types/config';
-
-// Grid conversion functions with dynamic cell size
-function pixelToGrid(px: number, cellSize: number): number {
-  return Math.round(px / cellSize);
-}
-
-function gridToPixel(grid: number, cellSize: number): number {
-  return grid * cellSize;
-}
-
-function gridSizeToPixel(size: number, cellSize: number): number {
-  return size * cellSize;
-}
 
 // Limites de taille par type de bloc (en cellules)
 const BLOCK_SIZE_LIMITS: Record<string, { minW: number; minH: number; maxW: number; maxH: number }> = {
@@ -39,13 +27,11 @@ interface DraggableGridProps {
   renderBlock: (block: Block, isDragging: boolean) => ReactNode;
   isDark?: boolean;
   dragLocked?: boolean;
-  cellSize?: number; // Responsive cell size
-  isTablet?: boolean; // Touch-optimized for tablet
 }
 
 type DragMode = 'move' | 'resize-nw' | 'resize-ne' | 'resize-sw' | 'resize-se';
 
-export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock, isDark = true, dragLocked = false, cellSize = CELL_SIZE, isTablet = false }: DraggableGridProps) {
+export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock, isDark = true, dragLocked = false }: DraggableGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
   const [dragState, setDragState] = useState<{
     blockId: string;
@@ -66,10 +52,10 @@ export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock,
     const rect = gridRef.current.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
-    const blockPxX = gridToPixel(block.layout.x, cellSize);
-    const blockPxY = gridToPixel(block.layout.y, cellSize);
-    const blockPxW = gridSizeToPixel(block.layout.w, cellSize);
-    const blockPxH = gridSizeToPixel(block.layout.h, cellSize);
+    const blockPxX = gridToPixel(block.layout.x);
+    const blockPxY = gridToPixel(block.layout.y);
+    const blockPxW = gridSizeToPixel(block.layout.w);
+    const blockPxH = gridSizeToPixel(block.layout.h);
 
     setDragState({
       blockId: block.id,
@@ -111,10 +97,10 @@ export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock,
       } else {
         // Resize depuis un coin
         const limits = BLOCK_SIZE_LIMITS[block.type] || BLOCK_SIZE_LIMITS.default;
-        const minW = cellSize * limits.minW;
-        const minH = cellSize * limits.minH;
-        const maxW = cellSize * limits.maxW;
-        const maxH = cellSize * limits.maxH;
+        const minW = CELL_SIZE * limits.minW;
+        const minH = CELL_SIZE * limits.minH;
+        const maxW = CELL_SIZE * limits.maxW;
+        const maxH = CELL_SIZE * limits.maxH;
 
         let newX = dragState.currentPxX;
         let newY = dragState.currentPxY;
@@ -164,15 +150,15 @@ export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock,
       }
 
       const rect = gridRef.current.getBoundingClientRect();
-      const maxCols = Math.floor(rect.width / cellSize);
-      const maxRows = Math.floor(rect.height / cellSize);
+      const maxCols = Math.floor(rect.width / CELL_SIZE);
+      const maxRows = Math.floor(rect.height / CELL_SIZE);
 
       let newLayout: BlockLayout;
 
-      let gridX = pixelToGrid(dragState.currentPxX, cellSize);
-      let gridY = pixelToGrid(dragState.currentPxY, cellSize);
-      let gridW = Math.round(dragState.currentPxW / cellSize);
-      let gridH = Math.round(dragState.currentPxH / cellSize);
+      let gridX = pixelToGrid(dragState.currentPxX);
+      let gridY = pixelToGrid(dragState.currentPxY);
+      let gridW = Math.round(dragState.currentPxW / CELL_SIZE);
+      let gridH = Math.round(dragState.currentPxH / CELL_SIZE);
 
       gridX = Math.max(0, Math.min(gridX, maxCols - gridW));
       gridY = Math.max(0, Math.min(gridY, maxRows - gridH));
@@ -212,7 +198,7 @@ export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock,
             linear-gradient(to right, ${gridColor} 1px, transparent 1px),
             linear-gradient(to bottom, ${gridColor} 1px, transparent 1px)
           `,
-          backgroundSize: `${cellSize}px ${cellSize}px`,
+          backgroundSize: `${CELL_SIZE}px ${CELL_SIZE}px`,
         }}
       />
 
@@ -226,32 +212,32 @@ export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock,
             key={block.id}
             className={`absolute group ${isDragging ? 'z-50 opacity-90' : 'z-0'}`}
             style={{
-              left: isDragging ? dragState.currentPxX : gridToPixel(block.layout.x, cellSize),
-              top: isDragging ? dragState.currentPxY : gridToPixel(block.layout.y, cellSize),
-              width: isResizing ? dragState.currentPxW : gridSizeToPixel(block.layout.w, cellSize),
-              height: isResizing ? dragState.currentPxH : gridSizeToPixel(block.layout.h, cellSize),
+              left: isDragging ? dragState.currentPxX : gridToPixel(block.layout.x),
+              top: isDragging ? dragState.currentPxY : gridToPixel(block.layout.y),
+              width: isResizing ? dragState.currentPxW : gridSizeToPixel(block.layout.w),
+              height: isResizing ? dragState.currentPxH : gridSizeToPixel(block.layout.h),
               transition: isDragging ? 'none' : 'all 150ms',
             }}
           >
             {/* Contenu du bloc */}
             <div className="relative w-full h-full">
-              {/* Zones de drag sur les bordures - plus larges sur tablette pour le tactile */}
+              {/* Zones de drag sur les bordures (5px) */}
               {!dragLocked && (
                 <>
                   <div
-                    className={`absolute inset-x-0 top-0 cursor-grab active:cursor-grabbing z-10 ${isTablet ? 'h-[12px]' : 'h-[5px]'}`}
+                    className="absolute inset-x-0 top-0 h-[5px] cursor-grab active:cursor-grabbing z-10"
                     onMouseDown={(e) => startDrag(e, block, 'move')}
                   />
                   <div
-                    className={`absolute inset-x-0 bottom-0 cursor-grab active:cursor-grabbing z-10 ${isTablet ? 'h-[12px]' : 'h-[5px]'}`}
+                    className="absolute inset-x-0 bottom-0 h-[5px] cursor-grab active:cursor-grabbing z-10"
                     onMouseDown={(e) => startDrag(e, block, 'move')}
                   />
                   <div
-                    className={`absolute inset-y-0 left-0 cursor-grab active:cursor-grabbing z-10 ${isTablet ? 'w-[12px]' : 'w-[5px]'}`}
+                    className="absolute inset-y-0 left-0 w-[5px] cursor-grab active:cursor-grabbing z-10"
                     onMouseDown={(e) => startDrag(e, block, 'move')}
                   />
                   <div
-                    className={`absolute inset-y-0 right-0 cursor-grab active:cursor-grabbing z-10 ${isTablet ? 'w-[12px]' : 'w-[5px]'}`}
+                    className="absolute inset-y-0 right-0 w-[5px] cursor-grab active:cursor-grabbing z-10"
                     onMouseDown={(e) => startDrag(e, block, 'move')}
                   />
                 </>
@@ -272,21 +258,21 @@ export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock,
                   </svg>
                 </button>
 
-                {/* Zones de resize aux 4 coins - plus grandes sur tablette */}
+                {/* Zones de resize aux 4 coins */}
                 <div
-                  className={`absolute top-0 left-0 cursor-nw-resize z-20 opacity-0 group-hover:opacity-100 hover:border-l-2 hover:border-t-2 hover:border-neutral-400 rounded-tl-[12px] ${isTablet ? 'w-8 h-8' : 'w-4 h-4'}`}
+                  className="absolute top-0 left-0 w-4 h-4 cursor-nw-resize z-20 opacity-0 group-hover:opacity-100 hover:border-l-2 hover:border-t-2 hover:border-neutral-400 rounded-tl-[12px]"
                   onMouseDown={(e) => startDrag(e, block, 'resize-nw')}
                 />
                 <div
-                  className={`absolute top-0 right-0 cursor-ne-resize z-20 opacity-0 group-hover:opacity-100 hover:border-r-2 hover:border-t-2 hover:border-neutral-400 rounded-tr-[12px] ${isTablet ? 'w-8 h-8' : 'w-4 h-4'}`}
+                  className="absolute top-0 right-0 w-4 h-4 cursor-ne-resize z-20 opacity-0 group-hover:opacity-100 hover:border-r-2 hover:border-t-2 hover:border-neutral-400 rounded-tr-[12px]"
                   onMouseDown={(e) => startDrag(e, block, 'resize-ne')}
                 />
                 <div
-                  className={`absolute bottom-0 left-0 cursor-sw-resize z-20 opacity-0 group-hover:opacity-100 hover:border-l-2 hover:border-b-2 hover:border-neutral-400 rounded-bl-[12px] ${isTablet ? 'w-8 h-8' : 'w-4 h-4'}`}
+                  className="absolute bottom-0 left-0 w-4 h-4 cursor-sw-resize z-20 opacity-0 group-hover:opacity-100 hover:border-l-2 hover:border-b-2 hover:border-neutral-400 rounded-bl-[12px]"
                   onMouseDown={(e) => startDrag(e, block, 'resize-sw')}
                 />
                 <div
-                  className={`absolute bottom-0 right-0 cursor-se-resize z-20 opacity-0 group-hover:opacity-100 hover:border-r-2 hover:border-b-2 hover:border-neutral-400 rounded-br-[12px] ${isTablet ? 'w-8 h-8' : 'w-4 h-4'}`}
+                  className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-20 opacity-0 group-hover:opacity-100 hover:border-r-2 hover:border-b-2 hover:border-neutral-400 rounded-br-[12px]"
                   onMouseDown={(e) => startDrag(e, block, 'resize-se')}
                 />
               </>

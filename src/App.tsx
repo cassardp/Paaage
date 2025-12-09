@@ -68,8 +68,13 @@ function App() {
   // Mettre à jour theme-color pour Safari
   useEffect(() => {
     const themeColor = config.settings.theme === 'dark' ? '#0a0a0a' : '#ffffff';
-    const metas = document.querySelectorAll('meta[name="theme-color"]');
-    metas.forEach(meta => meta.setAttribute('content', themeColor));
+    let meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null;
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.name = 'theme-color';
+      document.head.appendChild(meta);
+    }
+    meta.content = themeColor;
   }, [config.settings.theme]);
 
   // Raccourcis clavier

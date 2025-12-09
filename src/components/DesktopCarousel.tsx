@@ -15,7 +15,20 @@ export function DesktopCarousel({
 }: DesktopCarouselProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const isAnimatingRef = useRef(false);
+  const animationIdRef = useRef<number | null>(null);
   const lastIndexRef = useRef(currentIndex);
+
+  // Fonction pour annuler l'animation en cours
+  const cancelAnimation = () => {
+    if (animationIdRef.current !== null) {
+      cancelAnimationFrame(animationIdRef.current);
+      animationIdRef.current = null;
+    }
+    if (containerRef.current) {
+      containerRef.current.style.scrollSnapType = 'x mandatory';
+    }
+    isAnimatingRef.current = false;
+  };
 
   // Scroll vers le desktop actuel quand l'index change (via clavier ou dots)
   useEffect(() => {
@@ -26,40 +39,47 @@ export function DesktopCarousel({
     
     // Seulement si le changement vient d'ailleurs (pas du scroll utilisateur)
     if (Math.abs(container.scrollLeft - targetScroll) > 10) {
+      // Annuler toute animation précédente
+      cancelAnimation();
+      
       isAnimatingRef.current = true;
       
       const from = container.scrollLeft;
       const distance = targetScroll - from;
-      const duration = 800; // Durée similaire au scroll snap natif
+      const duration = 500; // Durée réduite pour plus de réactivité
       const start = performance.now();
       
       // Désactiver le snap pendant l'animation
       container.style.scrollSnapType = 'none';
       
-      // Easing ease-out cubic (similaire au scroll natif)
+      // Easing ease-out cubic
       const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
       
       const animate = (now: number) => {
+        // Vérifier si l'animation a été annulée
+        if (!isAnimatingRef.current) return;
+        
         const elapsed = now - start;
         const progress = Math.min(elapsed / duration, 1);
         container.scrollLeft = from + distance * easeOutCubic(progress);
         
         if (progress < 1) {
-          requestAnimationFrame(animate);
+          animationIdRef.current = requestAnimationFrame(animate);
         } else {
           container.scrollLeft = targetScroll;
           container.style.scrollSnapType = 'x mandatory';
           isAnimatingRef.current = false;
+          animationIdRef.current = null;
         }
       };
       
-      requestAnimationFrame(animate);
+      animationIdRef.current = requestAnimationFrame(animate);
     }
     
     lastIndexRef.current = currentIndex;
   }, [currentIndex]);
 
-  // Bloquer le scroll diagonal (biais)
+  // Bloquer le scroll diagonal (biais) et annuler l'animation si l'utilisateur scrolle
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -67,6 +87,11 @@ export function DesktopCarousel({
     const handleWheel = (e: WheelEvent) => {
       const absX = Math.abs(e.deltaX);
       const absY = Math.abs(e.deltaY);
+      
+      // Si l'utilisateur scrolle horizontalement pendant une animation, l'annuler
+      if (isAnimatingRef.current && absX > 5) {
+        cancelAnimation();
+      }
       
       // Si le scroll est trop diagonal ou principalement vertical, bloquer le scroll horizontal
       // Ratio: deltaX doit être au moins 2x plus grand que deltaY pour être considéré horizontal
@@ -87,6 +112,7 @@ export function DesktopCarousel({
     if (!container) return;
 
     const handleScroll = () => {
+      // Ne pas mettre à jour l'index pendant l'animation programmatique
       if (isAnimatingRef.current) return;
       
       const scrollPosition = container.scrollLeft;
@@ -105,6 +131,13 @@ export function DesktopCarousel({
       container.removeEventListener('scroll', handleScroll);
     };
   }, [children.length, onChangeIndex]);
+
+  // Cleanup de l'animation au démontage
+  useEffect(() => {
+    return () => {
+      cancelAnimation();
+    };
+  }, []);
 
   const bgClass = isDark
     ? 'bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950'

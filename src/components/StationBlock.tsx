@@ -224,7 +224,7 @@ export function StationBlock({ name, streamUrl, isDark = true, onUpdateStation }
             {isPlaying ? (
               <EqualizerBars />
             ) : (
-              <Play className={`w-4 h-4 shrink-0 transition-colors ${isDark ? 'text-neutral-500 group-hover:text-neutral-200' : 'text-neutral-500 group-hover:text-neutral-700'}`} fill="currentColor" />
+              <Play className={`w-4 h-4 shrink-0 transition-colors ${isDark ? 'text-neutral-500 group-hover:text-neutral-200' : 'text-neutral-700 group-hover:text-neutral-700'}`} fill="currentColor" />
             )}
           </button>
 

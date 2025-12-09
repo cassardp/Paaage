@@ -65,7 +65,35 @@ function App() {
   // Raccourcis clavier
   const toggleLock = useCallback(() => setDragLocked(prev => !prev), []);
   const toggleHidden = useCallback(() => setNotesHidden(prev => !prev), []);
-  useKeyboardShortcuts({ onToggleLock: toggleLock, onToggleHidden: toggleHidden, onUndo: undo });
+
+  // Navigation entre desktops avec les flèches
+  const navigateLeft = useCallback(() => {
+    const currentIndex = config.desktops.findIndex(d => d.id === config.currentDesktopId);
+    if (currentIndex > 0) {
+      switchDesktop(config.desktops[currentIndex - 1].id);
+    } else {
+      // Boucler vers le dernier desktop
+      switchDesktop(config.desktops[config.desktops.length - 1].id);
+    }
+  }, [config.desktops, config.currentDesktopId, switchDesktop]);
+
+  const navigateRight = useCallback(() => {
+    const currentIndex = config.desktops.findIndex(d => d.id === config.currentDesktopId);
+    if (currentIndex < config.desktops.length - 1) {
+      switchDesktop(config.desktops[currentIndex + 1].id);
+    } else {
+      // Boucler vers le premier desktop
+      switchDesktop(config.desktops[0].id);
+    }
+  }, [config.desktops, config.currentDesktopId, switchDesktop]);
+
+  useKeyboardShortcuts({
+    onToggleLock: toggleLock,
+    onToggleHidden: toggleHidden,
+    onUndo: undo,
+    onNavigateLeft: navigateLeft,
+    onNavigateRight: navigateRight
+  });
 
   if (isLoading) {
     return (

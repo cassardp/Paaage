@@ -21,6 +21,42 @@ interface StationResult {
   url: string;
 }
 
+// Parser les fichiers de playlist (.pls, .m3u) pour extraire l'URL du stream
+async function parsePlaylist(playlistUrl: string): Promise<string | null> {
+  try {
+    const res = await fetch(playlistUrl);
+    const text = await res.text();
+
+    // Parser .pls (format INI)
+    if (playlistUrl.endsWith('.pls')) {
+      // Chercher File1=, File2=, etc. et prendre le premier
+      const match = text.match(/File\d+=(.+?)[\r\n]/);
+      if (match) {
+        const url = match[1].trim();
+        console.log('Parsed PLS URL:', url);
+        return url;
+      }
+    }
+
+    // Parser .m3u (lignes de texte)
+    if (playlistUrl.endsWith('.m3u') || playlistUrl.endsWith('.m3u8')) {
+      const lines = text.split(/[\r\n]+/).filter(line =>
+        line.trim() && !line.startsWith('#')
+      );
+      if (lines.length > 0) {
+        console.log('Parsed M3U URL:', lines[0].trim());
+        return lines[0].trim();
+      }
+    }
+
+    console.error('Failed to parse playlist:', playlistUrl);
+    return null;
+  } catch (error) {
+    console.error('Error parsing playlist:', error);
+    return null;
+  }
+}
+
 // Recherche de station via Radio Browser API
 async function searchStation(query: string): Promise<StationResult | null> {
   try {
@@ -127,12 +163,47 @@ export function StationBlock({ name, streamUrl, isDark = true, onUpdateStation }
   };
 
   const validateStation = async (query: string): Promise<boolean> => {
-    const station = await searchStation(query);
-    if (station) {
-      pendingStation.current = station;
-      return true;
+    // Vérifier si l'entrée est une URL
+    const isUrl = query.trim().startsWith('http://') || query.trim().startsWith('https://');
+
+    if (isUrl) {
+      // Si c'est une URL, extraire un nom de domaine comme nom par défaut
+      try {
+        const url = new URL(query.trim());
+        const hostname = url.hostname.replace('www.', '');
+        let streamUrl = query.trim();
+
+        // Si c'est un fichier de playlist, extraire l'URL du stream
+        if (query.endsWith('.pls') || query.endsWith('.m3u') || query.endsWith('.m3u8')) {
+          const parsedUrl = await parsePlaylist(query.trim());
+          if (parsedUrl) {
+            // Ajouter un proxy CORS pour éviter les erreurs 403
+            streamUrl = `https://corsproxy.io/?${encodeURIComponent(parsedUrl)}`;
+            console.log('Using CORS proxy for:', parsedUrl);
+          } else {
+            // Impossible de parser la playlist
+            return false;
+          }
+        }
+
+        pendingStation.current = {
+          name: hostname,
+          url: streamUrl
+        };
+        return true;
+      } catch {
+        // Si l'URL est invalide, retourner false
+        return false;
+      }
+    } else {
+      // Sinon, rechercher via l'API Radio Browser
+      const station = await searchStation(query);
+      if (station) {
+        pendingStation.current = station;
+        return true;
+      }
+      return false;
     }
-    return false;
   };
 
   return (

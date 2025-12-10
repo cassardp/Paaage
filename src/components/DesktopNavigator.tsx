@@ -54,7 +54,7 @@ export function DesktopNavigator({
                                     ? // Current desktop - elongated, black/white if has content, gray if empty
                                     hasContent
                                         ? isDark
-                                            ? 'w-6 h-2 bg-neutral-100'
+                                            ? 'w-6 h-2 bg-neutral-300'
                                             : 'w-6 h-2 bg-neutral-900'
                                         : isDark
                                             ? 'w-6 h-2 bg-neutral-600'
@@ -62,7 +62,7 @@ export function DesktopNavigator({
                                     : // Other desktops - black/white if has content, gray if empty
                                     hasContent
                                         ? isDark
-                                            ? 'w-2 h-2 bg-neutral-100 hover:bg-neutral-200 hover:scale-125'
+                                            ? 'w-2 h-2 bg-neutral-300 hover:bg-neutral-400 hover:scale-125'
                                             : 'w-2 h-2 bg-neutral-900 hover:bg-neutral-800 hover:scale-125'
                                         : isDark
                                             ? 'w-2 h-2 bg-neutral-600 hover:bg-neutral-500 hover:scale-125'

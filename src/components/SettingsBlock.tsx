@@ -25,14 +25,14 @@ function Toggle({ enabled, onChange, isDark }: { enabled: boolean; onChange: () 
       onClick={onChange}
       className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors cursor-pointer ${
         enabled
-          ? 'bg-[var(--accent-color)]'
-          : isDark ? 'bg-neutral-600' : 'bg-neutral-300'
+          ? isDark ? 'bg-neutral-400' : 'bg-[var(--accent-color)]'
+          : isDark ? 'bg-neutral-700' : 'bg-neutral-300'
       }`}
     >
       <span
-        className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+        className={`inline-block h-3.5 w-3.5 transform rounded-full transition-transform ${
           enabled ? 'translate-x-[18px]' : 'translate-x-1'
-        }`}
+        } ${isDark ? 'bg-neutral-300' : 'bg-white'}`}
       />
     </button>
   );

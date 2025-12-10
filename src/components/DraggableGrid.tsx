@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, type ReactNode } from 'react';
+import { useState, useRef, useEffect, useCallback, type ReactNode } from 'react';
 import { CELL_SIZE } from '../lib/defaultConfig';
 import { gridToPixel, gridSizeToPixel, pixelToGrid } from './Grid';
 import type { Block, BlockLayout } from '../types/config';
@@ -33,9 +33,17 @@ interface DraggableGridProps {
 
 type DragMode = 'move' | 'resize-nw' | 'resize-ne' | 'resize-sw' | 'resize-se';
 
+const LONG_PRESS_DELAY = 400; // ms pour déclencher le drag sur touch
+
 export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, renderBlock, isDark = true, dragLocked = false, hideGridLines = false }: DraggableGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
   const { dragState: crossDragState, startCrossDrag } = useCrossDesktopDrag();
+  
+  // Long press state pour touch
+  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressBlockRef = useRef<{ block: Block; startX: number; startY: number } | null>(null);
+  const [longPressActive, setLongPressActive] = useState<string | null>(null);
+  
   const [dragState, setDragState] = useState<{
     blockId: string;
     mode: DragMode;
@@ -47,14 +55,23 @@ export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, r
     currentPxH: number;
   } | null>(null);
 
-  const startDrag = (e: React.MouseEvent, block: Block, mode: DragMode) => {
-    e.preventDefault();
-    e.stopPropagation();
+  // Annuler le long press
+  const cancelLongPress = useCallback(() => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+    longPressBlockRef.current = null;
+    setLongPressActive(null);
+  }, []);
+
+  // Démarrer le drag (appelé directement pour souris, après long press pour touch)
+  const startDrag = useCallback((clientX: number, clientY: number, block: Block, mode: DragMode) => {
     if (!gridRef.current) return;
 
     const rect = gridRef.current.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+    const pointerX = clientX - rect.left;
+    const pointerY = clientY - rect.top;
     const blockPxX = gridToPixel(block.layout.x);
     const blockPxY = gridToPixel(block.layout.y);
     const blockPxW = gridSizeToPixel(block.layout.w);
@@ -62,13 +79,13 @@ export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, r
 
     // Pour le mode move, on utilise le cross-desktop drag
     if (mode === 'move') {
-      const offsetX = e.clientX - (rect.left + blockPxX);
-      const offsetY = e.clientY - (rect.top + blockPxY);
+      const offsetX = clientX - (rect.left + blockPxX);
+      const offsetY = clientY - (rect.top + blockPxY);
       startCrossDrag(
         block,
         desktopId,
-        e.clientX,
-        e.clientY,
+        clientX,
+        clientY,
         offsetX,
         offsetY,
         blockPxW,
@@ -81,14 +98,71 @@ export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, r
     setDragState({
       blockId: block.id,
       mode,
-      offsetX: mouseX,
-      offsetY: mouseY,
+      offsetX: pointerX,
+      offsetY: pointerY,
       currentPxX: blockPxX,
       currentPxY: blockPxY,
       currentPxW: blockPxW,
       currentPxH: blockPxH,
     });
-  };
+  }, [desktopId, startCrossDrag]);
+
+  // Handler pour pointer down sur les zones de drag (bordures)
+  const handlePointerDown = useCallback((e: React.PointerEvent, block: Block, mode: DragMode) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (e.pointerType === 'mouse') {
+      // Souris : drag immédiat
+      startDrag(e.clientX, e.clientY, block, mode);
+    } else {
+      // Touch/pen : long press requis pour move, immédiat pour resize
+      if (mode !== 'move') {
+        startDrag(e.clientX, e.clientY, block, mode);
+        return;
+      }
+      
+      // Démarrer le timer de long press
+      longPressBlockRef.current = { block, startX: e.clientX, startY: e.clientY };
+      setLongPressActive(block.id);
+      
+      longPressTimerRef.current = setTimeout(() => {
+        if (longPressBlockRef.current) {
+          const { block: b, startX, startY } = longPressBlockRef.current;
+          startDrag(startX, startY, b, 'move');
+          cancelLongPress();
+        }
+      }, LONG_PRESS_DELAY);
+    }
+  }, [startDrag, cancelLongPress]);
+
+  // Annuler le long press si on bouge trop
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!longPressBlockRef.current) return;
+    
+    const dx = e.clientX - longPressBlockRef.current.startX;
+    const dy = e.clientY - longPressBlockRef.current.startY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    
+    // Si on bouge de plus de 10px, annuler le long press
+    if (distance > 10) {
+      cancelLongPress();
+    }
+  }, [cancelLongPress]);
+
+  // Annuler le long press si on relâche avant le délai
+  const handlePointerUp = useCallback(() => {
+    cancelLongPress();
+  }, [cancelLongPress]);
+
+  // Cleanup du timer au unmount
+  useEffect(() => {
+    return () => {
+      if (longPressTimerRef.current) {
+        clearTimeout(longPressTimerRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!dragState) return;
@@ -96,14 +170,14 @@ export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, r
     const block = blocks.find((b) => b.id === dragState.blockId);
     if (!block) return;
 
-    const handleMouseMove = (e: MouseEvent) => {
+    const handlePointerMove = (e: PointerEvent) => {
       if (!gridRef.current) return;
       const rect = gridRef.current.getBoundingClientRect();
 
-      const mouseX = e.clientX - rect.left;
-      const mouseY = e.clientY - rect.top;
-      const deltaX = mouseX - dragState.offsetX;
-      const deltaY = mouseY - dragState.offsetY;
+      const pointerX = e.clientX - rect.left;
+      const pointerY = e.clientY - rect.top;
+      const deltaX = pointerX - dragState.offsetX;
+      const deltaY = pointerY - dragState.offsetY;
 
       if (dragState.mode === 'move') {
         let pxX = dragState.currentPxX + deltaX;
@@ -114,7 +188,7 @@ export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, r
         pxX = Math.max(0, Math.min(pxX, maxPxX));
         pxY = Math.max(0, Math.min(pxY, maxPxY));
 
-        setDragState((prev) => prev ? { ...prev, currentPxX: pxX, currentPxY: pxY, offsetX: mouseX, offsetY: mouseY } : null);
+        setDragState((prev) => prev ? { ...prev, currentPxX: pxX, currentPxY: pxY, offsetX: pointerX, offsetY: pointerY } : null);
       } else {
         // Resize depuis un coin
         const limits = BLOCK_SIZE_LIMITS[block.type] || BLOCK_SIZE_LIMITS.default;
@@ -158,13 +232,13 @@ export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, r
           currentPxY: newY,
           currentPxW: newW,
           currentPxH: newH,
-          offsetX: mouseX,
-          offsetY: mouseY
+          offsetX: pointerX,
+          offsetY: pointerY
         } : null);
       }
     };
 
-    const handleMouseUp = () => {
+    const handlePointerUp = () => {
       if (!gridRef.current) {
         setDragState(null);
         return;
@@ -193,12 +267,12 @@ export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, r
       setDragState(null);
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
     };
   }, [dragState, blocks, onMoveBlock]);
 
@@ -208,6 +282,10 @@ export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, r
     <div
       ref={gridRef}
       className="relative w-full h-full min-h-screen select-none"
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
+      style={{ touchAction: 'none' }}
     >
       {/* Quadrillage subtil */}
       {!hideGridLines && (
@@ -246,25 +324,33 @@ export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, r
           >
             {/* Contenu du bloc */}
             <div className="relative w-full h-full">
-              {/* Zones de drag sur les bordures (5px) */}
+              {/* Zones de drag sur les bordures - plus grandes pour le touch */}
               {!dragLocked && (
                 <>
                   <div
-                    className="absolute inset-x-0 top-0 h-[5px] cursor-grab active:cursor-grabbing z-10"
-                    onMouseDown={(e) => startDrag(e, block, 'move')}
+                    className="absolute inset-x-0 top-0 h-[12px] cursor-grab active:cursor-grabbing z-10"
+                    onPointerDown={(e) => handlePointerDown(e, block, 'move')}
+                    style={{ touchAction: 'none' }}
                   />
                   <div
-                    className="absolute inset-x-0 bottom-0 h-[5px] cursor-grab active:cursor-grabbing z-10"
-                    onMouseDown={(e) => startDrag(e, block, 'move')}
+                    className="absolute inset-x-0 bottom-0 h-[12px] cursor-grab active:cursor-grabbing z-10"
+                    onPointerDown={(e) => handlePointerDown(e, block, 'move')}
+                    style={{ touchAction: 'none' }}
                   />
                   <div
-                    className="absolute inset-y-0 left-0 w-[5px] cursor-grab active:cursor-grabbing z-10"
-                    onMouseDown={(e) => startDrag(e, block, 'move')}
+                    className="absolute inset-y-0 left-0 w-[12px] cursor-grab active:cursor-grabbing z-10"
+                    onPointerDown={(e) => handlePointerDown(e, block, 'move')}
+                    style={{ touchAction: 'none' }}
                   />
                   <div
-                    className="absolute inset-y-0 right-0 w-[5px] cursor-grab active:cursor-grabbing z-10"
-                    onMouseDown={(e) => startDrag(e, block, 'move')}
+                    className="absolute inset-y-0 right-0 w-[12px] cursor-grab active:cursor-grabbing z-10"
+                    onPointerDown={(e) => handlePointerDown(e, block, 'move')}
+                    style={{ touchAction: 'none' }}
                   />
+                  {/* Indicateur visuel de long press */}
+                  {longPressActive === block.id && (
+                    <div className="absolute inset-0 rounded-xl border-2 border-[var(--accent-color)] animate-pulse pointer-events-none z-20" />
+                  )}
                 </>
               )}
               {renderBlock(block, isDragging)}
@@ -285,20 +371,24 @@ export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, r
 
                 {/* Zones de resize aux 4 coins */}
                 <div
-                  className="absolute top-0 left-0 w-4 h-4 cursor-nw-resize z-20 opacity-0 group-hover:opacity-100 hover:border-l-2 hover:border-t-2 hover:border-neutral-400 rounded-tl-[12px]"
-                  onMouseDown={(e) => startDrag(e, block, 'resize-nw')}
+                  className="absolute top-0 left-0 w-6 h-6 cursor-nw-resize z-20 opacity-0 group-hover:opacity-100 hover:border-l-2 hover:border-t-2 hover:border-neutral-400 rounded-tl-[12px]"
+                  onPointerDown={(e) => handlePointerDown(e, block, 'resize-nw')}
+                  style={{ touchAction: 'none' }}
                 />
                 <div
-                  className="absolute top-0 right-0 w-4 h-4 cursor-ne-resize z-20 opacity-0 group-hover:opacity-100 hover:border-r-2 hover:border-t-2 hover:border-neutral-400 rounded-tr-[12px]"
-                  onMouseDown={(e) => startDrag(e, block, 'resize-ne')}
+                  className="absolute top-0 right-0 w-6 h-6 cursor-ne-resize z-20 opacity-0 group-hover:opacity-100 hover:border-r-2 hover:border-t-2 hover:border-neutral-400 rounded-tr-[12px]"
+                  onPointerDown={(e) => handlePointerDown(e, block, 'resize-ne')}
+                  style={{ touchAction: 'none' }}
                 />
                 <div
-                  className="absolute bottom-0 left-0 w-4 h-4 cursor-sw-resize z-20 opacity-0 group-hover:opacity-100 hover:border-l-2 hover:border-b-2 hover:border-neutral-400 rounded-bl-[12px]"
-                  onMouseDown={(e) => startDrag(e, block, 'resize-sw')}
+                  className="absolute bottom-0 left-0 w-6 h-6 cursor-sw-resize z-20 opacity-0 group-hover:opacity-100 hover:border-l-2 hover:border-b-2 hover:border-neutral-400 rounded-bl-[12px]"
+                  onPointerDown={(e) => handlePointerDown(e, block, 'resize-sw')}
+                  style={{ touchAction: 'none' }}
                 />
                 <div
-                  className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-20 opacity-0 group-hover:opacity-100 hover:border-r-2 hover:border-b-2 hover:border-neutral-400 rounded-br-[12px]"
-                  onMouseDown={(e) => startDrag(e, block, 'resize-se')}
+                  className="absolute bottom-0 right-0 w-6 h-6 cursor-se-resize z-20 opacity-0 group-hover:opacity-100 hover:border-r-2 hover:border-b-2 hover:border-neutral-400 rounded-br-[12px]"
+                  onPointerDown={(e) => handlePointerDown(e, block, 'resize-se')}
+                  style={{ touchAction: 'none' }}
                 />
               </>
             )}

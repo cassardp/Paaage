@@ -27,7 +27,7 @@ export function DragOverlay({
   useEffect(() => {
     if (!dragState) return;
 
-    const handleMouseMove = (e: MouseEvent) => {
+    const handlePointerMove = (e: PointerEvent) => {
       updateDragPosition(e.clientX, e.clientY);
 
       // Détection des bords pour scroll automatique
@@ -64,9 +64,9 @@ export function DragOverlay({
       }
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('pointermove', handlePointerMove);
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('pointermove', handlePointerMove);
       if (scrollTimerRef.current) {
         clearTimeout(scrollTimerRef.current);
       }

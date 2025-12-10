@@ -142,7 +142,7 @@ function AppContent() {
   useEffect(() => {
     if (!crossDragState) return;
 
-    const handleMouseUp = () => {
+    const handlePointerUp = () => {
       const state = endCrossDrag();
       if (!state) return;
 
@@ -170,8 +170,8 @@ function AppContent() {
       }
     };
 
-    window.addEventListener('mouseup', handleMouseUp);
-    return () => window.removeEventListener('mouseup', handleMouseUp);
+    window.addEventListener('pointerup', handlePointerUp);
+    return () => window.removeEventListener('pointerup', handlePointerUp);
   }, [crossDragState, endCrossDrag, config.desktops, currentDesktopIndex, moveBlock, moveBlockToDesktop]);
 
   if (isLoading) {

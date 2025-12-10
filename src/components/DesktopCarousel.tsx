@@ -1,4 +1,4 @@
-import { useRef, useEffect, type ReactNode } from 'react';
+import { useRef, useEffect, useCallback, type ReactNode } from 'react';
 
 interface DesktopCarouselProps {
   children: ReactNode[];
@@ -7,6 +7,8 @@ interface DesktopCarouselProps {
   isDark: boolean;
   lastDesktopEmpty: boolean;
 }
+
+const SWIPE_THRESHOLD = 50; // pixels minimum pour déclencher un swipe
 
 export function DesktopCarousel({
   children,
@@ -17,6 +19,10 @@ export function DesktopCarousel({
 }: DesktopCarouselProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const userScrollingRef = useRef(false);
+  
+  // Touch/swipe state
+  const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+  const isTouchSwipingRef = useRef(false);
 
   // Scroll vers le desktop actuel quand l'index change (via clavier ou dots)
   useEffect(() => {
@@ -94,6 +100,66 @@ export function DesktopCarousel({
     };
   }, [children.length, currentIndex, onChangeIndex, lastDesktopEmpty]);
 
+  // Gestion du swipe tactile (pour iPad/iPhone sans trackpad)
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    // Seulement pour touch, pas pour souris (le scroll natif gère la souris)
+    if (e.pointerType === 'mouse') return;
+    
+    touchStartRef.current = { x: e.clientX, y: e.clientY, time: Date.now() };
+    isTouchSwipingRef.current = false;
+  }, []);
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!touchStartRef.current || e.pointerType === 'mouse') return;
+    
+    const dx = e.clientX - touchStartRef.current.x;
+    const dy = e.clientY - touchStartRef.current.y;
+    
+    // Si le mouvement est principalement horizontal, c'est un swipe
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
+      isTouchSwipingRef.current = true;
+    }
+  }, []);
+
+  const handlePointerUp = useCallback((e: React.PointerEvent) => {
+    if (!touchStartRef.current || e.pointerType === 'mouse') return;
+    
+    const dx = e.clientX - touchStartRef.current.x;
+    const dy = e.clientY - touchStartRef.current.y;
+    
+    // Swipe horizontal détecté
+    if (Math.abs(dx) > SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy)) {
+      const maxIndex = lastDesktopEmpty ? children.length - 1 : children.length;
+      
+      if (dx < 0 && currentIndex < maxIndex) {
+        // Swipe vers la gauche = desktop suivant
+        userScrollingRef.current = true;
+        onChangeIndex(currentIndex + 1);
+      } else if (dx > 0 && currentIndex > 0) {
+        // Swipe vers la droite = desktop précédent
+        userScrollingRef.current = true;
+        onChangeIndex(currentIndex - 1);
+      }
+      
+      // Forcer le scroll vers le bon desktop
+      const container = containerRef.current;
+      if (container) {
+        const targetIndex = dx < 0 
+          ? Math.min(currentIndex + 1, maxIndex)
+          : Math.max(currentIndex - 1, 0);
+        container.scrollTo({ left: targetIndex * container.clientWidth, behavior: 'smooth' });
+      }
+    }
+    
+    touchStartRef.current = null;
+    isTouchSwipingRef.current = false;
+  }, [children.length, currentIndex, lastDesktopEmpty, onChangeIndex]);
+
+  const handlePointerCancel = useCallback(() => {
+    touchStartRef.current = null;
+    isTouchSwipingRef.current = false;
+  }, []);
+
   const bgClass = isDark
     ? 'bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950'
     : 'bg-gradient-to-br from-neutral-100 via-neutral-50 to-white';
@@ -105,7 +171,12 @@ export function DesktopCarousel({
       style={{
         scrollbarWidth: 'none',
         msOverflowStyle: 'none',
+        touchAction: 'pan-y', // Permet le scroll vertical natif, gère l'horizontal manuellement
       }}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerCancel}
     >
       <div 
         className="flex h-full"

@@ -130,8 +130,8 @@ export function TodoBlock({ blockId, items, title = 'Todo', onUpdate, onUpdateTi
               type="checkbox"
               checked={item.done}
               onChange={() => toggleItem(item.id)}
-              className={`w-4 h-4 mt-0.5 rounded cursor-pointer flex-shrink-0 border ${isDark
-                ? 'checkbox-dark border-neutral-200'
+              className={`w-4 h-4 mt-[3px] rounded cursor-pointer flex-shrink-0 border ${isDark
+                ? 'checkbox-dark border-neutral-500'
                 : 'checkbox-light border-neutral-400'
                 }`}
             />

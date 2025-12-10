@@ -13,8 +13,8 @@ export function BlockWrapper({ children, isDragging, isGrabHovering, isDark = tr
   const bgClass = isDark ? 'bg-neutral-900/50 backdrop-blur-sm' : 'bg-white/90 backdrop-blur-sm';
   const isHighlighted = isDragging || isGrabHovering;
   const borderClass = isDark 
-    ? (isHighlighted ? 'border-neutral-500' : 'border-neutral-700')
-    : (isHighlighted ? 'border-neutral-400' : 'border-neutral-200');
+    ? (isHighlighted ? 'border-neutral-600' : 'border-neutral-700')
+    : (isHighlighted ? 'border-neutral-300' : 'border-neutral-200');
   const textClass = isDark ? 'text-neutral-200' : 'text-neutral-700';
   const shadowClass = isDragging 
     ? (isDark ? 'shadow-2xl shadow-black/50' : 'shadow-2xl shadow-black/20') 

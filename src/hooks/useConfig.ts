@@ -151,25 +151,6 @@ export function useConfig() {
     setCurrentDesktopId(id);
   }, [updateConfig]);
 
-  const deleteDesktop = useCallback((desktopId: string) => {
-    updateConfig((prev) => {
-      // Ne pas supprimer s'il n'y a qu'un seul desktop
-      if (prev.desktops.length <= 1) return prev;
-
-      const newDesktops = prev.desktops.filter(d => d.id !== desktopId);
-      
-      // Si on supprime le desktop actuel, basculer vers le premier
-      if (validCurrentId === desktopId) {
-        setCurrentDesktopId(newDesktops[0].id);
-      }
-
-      return {
-        ...prev,
-        desktops: newDesktops,
-      };
-    });
-  }, [updateConfig, validCurrentId]);
-
   const switchDesktop = useCallback((desktopId: string) => {
     // Mettre à jour currentDesktopId localement (pas de sync cloud)
     setCurrentDesktopId(desktopId);
@@ -194,17 +175,19 @@ export function useConfig() {
     }
   }, [setRawConfig, migratedConfig.desktops]);
 
-  const renameDesktop = useCallback((desktopId: string, name: string) => {
-    updateConfig((prev) => ({
-      ...prev,
-      desktops: prev.desktops.map(d =>
-        d.id === desktopId ? { ...d, name: name } : d
-      ),
-    }));
-  }, [updateConfig]);
-
   // === Gestion des blocs (opèrent sur le desktop actif) ===
 
+  // Helper pour ajouter un bloc au desktop actif
+  const addBlockToCurrentDesktop = useCallback((block: Block) => {
+    updateConfig((prev) => ({
+      ...prev,
+      desktops: prev.desktops.map(desktop =>
+        desktop.id === validCurrentId
+          ? { ...desktop, blocks: [...desktop.blocks, block] }
+          : desktop
+      ),
+    }));
+  }, [updateConfig, validCurrentId]);
 
   // Déplacer un bloc sur la grille (et le mettre au premier plan)
   const moveBlock = useCallback((blockId: string, layout: BlockLayout) => {
@@ -275,15 +258,8 @@ export function useConfig() {
       }
     }
 
-    updateConfig((prev) => ({
-      ...prev,
-      desktops: prev.desktops.map(desktop =>
-        desktop.id === validCurrentId
-          ? { ...desktop, blocks: [...desktop.blocks, newBlock] }
-          : desktop
-      ),
-    }));
-  }, [updateConfig, validCurrentId]);
+    addBlockToCurrentDesktop(newBlock);
+  }, [addBlockToCurrentDesktop]);
 
   // Ajouter un bookmark
   const addBookmark = useCallback((label: string, url: string) => {
@@ -297,15 +273,8 @@ export function useConfig() {
       layout: { ...pos, w: 7, h: 2 }
     };
 
-    updateConfig((prev) => ({
-      ...prev,
-      desktops: prev.desktops.map(desktop =>
-        desktop.id === validCurrentId
-          ? { ...desktop, blocks: [...desktop.blocks, newBlock] }
-          : desktop
-      ),
-    }));
-  }, [updateConfig, validCurrentId]);
+    addBlockToCurrentDesktop(newBlock);
+  }, [addBlockToCurrentDesktop]);
 
   // Ajouter une note simple
   const addSingleNote = useCallback((content: string): string => {
@@ -318,16 +287,9 @@ export function useConfig() {
       layout: { ...pos, w: 20, h: 10 }
     };
 
-    updateConfig((prev) => ({
-      ...prev,
-      desktops: prev.desktops.map(desktop =>
-        desktop.id === validCurrentId
-          ? { ...desktop, blocks: [...desktop.blocks, newBlock] }
-          : desktop
-      ),
-    }));
+    addBlockToCurrentDesktop(newBlock);
     return id;
-  }, [updateConfig, validCurrentId]);
+  }, [addBlockToCurrentDesktop]);
 
   // Mettre à jour une note
   const updateNote = useCallback((blockId: string, content: string) => {
@@ -380,15 +342,8 @@ export function useConfig() {
       layout: { ...pos, w: 15, h: 20 }
     };
 
-    updateConfig((prev) => ({
-      ...prev,
-      desktops: prev.desktops.map(desktop =>
-        desktop.id === validCurrentId
-          ? { ...desktop, blocks: [...desktop.blocks, newBlock] }
-          : desktop
-      ),
-    }));
-  }, [updateConfig, validCurrentId]);
+    addBlockToCurrentDesktop(newBlock);
+  }, [addBlockToCurrentDesktop]);
 
   // Ajouter une station (FIP par défaut)
   const addStation = useCallback(() => {
@@ -402,15 +357,8 @@ export function useConfig() {
       layout: { ...pos, w: 12, h: 3 }
     };
 
-    updateConfig((prev) => ({
-      ...prev,
-      desktops: prev.desktops.map(desktop =>
-        desktop.id === validCurrentId
-          ? { ...desktop, blocks: [...desktop.blocks, newBlock] }
-          : desktop
-      ),
-    }));
-  }, [updateConfig, validCurrentId]);
+    addBlockToCurrentDesktop(newBlock);
+  }, [addBlockToCurrentDesktop]);
 
   // Ajouter un stock (Apple par défaut)
   const addStock = useCallback(() => {
@@ -423,15 +371,8 @@ export function useConfig() {
       layout: { ...pos, w: 14, h: 5 }
     };
 
-    updateConfig((prev) => ({
-      ...prev,
-      desktops: prev.desktops.map(desktop =>
-        desktop.id === validCurrentId
-          ? { ...desktop, blocks: [...desktop.blocks, newBlock] }
-          : desktop
-      ),
-    }));
-  }, [updateConfig, validCurrentId]);
+    addBlockToCurrentDesktop(newBlock);
+  }, [addBlockToCurrentDesktop]);
 
   // Ajouter une horloge
   const addClock = useCallback(() => {
@@ -445,15 +386,8 @@ export function useConfig() {
       layout: { ...pos, w: 9, h: 6 }
     };
 
-    updateConfig((prev) => ({
-      ...prev,
-      desktops: prev.desktops.map(desktop =>
-        desktop.id === validCurrentId
-          ? { ...desktop, blocks: [...desktop.blocks, newBlock] }
-          : desktop
-      ),
-    }));
-  }, [updateConfig, validCurrentId]);
+    addBlockToCurrentDesktop(newBlock);
+  }, [addBlockToCurrentDesktop]);
 
   // Ajouter un bloc RSS
   const addRss = useCallback(() => {
@@ -466,15 +400,8 @@ export function useConfig() {
       layout: { ...pos, w: 15, h: 20 }
     };
 
-    updateConfig((prev) => ({
-      ...prev,
-      desktops: prev.desktops.map(desktop =>
-        desktop.id === validCurrentId
-          ? { ...desktop, blocks: [...desktop.blocks, newBlock] }
-          : desktop
-      ),
-    }));
-  }, [updateConfig, validCurrentId]);
+    addBlockToCurrentDesktop(newBlock);
+  }, [addBlockToCurrentDesktop]);
 
   // Mettre à jour l'URL d'un flux RSS
   const updateRssFeedUrl = useCallback((blockId: string, feedUrl: string) => {
@@ -496,15 +423,8 @@ export function useConfig() {
       layout: { ...pos, w: 26, h: 3 }
     };
 
-    updateConfig((prev) => ({
-      ...prev,
-      desktops: prev.desktops.map(desktop =>
-        desktop.id === validCurrentId
-          ? { ...desktop, blocks: [...desktop.blocks, newBlock] }
-          : desktop
-      ),
-    }));
-  }, [updateConfig, validCurrentId]);
+    addBlockToCurrentDesktop(newBlock);
+  }, [addBlockToCurrentDesktop]);
 
   // Toggle bloc settings (ajoute ou supprime)
   const addSettings = useCallback(() => {
@@ -587,12 +507,9 @@ export function useConfig() {
     syncing,
     syncId,
     setConfig,
-    updateConfig,
     getCurrentDesktop,
     addDesktop,
-    deleteDesktop,
     switchDesktop,
-    renameDesktop,
     moveBlock,
     moveBlockToDesktop,
     deleteBlock,

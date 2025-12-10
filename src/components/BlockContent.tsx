@@ -29,9 +29,7 @@ interface BlockContentProps {
   onNoteFocused?: () => void;
   config: Config;
   // Settings block props
-  syncId?: string;
   syncing?: boolean;
-  canUndo?: boolean;
   dragLocked?: boolean;
   notesHidden?: boolean;
   onToggleTheme?: () => void;
@@ -39,7 +37,6 @@ interface BlockContentProps {
   onToggleDragLock?: () => void;
   onToggleNotesHidden?: () => void;
   onToggleGridLines?: () => void;
-  onUndo?: () => void;
   onImport?: (config: Config) => void;
   onShowQRModal?: () => void;
 }
@@ -62,9 +59,7 @@ export function BlockContent({
   onNoteFocused,
   config,
   // Settings props
-  syncId = '',
   syncing = false,
-  canUndo = false,
   dragLocked = false,
   notesHidden = false,
   onToggleTheme,
@@ -72,7 +67,6 @@ export function BlockContent({
   onToggleDragLock,
   onToggleNotesHidden,
   onToggleGridLines,
-  onUndo,
   onImport,
   onShowQRModal,
 }: BlockContentProps) {
@@ -124,9 +118,7 @@ export function BlockContent({
         <SettingsBlock
           isDark={isDark}
           config={config}
-          syncId={syncId}
           syncing={syncing}
-          canUndo={canUndo}
           dragLocked={dragLocked}
           notesHidden={notesHidden}
           onToggleTheme={onToggleTheme!}
@@ -134,7 +126,6 @@ export function BlockContent({
           onToggleDragLock={onToggleDragLock!}
           onToggleNotesHidden={onToggleNotesHidden!}
           onToggleGridLines={onToggleGridLines!}
-          onUndo={onUndo!}
           onImport={onImport!}
           onShowQRModal={onShowQRModal!}
         />

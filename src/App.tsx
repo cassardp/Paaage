@@ -70,7 +70,6 @@ function AppContent() {
     toggleLinkTarget,
     toggleGridLines,
     undo,
-    canUndo,
   } = useConfig();
 
   const [showQRModal, setShowQRModal] = useState(false);
@@ -206,9 +205,7 @@ function AppContent() {
       onNoteFocused={() => setFocusedNoteId(null)}
       config={config}
       // Settings block props
-      syncId={syncId}
       syncing={syncing}
-      canUndo={canUndo}
       dragLocked={dragLocked}
       notesHidden={notesHidden}
       onToggleTheme={toggleTheme}
@@ -216,7 +213,6 @@ function AppContent() {
       onToggleDragLock={() => setDragLocked(!dragLocked)}
       onToggleNotesHidden={() => setNotesHidden(!notesHidden)}
       onToggleGridLines={toggleGridLines}
-      onUndo={undo}
       onImport={setConfig}
       onShowQRModal={() => setShowQRModal(true)}
     />

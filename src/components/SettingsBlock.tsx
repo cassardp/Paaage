@@ -6,9 +6,7 @@ import type { Config } from '../types/config';
 interface SettingsBlockProps {
   isDark: boolean;
   config: Config;
-  syncId: string;
   syncing: boolean;
-  canUndo: boolean;
   dragLocked: boolean;
   notesHidden: boolean;
   onToggleTheme: () => void;
@@ -16,7 +14,6 @@ interface SettingsBlockProps {
   onToggleDragLock: () => void;
   onToggleNotesHidden: () => void;
   onToggleGridLines: () => void;
-  onUndo: () => void;
   onImport: (config: Config) => void;
   onShowQRModal: () => void;
 }
@@ -84,7 +81,6 @@ function SettingRow({
 export function SettingsBlock({
   isDark,
   config,
-  syncId,
   syncing,
   dragLocked,
   notesHidden,
@@ -198,7 +194,7 @@ export function SettingsBlock({
 
         <button onClick={onShowQRModal} className={`${buttonClass} ${syncing ? 'animate-pulse' : ''}`}>
           <Cloud className="w-3.5 h-3.5" />
-          <span>{syncId ? 'Sync' : 'Sync'}</span>
+          <span>Sync</span>
         </button>
       </div>
     </div>

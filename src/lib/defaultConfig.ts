@@ -8,7 +8,6 @@ export const DEFAULT_CONFIG: Config = {
   updatedAt: new Date().toISOString(),
   settings: {
     theme: 'light',
-    accentColor: '#FF6B00',
     searchEngine: 'https://www.google.com/search?q=',
     linkTarget: '_blank',
   },

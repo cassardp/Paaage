@@ -21,7 +21,7 @@ export function DesktopCarousel({
   const userScrollingRef = useRef(false);
   
   // Touch/swipe state
-  const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+  const touchStartRef = useRef<{ x: number; y: number; scrollLeft: number } | null>(null);
   const isTouchSwipingRef = useRef(false);
 
   // Scroll vers le desktop actuel quand l'index change (via clavier ou dots)
@@ -104,13 +104,17 @@ export function DesktopCarousel({
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     // Seulement pour touch, pas pour souris (le scroll natif gère la souris)
     if (e.pointerType === 'mouse') return;
+    const container = containerRef.current;
+    if (!container) return;
     
-    touchStartRef.current = { x: e.clientX, y: e.clientY, time: Date.now() };
+    touchStartRef.current = { x: e.clientX, y: e.clientY, scrollLeft: container.scrollLeft };
     isTouchSwipingRef.current = false;
   }, []);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (!touchStartRef.current || e.pointerType === 'mouse') return;
+    const container = containerRef.current;
+    if (!container) return;
     
     const dx = e.clientX - touchStartRef.current.x;
     const dy = e.clientY - touchStartRef.current.y;
@@ -118,6 +122,8 @@ export function DesktopCarousel({
     // Si le mouvement est principalement horizontal, c'est un swipe
     if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
       isTouchSwipingRef.current = true;
+      // Suivi du doigt en temps réel
+      container.scrollLeft = touchStartRef.current.scrollLeft - dx;
     }
   }, []);
 

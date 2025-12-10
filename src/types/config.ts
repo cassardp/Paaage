@@ -38,6 +38,7 @@ export interface NoteBlock extends BaseBlock {
   type: 'note';
   content: string;
   title?: string;
+  source?: 'ios' | 'web';
 }
 
 export interface StockBlock extends BaseBlock {

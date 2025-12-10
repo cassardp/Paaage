@@ -86,6 +86,7 @@ export function BlockContent({
           blockId={block.id}
           content={block.content}
           title={block.title}
+          source={block.source}
           onUpdate={onUpdateNote}
           onUpdateTitle={(title) => onUpdateNoteTitle(block.id, title)}
           isDark={isDark}

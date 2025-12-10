@@ -277,14 +277,15 @@ export function useConfig() {
   }, [addBlockToCurrentDesktop]);
 
   // Ajouter une note simple
-  const addSingleNote = useCallback((content: string): string => {
+  const addSingleNote = useCallback((content: string, source?: 'ios' | 'web'): string => {
     const id = generateId();
     const pos = getCenteredPosition(20, 10);
     const newBlock: Block = {
       id,
       type: 'note',
       content,
-      layout: { ...pos, w: 20, h: 10 }
+      layout: { ...pos, w: 20, h: 10 },
+      ...(source && { source })
     };
 
     addBlockToCurrentDesktop(newBlock);

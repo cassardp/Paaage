@@ -6,6 +6,7 @@ interface NoteBlockProps {
   blockId: string;
   content: string;
   title?: string;
+  source?: 'ios' | 'web';
   onUpdate: (blockId: string, content: string) => void;
   onUpdateTitle?: (title: string) => void;
   isDark?: boolean;
@@ -14,7 +15,7 @@ interface NoteBlockProps {
   config: Config;
 }
 
-export function NoteBlock({ blockId, content, title = 'Note', onUpdate, onUpdateTitle, isDark = true, autoFocus, onFocused, config }: NoteBlockProps) {
+export function NoteBlock({ blockId, content, title = 'Note', source, onUpdate, onUpdateTitle, isDark = true, autoFocus, onFocused, config }: NoteBlockProps) {
   const [value, setValue] = useState(content);
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -104,8 +105,14 @@ export function NoteBlock({ blockId, content, title = 'Note', onUpdate, onUpdate
 
   return (
     <div className="h-full flex flex-col">
-      {/* Titre éditable */}
-      {isEditingTitle ? (
+      {/* Titre éditable + indicateur iOS */}
+      <div className="flex items-center gap-2 mb-2">
+        {source === 'ios' && (
+          <span className={`text-[10px] px-1.5 py-0.5 rounded ${isDark ? 'bg-neutral-700 text-neutral-400' : 'bg-neutral-200 text-neutral-500'}`}>
+            iOS
+          </span>
+        )}
+        {isEditingTitle ? (
         <input
           ref={titleInputRef}
           type="text"
@@ -119,12 +126,13 @@ export function NoteBlock({ blockId, content, title = 'Note', onUpdate, onUpdate
       ) : (
         <span
           onClick={handleEditTitle}
-          className={`text-xs ${mutedClass} mb-2 truncate cursor-pointer hover:underline uppercase tracking-wide`}
+          className={`text-xs ${mutedClass} truncate cursor-pointer hover:underline uppercase tracking-wide`}
           title="Click to edit title"
         >
           {title}
         </span>
-      )}
+        )}
+      </div>
       {/* Contenu */}
       <div className="flex-1 overflow-hidden">
         {isEditing ? (

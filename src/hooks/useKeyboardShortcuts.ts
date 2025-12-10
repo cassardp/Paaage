@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 interface KeyboardShortcutsProps {
   onToggleLock: () => void;
   onToggleHidden: () => void;
+  onToggleGrid: () => void;
   onUndo: () => void;
   onNavigateLeft?: () => void;
   onNavigateRight?: () => void;
@@ -11,6 +12,7 @@ interface KeyboardShortcutsProps {
 export function useKeyboardShortcuts({
   onToggleLock,
   onToggleHidden,
+  onToggleGrid,
   onUndo,
   onNavigateLeft,
   onNavigateRight
@@ -26,6 +28,9 @@ export function useKeyboardShortcuts({
       } else if (e.shiftKey && e.key.toLowerCase() === 'm') {
         e.preventDefault();
         onToggleHidden();
+      } else if (e.shiftKey && e.key.toLowerCase() === 'g') {
+        e.preventDefault();
+        onToggleGrid();
       } else if (e.shiftKey && e.key.toLowerCase() === 'u') {
         e.preventDefault();
         onUndo();
@@ -40,5 +45,5 @@ export function useKeyboardShortcuts({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onToggleLock, onToggleHidden, onUndo, onNavigateLeft, onNavigateRight]);
+  }, [onToggleLock, onToggleHidden, onToggleGrid, onUndo, onNavigateLeft, onNavigateRight]);
 }

@@ -121,6 +121,7 @@ function AppContent() {
   useKeyboardShortcuts({
     onToggleLock: toggleLock,
     onToggleHidden: toggleHidden,
+    onToggleGrid: toggleGridLines,
     onUndo: undo,
     onNavigateLeft: navigateLeft,
     onNavigateRight: navigateRight

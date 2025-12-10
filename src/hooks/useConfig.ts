@@ -525,11 +525,11 @@ export function useConfig() {
       } else {
         // Ajouter le bloc settings
         const id = generateId();
-        const pos = getCenteredPosition(19, 26);
+        const pos = getCenteredPosition(19, 30);
         const newBlock: Block = {
           id,
           type: 'settings',
-          layout: { ...pos, w: 19, h: 26 }
+          layout: { ...pos, w: 19, h: 30 }
         };
         return {
           ...prev,

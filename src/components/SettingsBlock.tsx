@@ -64,8 +64,17 @@ function SettingRow({
           {label}
         </p>
         <p className={`text-xs ${isDark ? 'text-neutral-500' : 'text-neutral-400'}`}>
-          {description}{shortcut && ` · ${shortcut}`}
+          {description}
         </p>
+        {shortcut && (
+          <kbd className={`mt-1 inline-block px-1.5 py-0.5 text-[10px] font-mono rounded ${
+            isDark 
+              ? 'bg-neutral-700 text-neutral-400 border border-neutral-600' 
+              : 'bg-neutral-100 text-neutral-500 border border-neutral-200'
+          }`}>
+            {shortcut}
+          </kbd>
+        )}
       </div>
       <Toggle enabled={enabled} onChange={onChange} isDark={isDark} />
     </div>
@@ -147,6 +156,7 @@ export function SettingsBlock({
         <SettingRow
           label="Hide grid"
           description="Hide background grid lines"
+          shortcut="Shift + G"
           enabled={config.settings.hideGridLines ?? false}
           onChange={onToggleGridLines}
           isDark={isDark}

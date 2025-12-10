@@ -96,6 +96,7 @@ export interface Settings {
   accentColor?: string; // Deprecated - non utilisé
   searchEngine: string;
   linkTarget: '_blank' | '_self';
+  hideGridLines?: boolean;
 }
 
 export interface Config {

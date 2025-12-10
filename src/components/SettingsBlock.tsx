@@ -16,6 +16,7 @@ interface SettingsBlockProps {
   onToggleLinkTarget: () => void;
   onToggleDragLock: () => void;
   onToggleNotesHidden: () => void;
+  onToggleGridLines: () => void;
   onUndo: () => void;
   onImport: (config: Config) => void;
   onShowQRModal: () => void;
@@ -84,6 +85,7 @@ export function SettingsBlock({
   onToggleLinkTarget,
   onToggleDragLock,
   onToggleNotesHidden,
+  onToggleGridLines,
   onImport,
   onShowQRModal,
 }: SettingsBlockProps) {
@@ -145,6 +147,14 @@ export function SettingsBlock({
         />
 
         <SettingRow
+          label="Hide grid"
+          description="Hide background grid lines"
+          enabled={config.settings.hideGridLines ?? false}
+          onChange={onToggleGridLines}
+          isDark={isDark}
+        />
+
+        <SettingRow
           label="Lock blocks"
           description="Prevent moving and resizing"
           shortcut="Shift + L"
@@ -155,8 +165,8 @@ export function SettingsBlock({
 
         {hasNotesOrTodos && (
           <SettingRow
-            label="Hide notes"
-            description="Show only bookmarks and search"
+            label="Hide blocks"
+            description="Hide all blocks except settings"
             shortcut="Shift + M"
             enabled={notesHidden}
             onChange={onToggleNotesHidden}

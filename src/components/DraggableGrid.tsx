@@ -29,11 +29,12 @@ interface DraggableGridProps {
   renderBlock: (block: Block, isDragging: boolean) => ReactNode;
   isDark?: boolean;
   dragLocked?: boolean;
+  hideGridLines?: boolean;
 }
 
 type DragMode = 'move' | 'resize-nw' | 'resize-ne' | 'resize-sw' | 'resize-se';
 
-export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, renderBlock, isDark = true, dragLocked = false }: DraggableGridProps) {
+export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, renderBlock, isDark = true, dragLocked = false, hideGridLines = false }: DraggableGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
   const { dragState: crossDragState, startCrossDrag } = useCrossDesktopDrag();
   const [dragState, setDragState] = useState<{
@@ -210,16 +211,18 @@ export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, r
       className="relative w-full h-full min-h-screen select-none"
     >
       {/* Quadrillage subtil */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, ${gridColor} 1px, transparent 1px),
-            linear-gradient(to bottom, ${gridColor} 1px, transparent 1px)
-          `,
-          backgroundSize: `${CELL_SIZE}px ${CELL_SIZE}px`,
-        }}
-      />
+      {!hideGridLines && (
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: `
+              linear-gradient(to right, ${gridColor} 1px, transparent 1px),
+              linear-gradient(to bottom, ${gridColor} 1px, transparent 1px)
+            `,
+            backgroundSize: `${CELL_SIZE}px ${CELL_SIZE}px`,
+          }}
+        />
+      )}
 
       {/* Blocs */}
       {blocks.map((block) => {

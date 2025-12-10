@@ -393,13 +393,13 @@ export function useConfig() {
   // Ajouter une station (FIP par défaut)
   const addStation = useCallback(() => {
     const id = generateId();
-    const pos = getCenteredPosition(12, 4);
+    const pos = getCenteredPosition(12, 3);
     const newBlock: Block = {
       id,
       type: 'station',
       name: 'FIP',
       streamUrl: 'https://icecast.radiofrance.fr/fip-midfi.mp3',
-      layout: { ...pos, w: 12, h: 4 }
+      layout: { ...pos, w: 12, h: 3 }
     };
 
     updateConfig((prev) => ({
@@ -525,11 +525,11 @@ export function useConfig() {
       } else {
         // Ajouter le bloc settings
         const id = generateId();
-        const pos = getCenteredPosition(19, 22);
+        const pos = getCenteredPosition(19, 26);
         const newBlock: Block = {
           id,
           type: 'settings',
-          layout: { ...pos, w: 19, h: 22 }
+          layout: { ...pos, w: 19, h: 26 }
         };
         return {
           ...prev,
@@ -566,6 +566,17 @@ export function useConfig() {
       settings: {
         ...prev.settings,
         linkTarget: prev.settings.linkTarget === '_blank' ? '_self' : '_blank',
+      },
+    }));
+  }, [updateConfig]);
+
+  // Grid Lines
+  const toggleGridLines = useCallback(() => {
+    updateConfig((prev) => ({
+      ...prev,
+      settings: {
+        ...prev.settings,
+        hideGridLines: !prev.settings.hideGridLines,
       },
     }));
   }, [updateConfig]);
@@ -607,6 +618,7 @@ export function useConfig() {
     addSettings,
     toggleTheme,
     toggleLinkTarget,
+    toggleGridLines,
     undo,
     canUndo: historyRef.current.length > 0,
   };

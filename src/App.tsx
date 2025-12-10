@@ -68,6 +68,7 @@ function AppContent() {
     addSettings,
     toggleTheme,
     toggleLinkTarget,
+    toggleGridLines,
     undo,
     canUndo,
   } = useConfig();
@@ -215,6 +216,7 @@ function AppContent() {
       onToggleLinkTarget={toggleLinkTarget}
       onToggleDragLock={() => setDragLocked(!dragLocked)}
       onToggleNotesHidden={() => setNotesHidden(!notesHidden)}
+      onToggleGridLines={toggleGridLines}
       onUndo={undo}
       onImport={setConfig}
       onShowQRModal={() => setShowQRModal(true)}
@@ -287,6 +289,7 @@ function AppContent() {
               renderBlock={renderBlock}
               isDark={isDark}
               dragLocked={dragLocked}
+              hideGridLines={config.settings.hideGridLines}
             />
           );
         })}

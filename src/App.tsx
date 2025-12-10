@@ -218,10 +218,10 @@ function AppContent() {
     />
   );
 
-  const renderBlock = (block: Block, isDragging: boolean) => {
+  const renderBlock = (block: Block, isDragging: boolean, isGrabHovering: boolean = false) => {
     const isCompact = block.layout.h <= 2 || (block.type === 'links' && block.layout.w > block.layout.h * 2);
     return (
-      <BlockWrapper isDragging={isDragging} isDark={isDark} compact={isCompact}>
+      <BlockWrapper isDragging={isDragging} isGrabHovering={isGrabHovering} isDark={isDark} compact={isCompact}>
         {renderBlockContent(block)}
       </BlockWrapper>
     );

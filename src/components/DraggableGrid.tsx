@@ -25,7 +25,7 @@ interface DraggableGridProps {
   desktopId: string;
   onMoveBlock: (blockId: string, layout: BlockLayout) => void;
   onDeleteBlock: (blockId: string) => void;
-  renderBlock: (block: Block, isDragging: boolean) => ReactNode;
+  renderBlock: (block: Block, isDragging: boolean, isGrabHovering: boolean) => ReactNode;
   isDark?: boolean;
   dragLocked?: boolean;
   hideGridLines?: boolean;
@@ -43,6 +43,7 @@ export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, r
   const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const longPressBlockRef = useRef<{ block: Block; startX: number; startY: number } | null>(null);
   const [longPressActive, setLongPressActive] = useState<string | null>(null);
+  const [hoveredBlockId, setHoveredBlockId] = useState<string | null>(null);
   
   const [dragState, setDragState] = useState<{
     blockId: string;
@@ -323,7 +324,11 @@ export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, r
             }}
           >
             {/* Contenu du bloc */}
-            <div className="relative w-full h-full">
+            <div 
+              className="relative w-full h-full"
+              onMouseEnter={() => setHoveredBlockId(block.id)}
+              onMouseLeave={() => setHoveredBlockId(null)}
+            >
               {/* Zones de drag sur les bordures - plus grandes pour le touch */}
               {!dragLocked && (
                 <>
@@ -353,7 +358,7 @@ export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, r
                   )}
                 </>
               )}
-              {renderBlock(block, isDragging)}
+              {renderBlock(block, isDragging, hoveredBlockId === block.id)}
             </div>
 
             {/* Bouton supprimer et zone de resize - masqués si verrouillé */}

@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useCrossDesktopDrag } from '../contexts/CrossDesktopDragContext';
 
 interface DragOverlayProps {
-  renderBlock: (block: any, isDragging: boolean) => React.ReactNode;
+  renderBlock: (block: any, isDragging: boolean, isGrabHovering: boolean) => React.ReactNode;
   desktopCount: number;
   currentDesktopIndex: number;
   onScrollToDesktop: (index: number) => void;
@@ -90,7 +90,7 @@ export function DragOverlay({
           transition: 'transform 100ms, opacity 100ms',
         }}
       >
-        {renderBlock(block, true)}
+        {renderBlock(block, true, false)}
       </div>
   );
 }

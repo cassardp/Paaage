@@ -16,17 +16,18 @@ export function DesktopCarousel({
   lastDesktopEmpty
 }: DesktopCarouselProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const lastIndexRef = useRef(currentIndex);
-
-  // Mettre à jour lastIndexRef quand currentIndex change
-  useEffect(() => {
-    lastIndexRef.current = currentIndex;
-  }, [currentIndex]);
+  const userScrollingRef = useRef(false);
 
   // Scroll vers le desktop actuel quand l'index change (via clavier ou dots)
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
+    
+    // Ne pas scroller si c'est l'utilisateur qui a déclenché le changement
+    if (userScrollingRef.current) {
+      userScrollingRef.current = false;
+      return;
+    }
     
     const targetScroll = currentIndex * container.clientWidth;
     if (Math.abs(container.scrollLeft - targetScroll) > 10) {
@@ -70,9 +71,9 @@ export function DesktopCarousel({
       const maxIndex = lastDesktopEmpty ? children.length - 1 : children.length;
       const clampedIndex = Math.max(0, Math.min(newIndex, maxIndex));
       
-      // Mettre à jour l'index immédiatement
-      if (clampedIndex !== lastIndexRef.current) {
-        lastIndexRef.current = clampedIndex;
+      // Mettre à jour l'index si changé
+      if (clampedIndex !== currentIndex) {
+        userScrollingRef.current = true;
         onChangeIndex(clampedIndex);
       }
       
@@ -91,7 +92,7 @@ export function DesktopCarousel({
       container.removeEventListener('scroll', handleScroll);
       if (scrollTimeout) clearTimeout(scrollTimeout);
     };
-  }, [children.length, onChangeIndex, lastDesktopEmpty]);
+  }, [children.length, currentIndex, onChangeIndex, lastDesktopEmpty]);
 
   const bgClass = isDark
     ? 'bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950'

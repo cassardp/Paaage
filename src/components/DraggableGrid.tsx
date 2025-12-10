@@ -23,18 +23,15 @@ const BLOCK_SIZE_LIMITS: Record<string, { minW: number; minH: number; maxW: numb
 interface DraggableGridProps {
   blocks: Block[];
   onMoveBlock: (blockId: string, layout: BlockLayout) => void;
-  onMoveBlockToNextDesktop?: (blockId: string, layout: BlockLayout) => void;
-  onMoveBlockToPrevDesktop?: (blockId: string, layout: BlockLayout) => void;
   onDeleteBlock: (blockId: string) => void;
   renderBlock: (block: Block, isDragging: boolean) => ReactNode;
   isDark?: boolean;
   dragLocked?: boolean;
-  currentDesktopIndex?: number;
 }
 
 type DragMode = 'move' | 'resize-nw' | 'resize-ne' | 'resize-sw' | 'resize-se';
 
-export function DraggableGrid({ blocks, onMoveBlock, onMoveBlockToNextDesktop, onMoveBlockToPrevDesktop, onDeleteBlock, renderBlock, isDark = true, dragLocked = false, currentDesktopIndex = 0 }: DraggableGridProps) {
+export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock, isDark = true, dragLocked = false }: DraggableGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
   const [dragState, setDragState] = useState<{
     blockId: string;
@@ -46,7 +43,6 @@ export function DraggableGrid({ blocks, onMoveBlock, onMoveBlockToNextDesktop, o
     currentPxW: number;
     currentPxH: number;
   } | null>(null);
-  const edgeTimerRef = useRef<number | null>(null);
 
   const startDrag = (e: React.MouseEvent, block: Block, mode: DragMode) => {
     e.preventDefault();
@@ -96,38 +92,6 @@ export function DraggableGrid({ blocks, onMoveBlock, onMoveBlockToNextDesktop, o
         const maxPxY = rect.height - dragState.currentPxH;
         pxX = Math.max(0, Math.min(pxX, maxPxX));
         pxY = Math.max(0, Math.min(pxY, maxPxY));
-
-        // Détecter si le bloc est proche des bords (zone de 100px)
-        const EDGE_THRESHOLD = 10;
-        const isNearRight = !!(onMoveBlockToNextDesktop && (pxX + dragState.currentPxW >= rect.width - EDGE_THRESHOLD));
-        const isNearLeft = !!(onMoveBlockToPrevDesktop && currentDesktopIndex > 0 && pxX <= EDGE_THRESHOLD);
-
-        // Auto-switch desktop après 300ms près du bord
-        if (isNearRight || isNearLeft) {
-          if (!edgeTimerRef.current) {
-            edgeTimerRef.current = setTimeout(() => {
-              // Calculer le layout actuel du bloc pour le transfert
-              const gridX = pixelToGrid(dragState.currentPxX);
-              const gridY = pixelToGrid(dragState.currentPxY);
-              const gridW = Math.round(dragState.currentPxW / CELL_SIZE);
-              const gridH = Math.round(dragState.currentPxH / CELL_SIZE);
-              const currentLayout = { x: gridX, y: gridY, w: gridW, h: gridH };
-
-              if (isNearRight && onMoveBlockToNextDesktop) {
-                onMoveBlockToNextDesktop(block.id, currentLayout);
-              } else if (isNearLeft && onMoveBlockToPrevDesktop) {
-                onMoveBlockToPrevDesktop(block.id, currentLayout);
-              }
-              edgeTimerRef.current = null;
-            }, 250);
-          }
-        } else {
-          // Annuler le timer si on s'éloigne du bord
-          if (edgeTimerRef.current) {
-            clearTimeout(edgeTimerRef.current);
-            edgeTimerRef.current = null;
-          }
-        }
 
         setDragState((prev) => prev ? { ...prev, currentPxX: pxX, currentPxY: pxY, offsetX: mouseX, offsetY: mouseY } : null);
       } else {
@@ -180,12 +144,6 @@ export function DraggableGrid({ blocks, onMoveBlock, onMoveBlockToNextDesktop, o
     };
 
     const handleMouseUp = () => {
-      // Nettoyer le timer si actif
-      if (edgeTimerRef.current) {
-        clearTimeout(edgeTimerRef.current);
-        edgeTimerRef.current = null;
-      }
-
       if (!gridRef.current) {
         setDragState(null);
         return;
@@ -209,7 +167,6 @@ export function DraggableGrid({ blocks, onMoveBlock, onMoveBlockToNextDesktop, o
 
       newLayout = { x: gridX, y: gridY, w: gridW, h: gridH };
 
-      // Déplacer le bloc sur le desktop actuel (le switch a déjà eu lieu pendant le drag)
       onMoveBlock(block.id, newLayout);
 
       setDragState(null);
@@ -222,7 +179,7 @@ export function DraggableGrid({ blocks, onMoveBlock, onMoveBlockToNextDesktop, o
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [dragState, blocks, onMoveBlock, onMoveBlockToNextDesktop, onMoveBlockToPrevDesktop, currentDesktopIndex]);
+  }, [dragState, blocks, onMoveBlock]);
 
   const gridColor = isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.04)';
 

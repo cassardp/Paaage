@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Analytics } from '@vercel/analytics/react';
 import { useConfig } from './hooks/useConfig';
+import { getShareUrl } from './hooks/useCloudStorage';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { DraggableGrid } from './components/DraggableGrid';
 import { BlockWrapper } from './components/BlockWrapper';
@@ -37,8 +38,6 @@ function App() {
     addDesktop,
     switchDesktop,
     moveBlock,
-    moveBlockToNextDesktop,
-    moveBlockToPrevDesktop,
     deleteBlock,
     addBlock,
     addBookmark,
@@ -59,11 +58,14 @@ function App() {
     updateRssFeedUrl,
     addLinks,
     updateLinks,
+    addSettings,
     toggleTheme,
     toggleLinkTarget,
     undo,
     canUndo,
   } = useConfig();
+
+  const [showQRModal, setShowQRModal] = useState(false);
 
   // Mettre à jour theme-color et background pour Safari
   useEffect(() => {
@@ -137,6 +139,8 @@ function App() {
   const isDark = config.settings.theme === 'dark';
   const currentDesktop = getCurrentDesktop();
 
+  const hasNotesOrTodos = currentDesktop.blocks.some(b => b.type === 'note' || b.type === 'todo');
+
   const renderBlockContent = (block: Block) => (
     <BlockContent
       block={block}
@@ -155,6 +159,20 @@ function App() {
       focusedNoteId={focusedNoteId}
       onNoteFocused={() => setFocusedNoteId(null)}
       config={config}
+      // Settings block props
+      syncId={syncId}
+      syncing={syncing}
+      canUndo={canUndo}
+      dragLocked={dragLocked}
+      notesHidden={notesHidden}
+      hasNotesOrTodos={hasNotesOrTodos}
+      onToggleTheme={toggleTheme}
+      onToggleLinkTarget={toggleLinkTarget}
+      onToggleDragLock={() => setDragLocked(!dragLocked)}
+      onToggleNotesHidden={() => setNotesHidden(!notesHidden)}
+      onUndo={undo}
+      onImport={setConfig}
+      onShowQRModal={() => setShowQRModal(true)}
     />
   );
 
@@ -186,11 +204,9 @@ function App() {
   return (
     <div className={`min-h-screen ${isDark ? 'dark' : ''}`}>
       <Toolbar
-        config={config}
-        syncId={syncId}
-        syncing={syncing}
-        onImport={setConfig}
-        onToggleTheme={toggleTheme}
+        isDark={isDark}
+        dragLocked={dragLocked}
+        notesHidden={notesHidden}
         onAddBlock={addBlock}
         onAddBookmark={addBookmark}
         onAddNote={(content) => setFocusedNoteId(addSingleNote(content))}
@@ -199,18 +215,11 @@ function App() {
         onAddTodo={addTodo}
         onAddClock={addClock}
         onAddRss={addRss}
-        onUndo={undo}
-        canUndo={canUndo}
-        isDark={isDark}
-        dragLocked={dragLocked}
-        onToggleDragLock={() => setDragLocked(!dragLocked)}
-        notesHidden={notesHidden}
-        onToggleNotesHidden={() => setNotesHidden(!notesHidden)}
+        onAddSettings={addSettings}
         showBookmarkForm={showBookmarkModal}
         onShowBookmarkForm={setShowBookmarkModal}
-        onToggleLinkTarget={toggleLinkTarget}
         hasSearchBlock={currentDesktop.blocks.some(b => b.type === 'search')}
-        hasNotesOrTodos={currentDesktop.blocks.some(b => b.type === 'note' || b.type === 'todo')}
+        hasSettingsBlock={currentDesktop.blocks.some(b => b.type === 'settings')}
       />
       <DesktopCarousel
         currentIndex={config.desktops.findIndex(d => d.id === config.currentDesktopId)}
@@ -218,9 +227,9 @@ function App() {
         isDark={isDark}
         lastDesktopEmpty={lastDesktopEmpty}
       >
-        {config.desktops.map((desktop, index) => {
+        {config.desktops.map((desktop) => {
           const desktopBlocks = notesHidden
-            ? desktop.blocks.filter(b => b.type === 'search' || b.type === 'bookmark')
+            ? desktop.blocks.filter(b => b.type === 'search' || b.type === 'bookmark' || b.type === 'settings')
             : desktop.blocks;
           
           return (
@@ -228,13 +237,10 @@ function App() {
               key={desktop.id}
               blocks={desktopBlocks}
               onMoveBlock={moveBlock}
-              onMoveBlockToNextDesktop={moveBlockToNextDesktop}
-              onMoveBlockToPrevDesktop={moveBlockToPrevDesktop}
               onDeleteBlock={deleteBlock}
               renderBlock={renderBlock}
               isDark={isDark}
               dragLocked={dragLocked}
-              currentDesktopIndex={index}
             />
           );
         })}
@@ -250,7 +256,9 @@ function App() {
         onAddClock={addClock}
         onAddRss={addRss}
         onAddLinks={addLinks}
+        onAddSettings={addSettings}
         hasSearchBlock={currentDesktop.blocks.some(b => b.type === 'search')}
+        hasSettingsBlock={currentDesktop.blocks.some(b => b.type === 'settings')}
         isDark={isDark}
       />
       <DesktopNavigator
@@ -261,6 +269,38 @@ function App() {
         isDark={isDark}
         lastDesktopEmpty={lastDesktopEmpty}
       />
+      {/* Modal QR Code */}
+      {showQRModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowQRModal(false)}>
+          <div className={`p-6 rounded-lg border shadow-xl w-80 ${isDark ? 'bg-neutral-800 border-neutral-700' : 'bg-white border-neutral-200'}`} onClick={(e) => e.stopPropagation()}>
+            <h3 className={`text-lg font-semibold mb-4 text-center ${isDark ? 'text-neutral-300' : 'text-neutral-700'}`}>
+              Sync
+            </h3>
+            <div className="flex justify-center mb-4">
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(getShareUrl())}`}
+                alt="QR Code"
+                className="w-48 h-48 rounded"
+              />
+            </div>
+            <p className={`text-xs text-center mb-3 ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
+              Scan this QR code to sync on another device
+            </p>
+            <p className={`text-xs text-center font-mono mb-4 ${isDark ? 'text-neutral-500' : 'text-neutral-400'}`}>
+              ID: {syncId}
+            </p>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(getShareUrl());
+                setShowQRModal(false);
+              }}
+              className="w-full py-2 rounded text-sm cursor-pointer bg-[var(--accent-color)] text-white font-medium"
+            >
+              Copy link
+            </button>
+          </div>
+        </div>
+      )}
       <SpeedInsights />
       <Analytics />
     </div>

@@ -9,6 +9,7 @@ import { TodoBlock } from './TodoBlock';
 import { ClockBlock } from './ClockBlock';
 import { RssBlock } from './RssBlock';
 import { LinksBlock } from './LinksBlock';
+import { SettingsBlock } from './SettingsBlock';
 
 interface BlockContentProps {
   block: Block;
@@ -27,6 +28,20 @@ interface BlockContentProps {
   focusedNoteId?: string | null;
   onNoteFocused?: () => void;
   config: Config;
+  // Settings block props
+  syncId?: string;
+  syncing?: boolean;
+  canUndo?: boolean;
+  dragLocked?: boolean;
+  notesHidden?: boolean;
+  hasNotesOrTodos?: boolean;
+  onToggleTheme?: () => void;
+  onToggleLinkTarget?: () => void;
+  onToggleDragLock?: () => void;
+  onToggleNotesHidden?: () => void;
+  onUndo?: () => void;
+  onImport?: (config: Config) => void;
+  onShowQRModal?: () => void;
 }
 
 export function BlockContent({
@@ -46,6 +61,20 @@ export function BlockContent({
   focusedNoteId,
   onNoteFocused,
   config,
+  // Settings props
+  syncId = '',
+  syncing = false,
+  canUndo = false,
+  dragLocked = false,
+  notesHidden = false,
+  hasNotesOrTodos = false,
+  onToggleTheme,
+  onToggleLinkTarget,
+  onToggleDragLock,
+  onToggleNotesHidden,
+  onUndo,
+  onImport,
+  onShowQRModal,
 }: BlockContentProps) {
   switch (block.type) {
     case 'search':
@@ -89,6 +118,27 @@ export function BlockContent({
 
     case 'links':
       return <LinksBlock blockId={block.id} items={block.items} width={block.layout.w} height={block.layout.h} onUpdate={onUpdateLinks} isDark={isDark} config={config} />;
+
+    case 'settings':
+      return (
+        <SettingsBlock
+          isDark={isDark}
+          config={config}
+          syncId={syncId}
+          syncing={syncing}
+          canUndo={canUndo}
+          dragLocked={dragLocked}
+          notesHidden={notesHidden}
+          hasNotesOrTodos={hasNotesOrTodos}
+          onToggleTheme={onToggleTheme!}
+          onToggleLinkTarget={onToggleLinkTarget!}
+          onToggleDragLock={onToggleDragLock!}
+          onToggleNotesHidden={onToggleNotesHidden!}
+          onUndo={onUndo!}
+          onImport={onImport!}
+          onShowQRModal={onShowQRModal!}
+        />
+      );
 
     default:
       return null;

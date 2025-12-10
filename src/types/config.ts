@@ -79,7 +79,11 @@ export interface LinksBlock extends BaseBlock {
   items: LinkItem[];
 }
 
-export type Block = SearchBlock | WeatherBlock | BookmarkBlock | NoteBlock | StationBlock | StockBlock | TodoBlock | ClockBlock | RssBlock | LinksBlock;
+export interface SettingsBlock extends BaseBlock {
+  type: 'settings';
+}
+
+export type Block = SearchBlock | WeatherBlock | BookmarkBlock | NoteBlock | StationBlock | StockBlock | TodoBlock | ClockBlock | RssBlock | LinksBlock | SettingsBlock;
 
 export interface Desktop {
   id: string;

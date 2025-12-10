@@ -203,94 +203,6 @@ export function useConfig() {
     }));
   }, [updateConfig]);
 
-  // Déplacer un bloc vers le desktop suivant (ou créer un nouveau desktop)
-  const moveBlockToNextDesktop = useCallback((blockId: string, layout: BlockLayout) => {
-    updateConfig((prev) => {
-      const currentIndex = prev.desktops.findIndex(d => d.id === validCurrentId);
-      const currentDesktop = prev.desktops[currentIndex];
-      const block = currentDesktop.blocks.find(b => b.id === blockId);
-
-      if (!block) return prev;
-
-      // Supprimer le bloc du desktop actuel
-      const updatedCurrentDesktop = {
-        ...currentDesktop,
-        blocks: currentDesktop.blocks.filter(b => b.id !== blockId)
-      };
-
-      let targetDesktop;
-      let newDesktops = [...prev.desktops];
-      let targetDesktopId: string;
-
-      // Si on est sur le dernier desktop, créer un nouveau desktop
-      if (currentIndex === prev.desktops.length - 1) {
-        const newDesktopId = generateId();
-        targetDesktop = {
-          id: newDesktopId,
-          name: `Desktop ${prev.desktops.length + 1}`,
-          blocks: [{ ...block, layout }]
-        };
-        newDesktops[currentIndex] = updatedCurrentDesktop;
-        newDesktops.push(targetDesktop);
-        targetDesktopId = newDesktopId;
-      } else {
-        // Sinon, ajouter au desktop suivant
-        const nextDesktop = prev.desktops[currentIndex + 1];
-        targetDesktop = {
-          ...nextDesktop,
-          blocks: [...nextDesktop.blocks, { ...block, layout }]
-        };
-        newDesktops[currentIndex] = updatedCurrentDesktop;
-        newDesktops[currentIndex + 1] = targetDesktop;
-        targetDesktopId = nextDesktop.id;
-      }
-
-      return {
-        ...prev,
-        desktops: newDesktops,
-        currentDesktopId: targetDesktopId
-      };
-    });
-  }, [updateConfig, validCurrentId]);
-
-  // Déplacer un bloc vers le desktop précédent
-  const moveBlockToPrevDesktop = useCallback((blockId: string, layout: BlockLayout) => {
-    updateConfig((prev) => {
-      const currentIndex = prev.desktops.findIndex(d => d.id === validCurrentId);
-
-      // Ne pas permettre de revenir en arrière depuis le premier desktop
-      if (currentIndex === 0) return prev;
-
-      const currentDesktop = prev.desktops[currentIndex];
-      const block = currentDesktop.blocks.find(b => b.id === blockId);
-
-      if (!block) return prev;
-
-      // Supprimer le bloc du desktop actuel
-      const updatedCurrentDesktop = {
-        ...currentDesktop,
-        blocks: currentDesktop.blocks.filter(b => b.id !== blockId)
-      };
-
-      // Ajouter au desktop précédent
-      const prevDesktop = prev.desktops[currentIndex - 1];
-      const targetDesktop = {
-        ...prevDesktop,
-        blocks: [...prevDesktop.blocks, { ...block, layout }]
-      };
-
-      const newDesktops = [...prev.desktops];
-      newDesktops[currentIndex] = updatedCurrentDesktop;
-      newDesktops[currentIndex - 1] = targetDesktop;
-
-      return {
-        ...prev,
-        desktops: newDesktops,
-        currentDesktopId: prevDesktop.id
-      };
-    });
-  }, [updateConfig, validCurrentId]);
-
   // === Gestion des blocs (opèrent sur le desktop actif) ===
 
 
@@ -569,6 +481,43 @@ export function useConfig() {
     }));
   }, [updateConfig, validCurrentId]);
 
+  // Toggle bloc settings (ajoute ou supprime)
+  const addSettings = useCallback(() => {
+    updateConfig((prev) => {
+      const currentDesktop = prev.desktops.find(d => d.id === validCurrentId);
+      const existingSettings = currentDesktop?.blocks.find(b => b.type === 'settings');
+
+      if (existingSettings) {
+        // Supprimer le bloc settings
+        return {
+          ...prev,
+          desktops: prev.desktops.map(desktop =>
+            desktop.id === validCurrentId
+              ? { ...desktop, blocks: desktop.blocks.filter(b => b.type !== 'settings') }
+              : desktop
+          ),
+        };
+      } else {
+        // Ajouter le bloc settings
+        const id = generateId();
+        const pos = getCenteredPosition(19, 22);
+        const newBlock: Block = {
+          id,
+          type: 'settings',
+          layout: { ...pos, w: 19, h: 22 }
+        };
+        return {
+          ...prev,
+          desktops: prev.desktops.map(desktop =>
+            desktop.id === validCurrentId
+              ? { ...desktop, blocks: [...desktop.blocks, newBlock] }
+              : desktop
+          ),
+        };
+      }
+    });
+  }, [updateConfig, validCurrentId]);
+
   // Mettre à jour les liens d'un bloc links
   const updateLinks = useCallback((blockId: string, items: LinkItem[]) => {
     updateConfig((prev) => updateBlockInConfig(prev, blockId, 'links', () => ({ items })));
@@ -608,8 +557,6 @@ export function useConfig() {
     deleteDesktop,
     switchDesktop,
     renameDesktop,
-    moveBlockToNextDesktop,
-    moveBlockToPrevDesktop,
     moveBlock,
     deleteBlock,
     addBlock,
@@ -631,6 +578,7 @@ export function useConfig() {
     updateRssFeedUrl,
     addLinks,
     updateLinks,
+    addSettings,
     toggleTheme,
     toggleLinkTarget,
     undo,

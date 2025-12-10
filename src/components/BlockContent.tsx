@@ -34,7 +34,6 @@ interface BlockContentProps {
   canUndo?: boolean;
   dragLocked?: boolean;
   notesHidden?: boolean;
-  hasNotesOrTodos?: boolean;
   onToggleTheme?: () => void;
   onToggleLinkTarget?: () => void;
   onToggleDragLock?: () => void;
@@ -68,7 +67,6 @@ export function BlockContent({
   canUndo = false,
   dragLocked = false,
   notesHidden = false,
-  hasNotesOrTodos = false,
   onToggleTheme,
   onToggleLinkTarget,
   onToggleDragLock,
@@ -131,7 +129,6 @@ export function BlockContent({
           canUndo={canUndo}
           dragLocked={dragLocked}
           notesHidden={notesHidden}
-          hasNotesOrTodos={hasNotesOrTodos}
           onToggleTheme={onToggleTheme!}
           onToggleLinkTarget={onToggleLinkTarget!}
           onToggleDragLock={onToggleDragLock!}

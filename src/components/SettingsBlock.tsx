@@ -11,7 +11,6 @@ interface SettingsBlockProps {
   canUndo: boolean;
   dragLocked: boolean;
   notesHidden: boolean;
-  hasNotesOrTodos: boolean;
   onToggleTheme: () => void;
   onToggleLinkTarget: () => void;
   onToggleDragLock: () => void;
@@ -80,7 +79,6 @@ export function SettingsBlock({
   syncing,
   dragLocked,
   notesHidden,
-  hasNotesOrTodos,
   onToggleTheme,
   onToggleLinkTarget,
   onToggleDragLock,
@@ -163,16 +161,14 @@ export function SettingsBlock({
           isDark={isDark}
         />
 
-        {hasNotesOrTodos && (
-          <SettingRow
-            label="Hide blocks"
-            description="Hide all blocks except settings"
-            shortcut="Shift + M"
-            enabled={notesHidden}
-            onChange={onToggleNotesHidden}
-            isDark={isDark}
-          />
-        )}
+        <SettingRow
+          label="Hide blocks"
+          description="Hide all blocks except settings"
+          shortcut="Shift + M"
+          enabled={notesHidden}
+          onChange={onToggleNotesHidden}
+          isDark={isDark}
+        />
       </div>
 
       {/* Separator */}

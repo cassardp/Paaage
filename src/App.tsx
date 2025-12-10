@@ -185,7 +185,6 @@ function AppContent() {
   const isDark = config.settings.theme === 'dark';
   const currentDesktop = getCurrentDesktop();
 
-  const hasNotesOrTodos = currentDesktop.blocks.some(b => b.type === 'note' || b.type === 'todo');
 
   const renderBlockContent = (block: Block) => (
     <BlockContent
@@ -211,7 +210,6 @@ function AppContent() {
       canUndo={canUndo}
       dragLocked={dragLocked}
       notesHidden={notesHidden}
-      hasNotesOrTodos={hasNotesOrTodos}
       onToggleTheme={toggleTheme}
       onToggleLinkTarget={toggleLinkTarget}
       onToggleDragLock={() => setDragLocked(!dragLocked)}

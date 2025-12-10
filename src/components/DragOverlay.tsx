@@ -78,31 +78,7 @@ export function DragOverlay({
   const { block, clientX, clientY, offsetX, offsetY, width, height } = dragState;
 
   return (
-    <>
-      {/* Indicateurs de zone de scroll sur les bords */}
-      <div
-        className={`fixed top-0 left-0 w-20 h-full z-[9998] pointer-events-none transition-opacity duration-200 ${
-          clientX < EDGE_SCROLL_ZONE && currentDesktopIndex > 0
-            ? 'opacity-100'
-            : 'opacity-0'
-        }`}
-        style={{
-          background: 'linear-gradient(to right, rgba(255,255,255,0.1), transparent)',
-        }}
-      />
-      <div
-        className={`fixed top-0 right-0 w-20 h-full z-[9998] pointer-events-none transition-opacity duration-200 ${
-          clientX > window.innerWidth - EDGE_SCROLL_ZONE && currentDesktopIndex < (lastDesktopEmpty ? desktopCount - 1 : desktopCount)
-            ? 'opacity-100'
-            : 'opacity-0'
-        }`}
-        style={{
-          background: 'linear-gradient(to left, rgba(255,255,255,0.1), transparent)',
-        }}
-      />
-      
-      {/* Bloc en cours de drag */}
-      <div
+    <div
         className="fixed z-[9999] pointer-events-none"
         style={{
           left: clientX - offsetX,
@@ -116,6 +92,5 @@ export function DragOverlay({
       >
         {renderBlock(block, true)}
       </div>
-    </>
   );
 }

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, type ReactNode } from 'react';
 import { CELL_SIZE } from '../lib/defaultConfig';
 import { gridToPixel, gridSizeToPixel, pixelToGrid } from './Grid';
 import type { Block, BlockLayout } from '../types/config';
+import { useCrossDesktopDrag } from '../contexts/CrossDesktopDragContext';
 
 // Limites de taille par type de bloc (en cellules)
 const BLOCK_SIZE_LIMITS: Record<string, { minW: number; minH: number; maxW: number; maxH: number }> = {
@@ -22,6 +23,7 @@ const BLOCK_SIZE_LIMITS: Record<string, { minW: number; minH: number; maxW: numb
 
 interface DraggableGridProps {
   blocks: Block[];
+  desktopId: string;
   onMoveBlock: (blockId: string, layout: BlockLayout) => void;
   onDeleteBlock: (blockId: string) => void;
   renderBlock: (block: Block, isDragging: boolean) => ReactNode;
@@ -31,8 +33,9 @@ interface DraggableGridProps {
 
 type DragMode = 'move' | 'resize-nw' | 'resize-ne' | 'resize-sw' | 'resize-se';
 
-export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock, isDark = true, dragLocked = false }: DraggableGridProps) {
+export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, renderBlock, isDark = true, dragLocked = false }: DraggableGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
+  const { dragState: crossDragState, startCrossDrag } = useCrossDesktopDrag();
   const [dragState, setDragState] = useState<{
     blockId: string;
     mode: DragMode;
@@ -57,6 +60,24 @@ export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock,
     const blockPxW = gridSizeToPixel(block.layout.w);
     const blockPxH = gridSizeToPixel(block.layout.h);
 
+    // Pour le mode move, on utilise le cross-desktop drag
+    if (mode === 'move') {
+      const offsetX = e.clientX - (rect.left + blockPxX);
+      const offsetY = e.clientY - (rect.top + blockPxY);
+      startCrossDrag(
+        block,
+        desktopId,
+        e.clientX,
+        e.clientY,
+        offsetX,
+        offsetY,
+        blockPxW,
+        blockPxH
+      );
+      return;
+    }
+
+    // Pour le resize, on garde le comportement local
     setDragState({
       blockId: block.id,
       mode,
@@ -202,6 +223,10 @@ export function DraggableGrid({ blocks, onMoveBlock, onDeleteBlock, renderBlock,
 
       {/* Blocs */}
       {blocks.map((block) => {
+        // Cacher le bloc s'il est en cours de cross-desktop drag depuis ce desktop
+        const isCrossDragging = crossDragState?.block.id === block.id && crossDragState?.sourceDesktopId === desktopId;
+        if (isCrossDragging) return null;
+
         const isDragging = dragState?.blockId === block.id;
         const isResizing = isDragging && dragState.mode.startsWith('resize');
 

@@ -220,6 +220,31 @@ export function useConfig() {
     }));
   }, [updateConfig, validCurrentId]);
 
+  // Déplacer un bloc vers un autre desktop
+  const moveBlockToDesktop = useCallback((blockId: string, sourceDesktopId: string, targetDesktopId: string, layout: BlockLayout) => {
+    updateConfig((prev) => {
+      // Trouver le bloc dans le desktop source
+      const sourceDesktop = prev.desktops.find(d => d.id === sourceDesktopId);
+      const block = sourceDesktop?.blocks.find(b => b.id === blockId);
+      if (!block) return prev;
+
+      return {
+        ...prev,
+        desktops: prev.desktops.map(desktop => {
+          if (desktop.id === sourceDesktopId) {
+            // Retirer le bloc du desktop source
+            return { ...desktop, blocks: desktop.blocks.filter(b => b.id !== blockId) };
+          }
+          if (desktop.id === targetDesktopId) {
+            // Ajouter le bloc au desktop cible avec la nouvelle position
+            return { ...desktop, blocks: [...desktop.blocks, { ...block, layout }] };
+          }
+          return desktop;
+        }),
+      };
+    });
+  }, [updateConfig]);
+
   // Supprimer un bloc
   const deleteBlock = useCallback((blockId: string) => {
     updateConfig((prev) => ({
@@ -558,6 +583,7 @@ export function useConfig() {
     switchDesktop,
     renameDesktop,
     moveBlock,
+    moveBlockToDesktop,
     deleteBlock,
     addBlock,
     addBookmark,

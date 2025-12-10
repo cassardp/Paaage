@@ -12,14 +12,20 @@ import { Toolbar } from './components/Toolbar';
 import { SlashMenu } from './components/SlashMenu';
 import { DesktopNavigator } from './components/DesktopNavigator';
 import { DesktopCarousel } from './components/DesktopCarousel';
+import { DragOverlay } from './components/DragOverlay';
+import { CrossDesktopDragProvider, useCrossDesktopDrag } from './contexts/CrossDesktopDragContext';
+import { CELL_SIZE } from './lib/defaultConfig';
+import { pixelToGrid } from './components/Grid';
 import type { Block } from './types/config';
 
-function App() {
+function AppContent() {
   const [dragLocked, setDragLocked] = useState(false);
   const [focusedNoteId, setFocusedNoteId] = useState<string | null>(null);
   const [notesHidden, setNotesHidden] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [showBookmarkModal, setShowBookmarkModal] = useState(false);
+
+  const { dragState: crossDragState, endCrossDrag } = useCrossDesktopDrag();
 
   // Détecter le redimensionnement
   useEffect(() => {
@@ -38,6 +44,7 @@ function App() {
     addDesktop,
     switchDesktop,
     moveBlock,
+    moveBlockToDesktop,
     deleteBlock,
     addBlock,
     addBookmark,
@@ -127,6 +134,44 @@ function App() {
       addDesktop();
     }
   }, [config.desktops, switchDesktop, addDesktop, lastDesktopEmpty]);
+
+  // Gestion du drop cross-desktop
+  const currentDesktopIndex = config.desktops.findIndex(d => d.id === config.currentDesktopId);
+  
+  useEffect(() => {
+    if (!crossDragState) return;
+
+    const handleMouseUp = () => {
+      const state = endCrossDrag();
+      if (!state) return;
+
+      // Calculer la position en grid sur le desktop actuel
+      const gridX = pixelToGrid(state.clientX - state.offsetX);
+      const gridY = pixelToGrid(state.clientY - state.offsetY);
+      const gridW = Math.round(state.width / CELL_SIZE);
+      const gridH = Math.round(state.height / CELL_SIZE);
+
+      // Limiter aux bords de l'écran
+      const maxCols = Math.floor(window.innerWidth / CELL_SIZE);
+      const maxRows = Math.floor(window.innerHeight / CELL_SIZE);
+      const finalX = Math.max(0, Math.min(gridX, maxCols - gridW));
+      const finalY = Math.max(0, Math.min(gridY, maxRows - gridH));
+
+      const newLayout = { x: finalX, y: finalY, w: gridW, h: gridH };
+      const targetDesktopId = config.desktops[currentDesktopIndex]?.id;
+
+      if (targetDesktopId && targetDesktopId !== state.sourceDesktopId) {
+        // Déplacer vers un autre desktop
+        moveBlockToDesktop(state.block.id, state.sourceDesktopId, targetDesktopId, newLayout);
+      } else if (targetDesktopId) {
+        // Même desktop, juste déplacer
+        moveBlock(state.block.id, newLayout);
+      }
+    };
+
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => window.removeEventListener('mouseup', handleMouseUp);
+  }, [crossDragState, endCrossDrag, config.desktops, currentDesktopIndex, moveBlock, moveBlockToDesktop]);
 
   if (isLoading) {
     return (
@@ -236,6 +281,7 @@ function App() {
             <DraggableGrid
               key={desktop.id}
               blocks={desktopBlocks}
+              desktopId={desktop.id}
               onMoveBlock={moveBlock}
               onDeleteBlock={deleteBlock}
               renderBlock={renderBlock}
@@ -267,6 +313,14 @@ function App() {
         onSwitchDesktop={switchDesktop}
         onAddDesktop={addDesktop}
         isDark={isDark}
+        lastDesktopEmpty={lastDesktopEmpty}
+      />
+      {/* Overlay de drag cross-desktop */}
+      <DragOverlay
+        renderBlock={renderBlock}
+        desktopCount={config.desktops.length}
+        currentDesktopIndex={currentDesktopIndex}
+        onScrollToDesktop={handleCarouselIndexChange}
         lastDesktopEmpty={lastDesktopEmpty}
       />
       {/* Modal QR Code */}
@@ -304,6 +358,15 @@ function App() {
       <SpeedInsights />
       <Analytics />
     </div>
+  );
+}
+
+// Wrapper avec le provider
+function App() {
+  return (
+    <CrossDesktopDragProvider>
+      <AppContent />
+    </CrossDesktopDragProvider>
   );
 }
 

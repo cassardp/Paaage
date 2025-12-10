@@ -6,6 +6,7 @@ interface DesktopNavigatorProps {
     onSwitchDesktop: (desktopId: string) => void;
     onAddDesktop: () => void;
     isDark: boolean;
+    lastDesktopEmpty: boolean;
 }
 
 export function DesktopNavigator({
@@ -14,6 +15,7 @@ export function DesktopNavigator({
     onSwitchDesktop,
     onAddDesktop,
     isDark,
+    lastDesktopEmpty,
 }: DesktopNavigatorProps) {
     const currentIndex = desktops.findIndex(d => d.id === currentDesktopId);
 
@@ -27,8 +29,8 @@ export function DesktopNavigator({
         }
     };
 
-    // Show current desktops + one extra dot for creating new desktop
-    const totalDots = desktops.length + 1;
+    // Show current desktops + one extra dot for creating new desktop (only if last is not empty)
+    const totalDots = desktops.length + (lastDesktopEmpty ? 0 : 1);
 
     return (
         <div

@@ -95,12 +95,18 @@ function App() {
     }
   }, [config.desktops, config.currentDesktopId, switchDesktop]);
 
+  const lastDesktop = config.desktops[config.desktops.length - 1];
+  const lastDesktopEmpty = lastDesktop?.blocks.length === 0;
+
   const navigateRight = useCallback(() => {
     const currentIndex = config.desktops.findIndex(d => d.id === config.currentDesktopId);
     if (currentIndex < config.desktops.length - 1) {
       switchDesktop(config.desktops[currentIndex + 1].id);
+    } else if (!lastDesktopEmpty) {
+      // On est sur le dernier desktop et il n'est pas vide, créer un nouveau
+      addDesktop();
     }
-  }, [config.desktops, config.currentDesktopId, switchDesktop]);
+  }, [config.desktops, config.currentDesktopId, switchDesktop, addDesktop, lastDesktopEmpty]);
 
   useKeyboardShortcuts({
     onToggleLock: toggleLock,
@@ -114,8 +120,11 @@ function App() {
   const handleCarouselIndexChange = useCallback((index: number) => {
     if (index >= 0 && index < config.desktops.length) {
       switchDesktop(config.desktops[index].id);
+    } else if (index === config.desktops.length && !lastDesktopEmpty) {
+      // On scroll vers un nouveau desktop (seulement si le dernier n'est pas vide)
+      addDesktop();
     }
-  }, [config.desktops, switchDesktop]);
+  }, [config.desktops, switchDesktop, addDesktop, lastDesktopEmpty]);
 
   if (isLoading) {
     return (
@@ -207,6 +216,7 @@ function App() {
         currentIndex={config.desktops.findIndex(d => d.id === config.currentDesktopId)}
         onChangeIndex={handleCarouselIndexChange}
         isDark={isDark}
+        lastDesktopEmpty={lastDesktopEmpty}
       >
         {config.desktops.map((desktop, index) => {
           const desktopBlocks = notesHidden
@@ -249,6 +259,7 @@ function App() {
         onSwitchDesktop={switchDesktop}
         onAddDesktop={addDesktop}
         isDark={isDark}
+        lastDesktopEmpty={lastDesktopEmpty}
       />
       <SpeedInsights />
       <Analytics />

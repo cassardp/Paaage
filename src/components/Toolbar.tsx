@@ -38,7 +38,7 @@ export function Toolbar({
   showBookmarkForm: externalShowBookmark,
   onShowBookmarkForm,
   hasSearchBlock,
-  hasSettingsBlock,
+  hasSettingsBlock: _hasSettingsBlock,
 }: ToolbarProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [internalShowBookmark, setInternalShowBookmark] = useState(false);

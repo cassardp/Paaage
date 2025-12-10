@@ -1,24 +1,6 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Plus, X, Upload } from 'lucide-react';
 import { FormModal } from './FormModal';
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-  type Modifier,
-} from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-  horizontalListSortingStrategy,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
 import type { LinkItem, Config } from '../types/config';
 import { generateId } from '../lib/utils';
 import { getLinkTarget } from '../constants/links';
@@ -50,132 +32,158 @@ function parseBookmarksHtml(html: string): LinkItem[] {
     }));
 }
 
-// Composant lien sortable
-interface SortableLinkProps {
-  item: LinkItem;
-  isDark: boolean;
-  onRemove: (id: string) => void;
-  isDraggingAny: boolean;
-  config: Config;
+// Helper pour réordonner un tableau
+function arrayMove<T>(array: T[], from: number, to: number): T[] {
+  const newArray = [...array];
+  const [item] = newArray.splice(from, 1);
+  newArray.splice(to, 0, item);
+  return newArray;
 }
-
-function SortableLink({ item, isDark, onRemove, isDraggingAny, config }: SortableLinkProps) {
-  const [isHovering, setIsHovering] = useState(false);
-  const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: item.id });
-
-
-  const handleMouseEnter = () => {
-    hoverTimerRef.current = setTimeout(() => setIsHovering(true), 1000);
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovering(false);
-    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
-  };
-
-
-  useEffect(() => {
-    return () => {
-      if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
-    };
-  }, []);
-
-  const style = {
-    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
-    transition,
-  };
-
-  const textClass = isDark ? 'text-neutral-500 hover:text-neutral-300' : 'text-neutral-600 hover:text-neutral-400';
-  const mutedClass = isDark ? 'text-neutral-500' : 'text-neutral-400';
-  const cursor = isDragging ? 'grabbing' : isHovering ? 'grab' : 'pointer';
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={{ ...style, cursor }}
-      className="group/link flex items-center gap-1 flex-shrink-0 px-2 py-0.5 -mx-2 rounded"
-      {...attributes}
-      {...listeners}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      <a
-        href={item.url}
-        target={getLinkTarget(config)}
-        rel="noopener noreferrer"
-        style={{ cursor: 'inherit', pointerEvents: isDraggingAny ? 'none' : 'auto' }}
-        className={`text-sm leading-none whitespace-nowrap transition-colors ${textClass}`}
-      >
-        {item.label}
-      </a>
-      <button
-        onClick={() => onRemove(item.id)}
-        onPointerDown={(e) => e.stopPropagation()}
-        className={`opacity-0 group-hover/link:opacity-100 p-0.5 cursor-pointer transition-opacity delay-[1000ms] ${mutedClass}`}
-      >
-        <X className="w-3 h-3" />
-      </button>
-    </div>
-  );
-}
-
 
 export function LinksBlock({ blockId, items, width, height, onUpdate, isDark = true, config }: LinksBlockProps) {
   const [newUrl, setNewUrl] = useState('');
   const [newLabel, setNewLabel] = useState('');
   const [showForm, setShowForm] = useState(false);
-  const [isDraggingAny, setIsDraggingAny] = useState(false);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const startPosRef = useRef({ x: 0, y: 0 });
+  const itemRectsRef = useRef<DOMRect[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const pendingClickRef = useRef<{ url: string; target: string } | null>(null);
+  const DRAG_THRESHOLD = 5;
 
   // Orientation basée sur le ratio du bloc
   const isHorizontal = width > height * 2;
 
-  // Modifier pour restreindre le mouvement à un seul axe
-  const restrictToAxis: Modifier = ({ transform }) => ({
-    ...transform,
-    x: isHorizontal ? transform.x : 0,
-    y: isHorizontal ? 0 : transform.y,
-    scaleX: 1,
-    scaleY: 1,
-  });
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 5,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
-  const handleDragStart = () => {
-    setIsDraggingAny(true);
+  const handlePointerDown = (e: React.PointerEvent, index: number, url: string) => {
+    if ((e.target as HTMLElement).closest('button')) return;
+    e.preventDefault();
+    
+    // Stocker l'URL pour un potentiel clic
+    pendingClickRef.current = { url, target: getLinkTarget(config) };
+    
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    
+    if (containerRef.current) {
+      const itemEls = containerRef.current.querySelectorAll('[data-link-index]');
+      itemRectsRef.current = Array.from(itemEls).map(el => el.getBoundingClientRect());
+    }
+    
+    startPosRef.current = { x: e.clientX, y: e.clientY };
+    setDragOffset({ x: 0, y: 0 });
+    setDragIndex(index);
+    setHoverIndex(index);
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (over && active.id !== over.id) {
-      const oldIndex = items.findIndex((item) => item.id === active.id);
-      const newIndex = items.findIndex((item) => item.id === over.id);
-      onUpdate(blockId, arrayMove(items, oldIndex, newIndex));
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (dragIndex === null) return;
+    
+    const offsetX = e.clientX - startPosRef.current.x;
+    const offsetY = e.clientY - startPosRef.current.y;
+    const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
+    
+    // Si on a bougé au-delà du seuil, c'est un drag, pas un clic
+    if (distance > DRAG_THRESHOLD) {
+      pendingClickRef.current = null;
+      setIsDragging(true);
     }
+    
+    if (!isDragging && distance <= DRAG_THRESHOLD) return;
+    
+    setDragOffset({ x: offsetX, y: offsetY });
+    
+    // Trouver la nouvelle position basée sur les rects capturés
+    const rects = itemRectsRef.current;
+    if (rects.length === 0) return;
+    
+    let newHoverIndex = dragIndex;
+    
+    if (isHorizontal) {
+      // Position actuelle du centre de l'élément draggé
+      const dragRect = rects[dragIndex];
+      const currentCenter = dragRect.left + dragRect.width / 2 + offsetX;
+      
+      for (let i = 0; i < rects.length; i++) {
+        const rect = rects[i];
+        const center = rect.left + rect.width / 2;
+        if (i < dragIndex && currentCenter < center) {
+          newHoverIndex = i;
+          break;
+        } else if (i > dragIndex && currentCenter > center) {
+          newHoverIndex = i;
+        }
+      }
+    } else {
+      const dragRect = rects[dragIndex];
+      const currentCenter = dragRect.top + dragRect.height / 2 + offsetY;
+      
+      for (let i = 0; i < rects.length; i++) {
+        const rect = rects[i];
+        const center = rect.top + rect.height / 2;
+        if (i < dragIndex && currentCenter < center) {
+          newHoverIndex = i;
+          break;
+        } else if (i > dragIndex && currentCenter > center) {
+          newHoverIndex = i;
+        }
+      }
+    }
+    
+    if (newHoverIndex !== hoverIndex) {
+      setHoverIndex(newHoverIndex);
+    }
+  };
 
-    // Unblock clicks after a short delay
-    setTimeout(() => {
-      setIsDraggingAny(false);
-    }, 100);
+  const handlePointerUp = () => {
+    // Si c'était un clic (pas de drag), ouvrir le lien
+    if (pendingClickRef.current && !isDragging) {
+      const { url, target } = pendingClickRef.current;
+      window.open(url, target, 'noopener,noreferrer');
+    }
+    
+    // Si c'était un drag, appliquer le réordonnement
+    if (isDragging && dragIndex !== null && hoverIndex !== null && dragIndex !== hoverIndex) {
+      onUpdate(blockId, arrayMove(items, dragIndex, hoverIndex));
+    }
+    
+    pendingClickRef.current = null;
+    setDragIndex(null);
+    setHoverIndex(null);
+    setDragOffset({ x: 0, y: 0 });
+    itemRectsRef.current = [];
+    setTimeout(() => setIsDragging(false), 50);
+  };
+
+  // Calcule le décalage visuel pour chaque élément
+  const getTransform = (index: number): string => {
+    if (dragIndex === null) return '';
+    
+    // L'élément draggé suit le curseur
+    if (index === dragIndex) {
+      return isHorizontal 
+        ? `translateX(${dragOffset.x}px)` 
+        : `translateY(${dragOffset.y}px)`;
+    }
+    
+    if (hoverIndex === null || dragIndex === hoverIndex) return '';
+    
+    // Calculer l'offset basé sur la taille de l'élément draggé
+    const dragRect = itemRectsRef.current[dragIndex];
+    const offset = dragRect ? (isHorizontal ? dragRect.width + 16 : dragRect.height + 6) : 0;
+    
+    if (dragIndex < hoverIndex) {
+      if (index > dragIndex && index <= hoverIndex) {
+        return isHorizontal ? `translateX(-${offset}px)` : `translateY(-${offset}px)`;
+      }
+    } else {
+      if (index >= hoverIndex && index < dragIndex) {
+        return isHorizontal ? `translateX(${offset}px)` : `translateY(${offset}px)`;
+      }
+    }
+    return '';
   };
 
   const addLink = () => {
@@ -237,34 +245,51 @@ export function LinksBlock({ blockId, items, width, height, onUpdate, isDark = t
 
   return (
     <>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        modifiers={[restrictToAxis]}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
+      <div
+        ref={containerRef}
+        className={`scrollbar-hide ${isHorizontal ? 'h-full flex items-center gap-4 overflow-x-auto overflow-y-hidden' : 'h-full flex flex-col gap-1.5 overflow-auto'}`}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
       >
-        <div
-          className={`scrollbar-hide ${isHorizontal ? 'h-full flex items-center gap-4 overflow-x-auto overflow-y-hidden' : 'h-full flex flex-col gap-1.5 overflow-auto'}`}
-        >
-          <SortableContext
-            items={items.map(item => item.id)}
-            strategy={isHorizontal ? horizontalListSortingStrategy : verticalListSortingStrategy}
-          >
-            {items.map(item => (
-              <SortableLink
-                key={item.id}
-                item={item}
-                isDark={isDark}
-                onRemove={removeLink}
-                isDraggingAny={isDraggingAny}
-                config={config}
-              />
-            ))}
-          </SortableContext>
-          {actions}
-        </div>
-      </DndContext>
+        {items.map((item, index) => {
+          const isItemDragging = dragIndex === index;
+          const textClass = isDark 
+            ? `text-neutral-500 ${!isDragging ? 'hover:text-neutral-300' : ''}` 
+            : `text-neutral-600 ${!isDragging ? 'hover:text-neutral-400' : ''}`;
+          const mutedClass = isDark ? 'text-neutral-500' : 'text-neutral-400';
+          
+          return (
+            <div
+              key={item.id}
+              data-link-index={index}
+              onPointerDown={(e) => handlePointerDown(e, index, item.url)}
+              style={{ 
+                cursor: isItemDragging ? 'grabbing' : 'pointer',
+                opacity: isItemDragging ? 0.5 : 1,
+                touchAction: 'none',
+                transform: getTransform(index),
+                transition: isItemDragging ? 'none' : (dragIndex !== null ? 'transform 150ms ease' : 'none'),
+                zIndex: isItemDragging ? 10 : 'auto',
+              }}
+              className="group/link relative flex items-center gap-1 flex-shrink-0 px-2 py-0.5 -mx-2 rounded select-none"
+            >
+              <span
+                style={{ cursor: 'inherit' }}
+                className={`text-sm leading-none whitespace-nowrap transition-colors ${textClass}`}
+              >
+                {item.label}
+              </span>
+              <button
+                onClick={() => removeLink(item.id)}
+                className={`opacity-0 group-hover/link:opacity-100 p-0.5 cursor-pointer transition-opacity delay-[1000ms] ${mutedClass}`}
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          );
+        })}
+        {actions}
+      </div>
 
       <FormModal
         isOpen={showForm}

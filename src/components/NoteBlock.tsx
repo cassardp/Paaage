@@ -114,7 +114,7 @@ export function NoteBlock({ blockId, content, title = 'Note', onUpdate, onUpdate
           onKeyDown={handleTitleKeyDown}
           onBlur={handleSaveTitle}
           placeholder="Title"
-          className={`mb-2 bg-transparent border-none outline-none text-xs ${mutedClass}`}
+          className={`mb-2 bg-transparent border-none outline-none text-xs uppercase ${mutedClass}`}
         />
       ) : (
         <span

@@ -54,6 +54,27 @@ function getCenteredPosition(w: number, h: number): { x: number; y: number } {
 
 const MAX_HISTORY = 20;
 
+// Helper générique pour mettre à jour un champ d'un bloc spécifique
+function updateBlockInConfig<T extends Block>(
+  config: Config,
+  blockId: string,
+  blockType: T['type'],
+  updater: (block: T) => Partial<T>
+): Config {
+  return {
+    ...config,
+    desktops: config.desktops.map(desktop => ({
+      ...desktop,
+      blocks: desktop.blocks.map((block) => {
+        if (block.id === blockId && block.type === blockType) {
+          return { ...block, ...updater(block as T) };
+        }
+        return block;
+      }),
+    })),
+  };
+}
+
 export function useConfig() {
   const [rawConfig, setRawConfig, { loading: isLoading, syncing, syncId }] = useCloudStorage();
 
@@ -373,130 +394,42 @@ export function useConfig() {
 
   // Mettre à jour une note
   const updateNote = useCallback((blockId: string, content: string) => {
-    updateConfig((prev) => ({
-      ...prev,
-      desktops: prev.desktops.map(desktop => ({
-        ...desktop,
-        blocks: desktop.blocks.map((block) => {
-          if (block.id === blockId && block.type === 'note') {
-            return { ...block, content };
-          }
-          return block;
-        }),
-      })),
-    }));
+    updateConfig((prev) => updateBlockInConfig(prev, blockId, 'note', () => ({ content })));
   }, [updateConfig]);
 
   // Mettre à jour le titre d'une note
   const updateNoteTitle = useCallback((blockId: string, title: string) => {
-    updateConfig((prev) => ({
-      ...prev,
-      desktops: prev.desktops.map(desktop => ({
-        ...desktop,
-        blocks: desktop.blocks.map((block) => {
-          if (block.id === blockId && block.type === 'note') {
-            return { ...block, title };
-          }
-          return block;
-        }),
-      })),
-    }));
+    updateConfig((prev) => updateBlockInConfig(prev, blockId, 'note', () => ({ title })));
   }, [updateConfig]);
 
   // Mettre à jour une todo
   const updateTodo = useCallback((blockId: string, items: TodoItem[]) => {
-    updateConfig((prev) => ({
-      ...prev,
-      desktops: prev.desktops.map(desktop => ({
-        ...desktop,
-        blocks: desktop.blocks.map((block) => {
-          if (block.id === blockId && block.type === 'todo') {
-            return { ...block, items };
-          }
-          return block;
-        }),
-      })),
-    }));
+    updateConfig((prev) => updateBlockInConfig(prev, blockId, 'todo', () => ({ items })));
   }, [updateConfig]);
 
   // Mettre à jour le titre d'une todo
   const updateTodoTitle = useCallback((blockId: string, title: string) => {
-    updateConfig((prev) => ({
-      ...prev,
-      desktops: prev.desktops.map(desktop => ({
-        ...desktop,
-        blocks: desktop.blocks.map((block) => {
-          if (block.id === blockId && block.type === 'todo') {
-            return { ...block, title };
-          }
-          return block;
-        }),
-      })),
-    }));
+    updateConfig((prev) => updateBlockInConfig(prev, blockId, 'todo', () => ({ title })));
   }, [updateConfig]);
 
   // Mettre à jour la ville d'un bloc météo
   const updateWeatherCity = useCallback((blockId: string, city: string) => {
-    updateConfig((prev) => ({
-      ...prev,
-      desktops: prev.desktops.map(desktop => ({
-        ...desktop,
-        blocks: desktop.blocks.map((block) => {
-          if (block.id === blockId && block.type === 'weather') {
-            return { ...block, city };
-          }
-          return block;
-        }),
-      })),
-    }));
+    updateConfig((prev) => updateBlockInConfig(prev, blockId, 'weather', () => ({ city })));
   }, [updateConfig]);
 
   // Mettre à jour la ville d'un bloc horloge
   const updateClockCity = useCallback((blockId: string, city: string, timezone: string) => {
-    updateConfig((prev) => ({
-      ...prev,
-      desktops: prev.desktops.map(desktop => ({
-        ...desktop,
-        blocks: desktop.blocks.map((block) => {
-          if (block.id === blockId && block.type === 'clock') {
-            return { ...block, city, timezone };
-          }
-          return block;
-        }),
-      })),
-    }));
+    updateConfig((prev) => updateBlockInConfig(prev, blockId, 'clock', () => ({ city, timezone })));
   }, [updateConfig]);
 
   // Mettre à jour le symbole d'un bloc stock
   const updateStockSymbol = useCallback((blockId: string, symbol: string) => {
-    updateConfig((prev) => ({
-      ...prev,
-      desktops: prev.desktops.map(desktop => ({
-        ...desktop,
-        blocks: desktop.blocks.map((block) => {
-          if (block.id === blockId && block.type === 'stock') {
-            return { ...block, symbol };
-          }
-          return block;
-        }),
-      })),
-    }));
+    updateConfig((prev) => updateBlockInConfig(prev, blockId, 'stock', () => ({ symbol })));
   }, [updateConfig]);
 
   // Mettre à jour l'URL d'une station
   const updateStationUrl = useCallback((blockId: string, name: string, streamUrl: string) => {
-    updateConfig((prev) => ({
-      ...prev,
-      desktops: prev.desktops.map(desktop => ({
-        ...desktop,
-        blocks: desktop.blocks.map((block) => {
-          if (block.id === blockId && block.type === 'station') {
-            return { ...block, name, streamUrl };
-          }
-          return block;
-        }),
-      })),
-    }));
+    updateConfig((prev) => updateBlockInConfig(prev, blockId, 'station', () => ({ name, streamUrl })));
   }, [updateConfig]);
 
   // Ajouter une todo
@@ -608,18 +541,7 @@ export function useConfig() {
 
   // Mettre à jour l'URL d'un flux RSS
   const updateRssFeedUrl = useCallback((blockId: string, feedUrl: string) => {
-    updateConfig((prev) => ({
-      ...prev,
-      desktops: prev.desktops.map(desktop => ({
-        ...desktop,
-        blocks: desktop.blocks.map((block) => {
-          if (block.id === blockId && block.type === 'rss') {
-            return { ...block, feedUrl };
-          }
-          return block;
-        }),
-      })),
-    }));
+    updateConfig((prev) => updateBlockInConfig(prev, blockId, 'rss', () => ({ feedUrl })));
   }, [updateConfig]);
 
   // Ajouter un bloc links
@@ -649,18 +571,7 @@ export function useConfig() {
 
   // Mettre à jour les liens d'un bloc links
   const updateLinks = useCallback((blockId: string, items: LinkItem[]) => {
-    updateConfig((prev) => ({
-      ...prev,
-      desktops: prev.desktops.map(desktop => ({
-        ...desktop,
-        blocks: desktop.blocks.map((block) => {
-          if (block.id === blockId && block.type === 'links') {
-            return { ...block, items };
-          }
-          return block;
-        }),
-      })),
-    }));
+    updateConfig((prev) => updateBlockInConfig(prev, blockId, 'links', () => ({ items })));
   }, [updateConfig]);
 
   // Theme

@@ -70,7 +70,7 @@ export function ClockBlock({ city, timezone, isDark = true, onUpdateCity }: Cloc
     >
       {(onFlip: () => void) => (
         <div className="h-full flex flex-col items-center justify-center">
-          <span className={`text-4xl font-light tracking-wider ${isDark ? 'text-neutral-300' : 'text-neutral-700'}`}>
+          <span className={`text-4xl font-light tracking-wider ${isDark ? 'text-neutral-200' : 'text-neutral-700'}`}>
             {formatTime()}
           </span>
           {city && (

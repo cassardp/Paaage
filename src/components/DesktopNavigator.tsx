@@ -48,24 +48,24 @@ export function DesktopNavigator({
                         className={`rounded-full transition-all cursor-pointer ${isLast
                                 ? // "+" dot for creating new desktop - always gray
                                 isDark
-                                    ? 'w-2 h-2 bg-neutral-600 hover:bg-neutral-500 hover:scale-125'
+                                    ? 'w-2 h-2 bg-neutral-500 hover:bg-neutral-400 hover:scale-125'
                                     : 'w-2 h-2 bg-neutral-400 hover:bg-neutral-500 hover:scale-125'
                                 : isCurrent
                                     ? // Current desktop - elongated, black/white if has content, gray if empty
                                     hasContent
                                         ? isDark
-                                            ? 'w-6 h-2 bg-neutral-300'
+                                            ? 'w-6 h-2 bg-neutral-200'
                                             : 'w-6 h-2 bg-neutral-900'
                                         : isDark
-                                            ? 'w-6 h-2 bg-neutral-600'
+                                            ? 'w-6 h-2 bg-neutral-500'
                                             : 'w-6 h-2 bg-neutral-400'
                                     : // Other desktops - black/white if has content, gray if empty
                                     hasContent
                                         ? isDark
-                                            ? 'w-2 h-2 bg-neutral-300 hover:bg-neutral-400 hover:scale-125'
-                                            : 'w-2 h-2 bg-neutral-900 hover:bg-neutral-800 hover:scale-125'
+                                            ? 'w-2 h-2 bg-neutral-200 hover:bg-neutral-400 hover:scale-125'
+                                            : 'w-2 h-2 bg-neutral-700 hover:bg-neutral-500 hover:scale-125'
                                         : isDark
-                                            ? 'w-2 h-2 bg-neutral-600 hover:bg-neutral-500 hover:scale-125'
+                                            ? 'w-2 h-2 bg-neutral-500 hover:bg-neutral-400 hover:scale-125'
                                             : 'w-2 h-2 bg-neutral-400 hover:bg-neutral-500 hover:scale-125'
                             }`}
                         title={isLast ? 'New desktop' : `Desktop ${index + 1}`}

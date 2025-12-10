@@ -80,7 +80,7 @@ export function NoteBlock({ blockId, content, title = 'Note', onUpdate, onUpdate
     setTimeout(() => textareaRef.current?.focus(), 0);
   };
 
-  const textClass = isDark ? 'text-neutral-300' : 'text-neutral-700';
+  const textClass = isDark ? 'text-neutral-200' : 'text-neutral-700';
   const mutedClass = isDark ? 'text-neutral-500' : 'text-neutral-400';
 
   const handleEditTitle = () => {
@@ -114,12 +114,12 @@ export function NoteBlock({ blockId, content, title = 'Note', onUpdate, onUpdate
           onKeyDown={handleTitleKeyDown}
           onBlur={handleSaveTitle}
           placeholder="Title"
-          className={`mb-2 bg-transparent border-none outline-none text-xs uppercase ${mutedClass}`}
+          className={`mb-2 bg-transparent border-none outline-none text-xs uppercase tracking-wide ${mutedClass}`}
         />
       ) : (
         <span
           onClick={handleEditTitle}
-          className={`text-xs ${mutedClass} mb-2 truncate cursor-pointer hover:underline uppercase`}
+          className={`text-xs ${mutedClass} mb-2 truncate cursor-pointer hover:underline uppercase tracking-wide`}
           title="Click to edit title"
         >
           {title}
@@ -134,7 +134,7 @@ export function NoteBlock({ blockId, content, title = 'Note', onUpdate, onUpdate
             onChange={(e) => setValue(e.target.value)}
             onBlur={handleBlur}
             className={`w-full h-full resize-none bg-transparent border-none outline-none text-sm
-                     ${isDark ? 'text-neutral-300 placeholder-neutral-500' : 'text-neutral-700 placeholder-neutral-400'}`}
+                     ${isDark ? 'text-neutral-200 placeholder-neutral-500' : 'text-neutral-700 placeholder-neutral-400'}`}
             placeholder="Write your note..."
           />
         ) : (

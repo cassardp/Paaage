@@ -123,7 +123,7 @@ export function SlashMenu({
     >
       <div 
         className={`w-80 rounded-lg border shadow-xl overflow-hidden ${
-          isDark ? 'bg-neutral-800 border-neutral-700' : 'bg-white border-neutral-200'
+          isDark ? 'bg-neutral-700 border-neutral-700' : 'bg-white border-neutral-200'
         }`}
         onClick={e => e.stopPropagation()}
       >
@@ -136,7 +136,7 @@ export function SlashMenu({
             onKeyDown={handleKeyDown}
             placeholder="Search for a block..."
             className={`w-full px-3 py-2 rounded text-sm bg-transparent border-none outline-none ${
-              isDark ? 'text-neutral-300 placeholder-neutral-500' : 'text-neutral-700 placeholder-neutral-400'
+              isDark ? 'text-neutral-200 placeholder-neutral-500' : 'text-neutral-700 placeholder-neutral-400'
             }`}
           />
         </div>
@@ -160,7 +160,7 @@ export function SlashMenu({
                 >
                   <Icon className={`w-4 h-4 shrink-0 ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`} />
                   <div>
-                    <p className={`text-sm font-medium ${isDark ? 'text-neutral-300' : 'text-neutral-700'}`}>
+                    <p className={`text-sm font-medium ${isDark ? 'text-neutral-200' : 'text-neutral-700'}`}>
                       {item.label}
                     </p>
                     <p className={`text-xs ${isDark ? 'text-neutral-500' : 'text-neutral-400'}`}>

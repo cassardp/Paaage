@@ -324,8 +324,8 @@ function AppContent() {
       {/* Modal QR Code */}
       {showQRModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowQRModal(false)}>
-          <div className={`p-6 rounded-lg border shadow-xl w-80 ${isDark ? 'bg-neutral-800 border-neutral-700' : 'bg-white border-neutral-200'}`} onClick={(e) => e.stopPropagation()}>
-            <h3 className={`text-lg font-semibold mb-4 text-center ${isDark ? 'text-neutral-300' : 'text-neutral-700'}`}>
+          <div className={`p-6 rounded-lg border shadow-xl w-80 ${isDark ? 'bg-neutral-700 border-neutral-700' : 'bg-white border-neutral-200'}`} onClick={(e) => e.stopPropagation()}>
+            <h3 className={`text-lg font-semibold mb-4 text-center ${isDark ? 'text-neutral-200' : 'text-neutral-700'}`}>
               Sync
             </h3>
             <div className="flex justify-center mb-4">

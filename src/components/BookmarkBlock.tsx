@@ -21,7 +21,7 @@ export function BookmarkBlock({ label, url, height, isDark = true, config }: Boo
       className="w-full h-full flex items-center justify-center group"
     >
       <span className={`font-medium truncate transition-colors ${textSize}
-                       ${isDark ? 'text-neutral-300 group-hover:text-[var(--accent-color)]' : 'text-neutral-700 group-hover:text-neutral-400'}`}>
+                       ${isDark ? 'text-neutral-200 group-hover:text-[var(--accent-color)]' : 'text-neutral-700 group-hover:text-neutral-500'}`}>
         {label}
       </span>
     </a>

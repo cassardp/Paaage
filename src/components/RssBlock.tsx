@@ -149,7 +149,7 @@ export function RssBlock({ feedUrl = 'https://news.ycombinator.com/rss', isDark 
             href={item.link}
             target={getLinkTarget(config)}
             rel="noopener noreferrer"
-            className={`block py-1.5 text-sm hover:underline ${isDark ? 'text-neutral-300 hover:text-neutral-400' : 'text-neutral-700 hover:text-neutral-500'} transition-colors`}
+            className={`block py-1.5 text-sm hover:underline ${isDark ? 'text-neutral-200 hover:text-neutral-400' : 'text-neutral-700 hover:text-neutral-500'} transition-colors`}
           >
             {item.title}
           </a>

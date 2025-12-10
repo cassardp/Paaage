@@ -216,7 +216,7 @@ export function LinksBlock({ blockId, items, width, height, onUpdate, isDark = t
   const mutedClass = isDark ? 'text-neutral-500' : 'text-neutral-400';
 
   // Actions (à la fin de la ligne/colonne)
-  const borderClass = isDark ? 'border-neutral-600' : 'border-neutral-200';
+  const borderClass = isDark ? 'border-neutral-700' : 'border-neutral-200';
   const actions = (
     <div className={`flex-shrink-0 flex items-center gap-1 ${borderClass} ${isHorizontal ? 'pl-6 border-l' : 'pt-2 mt-1 border-t'}`}>
       <button
@@ -254,8 +254,8 @@ export function LinksBlock({ blockId, items, width, height, onUpdate, isDark = t
         {items.map((item, index) => {
           const isItemDragging = dragIndex === index;
           const textClass = isDark 
-            ? `text-neutral-500 ${!isDragging ? 'hover:text-neutral-300' : ''}` 
-            : `text-neutral-600 ${!isDragging ? 'hover:text-neutral-400' : ''}`;
+            ? `text-neutral-500 ${!isDragging ? 'hover:text-neutral-200' : ''}` 
+            : `text-neutral-500 ${!isDragging ? 'hover:text-neutral-400' : ''}`;
           const mutedClass = isDark ? 'text-neutral-500' : 'text-neutral-400';
           
           return (

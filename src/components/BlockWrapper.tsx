@@ -11,9 +11,9 @@ interface BlockWrapperProps {
 export function BlockWrapper({ children, isDragging, isDark = true, compact = false, overflowVisible = false }: BlockWrapperProps) {
   const bgClass = isDark ? 'bg-neutral-900/50 backdrop-blur-sm' : 'bg-white/90 backdrop-blur-sm';
   const borderClass = isDark 
-    ? 'border-neutral-700 hover:border-neutral-600' 
-    : 'border-neutral-200 hover:border-neutral-300';
-  const textClass = isDark ? 'text-neutral-200' : 'text-neutral-800';
+    ? 'border-neutral-700 hover:border-neutral-500' 
+    : 'border-neutral-200 hover:border-neutral-400';
+  const textClass = isDark ? 'text-neutral-200' : 'text-neutral-700';
   const shadowClass = isDragging 
     ? (isDark ? 'shadow-2xl shadow-black/50' : 'shadow-2xl shadow-black/20') 
     : '';

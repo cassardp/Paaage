@@ -57,7 +57,7 @@ export function Toolbar({
 
   const fabClass = isDark
     ? 'bg-neutral-900/80 backdrop-blur-sm border-neutral-700 text-neutral-400 hover:text-neutral-100'
-    : 'bg-white/90 backdrop-blur-sm border-neutral-200 text-neutral-500 hover:text-neutral-900';
+    : 'bg-white/90 backdrop-blur-sm border-neutral-200 text-neutral-500 hover:text-neutral-700';
 
   const handleAddBlock = (type: 'search' | 'weather') => {
     onAddBlock(type);

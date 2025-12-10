@@ -361,7 +361,7 @@ export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, r
               <>
                 <button
                   className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-5 h-5 flex items-center justify-center rounded z-20 cursor-pointer
-                             opacity-0 group-hover:opacity-40 hover:!opacity-100 text-neutral-400 hover:text-neutral-600 transition-all"
+                             opacity-0 group-hover:opacity-40 hover:!opacity-100 text-neutral-400 hover:text-neutral-500 transition-all"
                   onClick={(e) => { e.stopPropagation(); onDeleteBlock(block.id); }}
                 >
                   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">

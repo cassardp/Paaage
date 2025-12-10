@@ -114,7 +114,7 @@ export function StockBlock({ symbol, isDark = true, width = 12, onUpdateSymbol }
             >
               {symbol}
             </p>
-            <p className={`text-xl font-medium ${isDark ? 'text-neutral-300' : 'text-neutral-700'}`}>
+            <p className={`text-xl font-medium ${isDark ? 'text-neutral-200' : 'text-neutral-700'}`}>
               ${stock.price.toFixed(2)}
             </p>
           </div>

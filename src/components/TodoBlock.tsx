@@ -77,7 +77,7 @@ export function TodoBlock({ blockId, items, title = 'Todo', onUpdate, onUpdateTi
     }
   };
 
-  const textClass = isDark ? 'text-neutral-300' : 'text-neutral-700';
+  const textClass = isDark ? 'text-neutral-200' : 'text-neutral-700';
   const mutedClass = isDark ? 'text-neutral-500' : 'text-neutral-400';
 
   const handleEditTitle = () => {
@@ -111,12 +111,12 @@ export function TodoBlock({ blockId, items, title = 'Todo', onUpdate, onUpdateTi
           onKeyDown={handleTitleKeyDown}
           onBlur={handleSaveTitle}
           placeholder="Title"
-          className={`mb-2 bg-transparent border-none outline-none text-xs uppercase ${mutedClass}`}
+          className={`mb-2 bg-transparent border-none outline-none text-xs uppercase tracking-wide ${mutedClass}`}
         />
       ) : (
         <span
           onClick={handleEditTitle}
-          className={`text-xs ${mutedClass} mb-2 truncate cursor-pointer hover:underline uppercase`}
+          className={`text-xs ${mutedClass} mb-2 truncate cursor-pointer hover:underline uppercase tracking-wide`}
           title="Click to edit title"
         >
           {title}
@@ -131,7 +131,7 @@ export function TodoBlock({ blockId, items, title = 'Todo', onUpdate, onUpdateTi
               checked={item.done}
               onChange={() => toggleItem(item.id)}
               className={`w-4 h-4 mt-0.5 rounded cursor-pointer flex-shrink-0 border ${isDark
-                ? 'checkbox-dark border-neutral-300'
+                ? 'checkbox-dark border-neutral-200'
                 : 'checkbox-light border-neutral-400'
                 }`}
             />
@@ -155,7 +155,7 @@ export function TodoBlock({ blockId, items, title = 'Todo', onUpdate, onUpdateTi
             )}
             <button
               onClick={() => removeItem(item.id)}
-              className={`opacity-0 group-hover/todo:opacity-100 p-0.5 cursor-pointer ${mutedClass} hover:text-neutral-600`}
+              className={`opacity-0 group-hover/todo:opacity-100 p-0.5 cursor-pointer ${mutedClass} hover:text-neutral-500`}
             >
               <X className="w-3 h-3" />
             </button>
@@ -173,7 +173,7 @@ export function TodoBlock({ blockId, items, title = 'Todo', onUpdate, onUpdateTi
           onKeyDown={handleKeyDown}
           placeholder="New task..."
           className={`flex-1 bg-transparent border-none outline-none text-sm
-            ${isDark ? 'text-neutral-300 placeholder-neutral-500' : 'text-neutral-700 placeholder-neutral-400'}`}
+            ${isDark ? 'text-neutral-200 placeholder-neutral-500' : 'text-neutral-700 placeholder-neutral-400'}`}
         />
         <button
           onClick={addItem}

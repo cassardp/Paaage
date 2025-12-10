@@ -16,15 +16,6 @@ A minimalist, drag-and-drop homepage builder.
 
 Paaage turns your new tab into a personalized command center. Drag blocks, drop them anywhere, make it yours.
 
-## Blocks
-
-| | | |
-|---|---|---|
-| **Links** | **Notes** | **Todos** |
-| **Bookmarks** | **RSS Feeds** | **Radio** |
-| **Weather** | **Stocks** | **Clocks** |
-| **Search** | | |
-
 ## Shortcuts
 
 ```

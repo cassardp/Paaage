@@ -49,7 +49,7 @@ export function DesktopTitle({ title, onUpdateTitle, isDark }: DesktopTitleProps
     if (isEditing) {
         return (
             <div
-                className="absolute z-0 left-1/2 -translate-x-1/2 pointer-events-auto"
+                className="absolute z-5 left-1/2 -translate-x-1/2"
                 style={{
                     top: `${CELL_SIZE}px`,
                     height: `${2 * CELL_SIZE}px`,
@@ -75,7 +75,7 @@ export function DesktopTitle({ title, onUpdateTitle, isDark }: DesktopTitleProps
 
     return (
         <div
-            className="absolute z-0 left-1/2 -translate-x-1/2 pointer-events-auto"
+            className="absolute z-5 left-1/2 -translate-x-1/2"
             style={{
                 top: `${CELL_SIZE}px`,
                 height: `${2 * CELL_SIZE}px`,

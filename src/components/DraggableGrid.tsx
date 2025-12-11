@@ -451,7 +451,7 @@ export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, r
           <div
             key={block.id}
             data-block
-            className={`absolute group ${isDragging ? 'z-50 opacity-90 cursor-grabbing' : 'z-0'} ${isBlockSelected ? 'cursor-grab active:cursor-grabbing' : ''}`}
+            className={`absolute group ${isDragging ? 'z-50 opacity-90 cursor-grabbing' : 'z-10'} ${isBlockSelected ? 'cursor-grab active:cursor-grabbing' : ''}`}
             style={{
               left: isDragging ? dragState.currentPxX : gridToPixel(block.layout.x),
               top: isDragging ? dragState.currentPxY : gridToPixel(block.layout.y),

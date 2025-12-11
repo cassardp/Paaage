@@ -305,7 +305,7 @@ function AppContent() {
 
           return (
             <div key={desktop.id} className="relative w-full h-full">
-              {!config.settings.hideDesktopTitles && (
+              {!config.settings.hideDesktopTitles && desktopBlocks.length > 0 && (
                 <DesktopTitle
                   title={desktop.title}
                   onUpdateTitle={(title) => updateDesktopTitle(desktop.id, title)}

@@ -123,7 +123,7 @@ export function SlashMenu({
     >
       <div 
         className={`w-80 rounded-lg border shadow-xl overflow-hidden ${
-          isDark ? 'bg-neutral-700 border-neutral-700' : 'bg-white border-neutral-200'
+          isDark ? 'bg-neutral-900/50 backdrop-blur-sm border-neutral-700' : 'bg-white/90 backdrop-blur-sm border-neutral-200'
         }`}
         onClick={e => e.stopPropagation()}
       >
@@ -154,7 +154,7 @@ export function SlashMenu({
                   onClick={() => { item.action(); setIsOpen(false); }}
                   className={`w-full flex items-center gap-3 px-3 py-2 rounded text-left cursor-pointer transition-colors ${
                     index === selectedIndex
-                      ? isDark ? 'bg-neutral-700' : 'bg-neutral-100'
+                      ? isDark ? 'bg-neutral-700/50' : 'bg-neutral-100'
                       : ''
                   } ${isDark ? 'hover:bg-neutral-700' : 'hover:bg-neutral-100'}`}
                 >

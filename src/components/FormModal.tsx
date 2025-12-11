@@ -42,7 +42,7 @@ export function FormModal({
             onClick={onClose}
         >
             <div
-                className={`rounded-xl shadow-2xl w-80 overflow-hidden ${isDark ? 'bg-neutral-900/80 backdrop-blur-xl' : 'bg-white/90 backdrop-blur-xl'}`}
+                className={`rounded-xl shadow-2xl w-80 overflow-hidden ${isDark ? 'bg-neutral-900/50 backdrop-blur-sm' : 'bg-white/90 backdrop-blur-sm'}`}
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header - only show if title is provided */}

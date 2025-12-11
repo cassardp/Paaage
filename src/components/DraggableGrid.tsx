@@ -9,7 +9,7 @@ import { useSelection } from '../contexts/SelectionContext';
 const BLOCK_SIZE_LIMITS: Record<string, { minW: number; minH: number; maxW: number; maxH: number }> = {
   search: { minW: 20, minH: 4, maxW: 60, maxH: 4 },
   bookmark: { minW: 4, minH: 2, maxW: 20, maxH: 4 },
-  note: { minW: 4, minH: 1, maxW: 40, maxH: 40 },
+  note: { minW: 4, minH: 1, maxW: 1000, maxH: 1000 },
   station: { minW: 6, minH: 2, maxW: 20, maxH: 4 },
   weather: { minW: 6, minH: 5, maxW: 25, maxH: 8 },
   stock: { minW: 6, minH: 5, maxW: 20, maxH: 6 },
@@ -18,7 +18,7 @@ const BLOCK_SIZE_LIMITS: Record<string, { minW: number; minH: number; maxW: numb
   links: { minW: 4, minH: 2, maxW: 100, maxH: 100 },
   rss: { minW: 10, minH: 5, maxW: 40, maxH: 100 },
   settings: { minW: 10, minH: 10, maxW: 30, maxH: 40 },
-  text: { minW: 4, minH: 2, maxW: 40, maxH: 20 },
+  text: { minW: 4, minH: 2, maxW: 1000, maxH: 1000 },
   default: { minW: 4, minH: 2, maxW: 40, maxH: 30 },
 };
 

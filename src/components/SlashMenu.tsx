@@ -46,6 +46,7 @@ export function SlashMenu({
   const [filter, setFilter] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   const allItems: SlashMenuItem[] = [
     ...(!hasSearchBlock ? [{ id: 'search', icon: Search, label: 'Search', description: 'Search bar', action: onAddSearch }] : []),
@@ -100,6 +101,16 @@ export function SlashMenu({
     setSelectedIndex(0);
   }, [filter]);
 
+  // Scroll vers l'élément sélectionné
+  useEffect(() => {
+    const container = listRef.current;
+    if (!container) return;
+    const selected = container.querySelector(`[data-index="${selectedIndex}"]`) as HTMLElement;
+    if (selected) {
+      selected.scrollIntoView({ block: 'nearest' });
+    }
+  }, [selectedIndex]);
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
@@ -140,7 +151,7 @@ export function SlashMenu({
             }`}
           />
         </div>
-        <div className="max-h-64 overflow-auto p-1">
+        <div ref={listRef} className="max-h-64 overflow-auto p-1">
           {filteredItems.length === 0 ? (
             <p className={`px-3 py-2 text-sm ${isDark ? 'text-neutral-500' : 'text-neutral-400'}`}>
               No results
@@ -151,12 +162,14 @@ export function SlashMenu({
               return (
                 <button
                   key={item.id}
+                  data-index={index}
                   onClick={() => { item.action(); setIsOpen(false); }}
+                  onMouseEnter={() => setSelectedIndex(index)}
                   className={`w-full flex items-center gap-3 px-3 py-2 rounded text-left cursor-pointer transition-colors ${
                     index === selectedIndex
-                      ? isDark ? 'bg-neutral-700/50' : 'bg-neutral-100'
+                      ? isDark ? 'bg-neutral-700/50' : 'bg-neutral-200'
                       : ''
-                  } ${isDark ? 'hover:bg-neutral-700' : 'hover:bg-neutral-100'}`}
+                  }`}
                 >
                   <Icon className={`w-4 h-4 shrink-0 ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`} />
                   <div>

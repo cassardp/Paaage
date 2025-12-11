@@ -11,11 +11,12 @@ export const DEFAULT_CONFIG: Config = {
     searchEngine: 'https://www.google.com/search?q=',
     linkTarget: '_blank',
   },
-  currentDesktopId: 'main',
+  currentDesktopId: 'desktop-1',
   desktops: [
     {
-      id: 'main',
-      name: 'Main',
+      id: 'desktop-1',
+      name: 'Desktop 1',
+      title: 'Desktop 1',
       blocks: [
         { id: 'o0wq8gm', type: 'note', content: 'iPhone app coming soon !', title: 'Soon', layout: { x: 49, y: 38, w: 20, h: 5 } },
         { id: 'k0nmq2x', type: 'note', content: 'Shift L  -> lock\nShift M -> mask\nShift U  -> undo', title: 'Shortcuts', layout: { x: 27, y: 30, w: 12, h: 8 } },

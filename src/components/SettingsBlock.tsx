@@ -14,6 +14,7 @@ interface SettingsBlockProps {
   onToggleDragLock: () => void;
   onToggleNotesHidden: () => void;
   onToggleGridLines: () => void;
+  onToggleDesktopTitles: () => void;
   onImport: (config: Config) => void;
   onShowQRModal: () => void;
 }
@@ -23,35 +24,33 @@ function Toggle({ enabled, onChange, isDark }: { enabled: boolean; onChange: () 
   return (
     <button
       onClick={onChange}
-      className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors cursor-pointer ${
-        enabled
-          ? isDark ? 'bg-neutral-400' : 'bg-[var(--accent-color)]'
-          : isDark ? 'bg-neutral-700' : 'bg-neutral-300'
-      }`}
+      className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors cursor-pointer ${enabled
+        ? isDark ? 'bg-neutral-400' : 'bg-[var(--accent-color)]'
+        : isDark ? 'bg-neutral-700' : 'bg-neutral-300'
+        }`}
     >
       <span
-        className={`inline-block h-3.5 w-3.5 transform rounded-full transition-transform ${
-          enabled ? 'translate-x-[18px]' : 'translate-x-1'
-        } ${isDark ? 'bg-neutral-200' : 'bg-white'}`}
+        className={`inline-block h-3.5 w-3.5 transform rounded-full transition-transform ${enabled ? 'translate-x-[18px]' : 'translate-x-1'
+          } ${isDark ? 'bg-neutral-200' : 'bg-white'}`}
       />
     </button>
   );
 }
 
 // Setting row component
-function SettingRow({ 
-  label, 
-  description, 
+function SettingRow({
+  label,
+  description,
   shortcut,
-  enabled, 
-  onChange, 
-  isDark 
-}: { 
-  label: string; 
-  description: string; 
+  enabled,
+  onChange,
+  isDark
+}: {
+  label: string;
+  description: string;
   shortcut?: string;
-  enabled: boolean; 
-  onChange: () => void; 
+  enabled: boolean;
+  onChange: () => void;
   isDark: boolean;
 }) {
   return (
@@ -64,11 +63,10 @@ function SettingRow({
           {description}
         </p>
         {shortcut && (
-          <kbd className={`mt-1 inline-block px-1.5 py-0.5 text-[10px] font-mono rounded ${
-            isDark 
-              ? 'bg-neutral-700 text-neutral-400 border border-neutral-700' 
-              : 'bg-neutral-100 text-neutral-500 border border-neutral-200'
-          }`}>
+          <kbd className={`mt-1 inline-block px-1.5 py-0.5 text-[10px] font-mono rounded ${isDark
+            ? 'bg-neutral-700 text-neutral-400 border border-neutral-700'
+            : 'bg-neutral-100 text-neutral-500 border border-neutral-200'
+            }`}>
             {shortcut}
           </kbd>
         )}
@@ -89,6 +87,7 @@ export function SettingsBlock({
   onToggleDragLock,
   onToggleNotesHidden,
   onToggleGridLines,
+  onToggleDesktopTitles,
   onImport,
   onShowQRModal,
 }: SettingsBlockProps) {
@@ -110,11 +109,10 @@ export function SettingsBlock({
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const buttonClass = `flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
-    isDark
-      ? 'bg-neutral-700 hover:bg-neutral-500 text-neutral-200'
-      : 'bg-neutral-200 hover:bg-neutral-400 text-neutral-500'
-  }`;
+  const buttonClass = `flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer ${isDark
+    ? 'bg-neutral-700 hover:bg-neutral-500 text-neutral-200'
+    : 'bg-neutral-200 hover:bg-neutral-400 text-neutral-500'
+    }`;
 
   return (
     <div className="h-full flex flex-col overflow-auto">
@@ -155,6 +153,15 @@ export function SettingsBlock({
           shortcut="Shift + G"
           enabled={config.settings.hideGridLines ?? false}
           onChange={onToggleGridLines}
+          isDark={isDark}
+        />
+
+        <SettingRow
+          label="Hide titles"
+          description="Hide desktop titles"
+          shortcut="Shift + T"
+          enabled={config.settings.hideDesktopTitles ?? false}
+          onChange={onToggleDesktopTitles}
           isDark={isDark}
         />
 

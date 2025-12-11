@@ -12,6 +12,7 @@ import { Toolbar } from './components/Toolbar';
 import { SlashMenu } from './components/SlashMenu';
 import { DesktopNavigator } from './components/DesktopNavigator';
 import { DesktopCarousel } from './components/DesktopCarousel';
+import { DesktopTitle } from './components/DesktopTitle';
 import { DragOverlay } from './components/DragOverlay';
 import { CrossDesktopDragProvider, useCrossDesktopDrag } from './contexts/CrossDesktopDragContext';
 import { SelectionProvider, useSelection } from './contexts/SelectionContext';
@@ -71,6 +72,8 @@ function AppContent() {
     toggleTheme,
     toggleLinkTarget,
     toggleGridLines,
+    toggleDesktopTitles,
+    updateDesktopTitle,
     undo,
   } = useConfig();
 
@@ -80,7 +83,7 @@ function AppContent() {
   useEffect(() => {
     const isDarkTheme = config.settings.theme === 'dark';
     const themeColor = isDarkTheme ? '#0a0a0a' : '#ffffff';
-    
+
     // Mettre à jour la balise meta theme-color
     let meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null;
     if (!meta) {
@@ -89,7 +92,7 @@ function AppContent() {
       document.head.appendChild(meta);
     }
     meta.content = themeColor;
-    
+
     // Mettre à jour le background du body (Safari utilise ça pour la barre d'adresse)
     document.body.style.backgroundColor = themeColor;
   }, [config.settings.theme]);
@@ -123,6 +126,7 @@ function AppContent() {
     onToggleLock: toggleLock,
     onToggleHidden: toggleHidden,
     onToggleGrid: toggleGridLines,
+    onToggleDesktopTitles: toggleDesktopTitles,
     onUndo: undo,
     onNavigateLeft: navigateLeft,
     onNavigateRight: navigateRight
@@ -140,7 +144,7 @@ function AppContent() {
 
   // Gestion du drop cross-desktop
   const currentDesktopIndex = config.desktops.findIndex(d => d.id === config.currentDesktopId);
-  
+
   useEffect(() => {
     if (!crossDragState) return;
 
@@ -237,6 +241,7 @@ function AppContent() {
       onToggleDragLock={() => setDragLocked(!dragLocked)}
       onToggleNotesHidden={() => setNotesHidden(!notesHidden)}
       onToggleGridLines={toggleGridLines}
+      onToggleDesktopTitles={toggleDesktopTitles}
       onImport={setConfig}
       onShowQRModal={() => setShowQRModal(true)}
     />
@@ -297,19 +302,27 @@ function AppContent() {
           const desktopBlocks = notesHidden
             ? desktop.blocks.filter(b => b.type === 'search' || b.type === 'bookmark' || b.type === 'settings')
             : desktop.blocks;
-          
+
           return (
-            <DraggableGrid
-              key={desktop.id}
-              blocks={desktopBlocks}
-              desktopId={desktop.id}
-              onMoveBlock={moveBlock}
-              onDeleteBlock={deleteBlock}
-              renderBlock={renderBlock}
-              isDark={isDark}
-              dragLocked={dragLocked}
-              hideGridLines={config.settings.hideGridLines}
-            />
+            <div key={desktop.id} className="relative w-full h-full">
+              {!config.settings.hideDesktopTitles && (
+                <DesktopTitle
+                  title={desktop.title}
+                  onUpdateTitle={(title) => updateDesktopTitle(desktop.id, title)}
+                  isDark={isDark}
+                />
+              )}
+              <DraggableGrid
+                blocks={desktopBlocks}
+                desktopId={desktop.id}
+                onMoveBlock={moveBlock}
+                onDeleteBlock={deleteBlock}
+                renderBlock={renderBlock}
+                isDark={isDark}
+                dragLocked={dragLocked}
+                hideGridLines={config.settings.hideGridLines}
+              />
+            </div>
           );
         })}
       </DesktopCarousel>

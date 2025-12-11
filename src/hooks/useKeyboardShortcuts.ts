@@ -4,6 +4,7 @@ interface KeyboardShortcutsProps {
   onToggleLock: () => void;
   onToggleHidden: () => void;
   onToggleGrid: () => void;
+  onToggleDesktopTitles: () => void;
   onUndo: () => void;
   onNavigateLeft?: () => void;
   onNavigateRight?: () => void;
@@ -13,6 +14,7 @@ export function useKeyboardShortcuts({
   onToggleLock,
   onToggleHidden,
   onToggleGrid,
+  onToggleDesktopTitles,
   onUndo,
   onNavigateLeft,
   onNavigateRight
@@ -31,6 +33,9 @@ export function useKeyboardShortcuts({
       } else if (e.shiftKey && e.key.toLowerCase() === 'g') {
         e.preventDefault();
         onToggleGrid();
+      } else if (e.shiftKey && e.key.toLowerCase() === 't') {
+        e.preventDefault();
+        onToggleDesktopTitles();
       } else if (e.shiftKey && e.key.toLowerCase() === 'u') {
         e.preventDefault();
         onUndo();
@@ -45,5 +50,5 @@ export function useKeyboardShortcuts({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onToggleLock, onToggleHidden, onToggleGrid, onUndo, onNavigateLeft, onNavigateRight]);
+  }, [onToggleLock, onToggleHidden, onToggleGrid, onToggleDesktopTitles, onUndo, onNavigateLeft, onNavigateRight]);
 }

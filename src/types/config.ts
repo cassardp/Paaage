@@ -89,6 +89,7 @@ export type Block = SearchBlock | WeatherBlock | BookmarkBlock | NoteBlock | Sta
 export interface Desktop {
   id: string;
   name: string;
+  title?: string;
   blocks: Block[];
 }
 
@@ -97,6 +98,7 @@ export interface Settings {
   searchEngine: string;
   linkTarget: '_blank' | '_self';
   hideGridLines?: boolean;
+  hideDesktopTitles?: boolean;
 }
 
 export interface Config {

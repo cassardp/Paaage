@@ -37,6 +37,7 @@ interface BlockContentProps {
   onToggleDragLock?: () => void;
   onToggleNotesHidden?: () => void;
   onToggleGridLines?: () => void;
+  onToggleDesktopTitles?: () => void;
   onImport?: (config: Config) => void;
   onShowQRModal?: () => void;
 }
@@ -67,6 +68,7 @@ export function BlockContent({
   onToggleDragLock,
   onToggleNotesHidden,
   onToggleGridLines,
+  onToggleDesktopTitles,
   onImport,
   onShowQRModal,
 }: BlockContentProps) {
@@ -127,6 +129,7 @@ export function BlockContent({
           onToggleDragLock={onToggleDragLock!}
           onToggleNotesHidden={onToggleNotesHidden!}
           onToggleGridLines={onToggleGridLines!}
+          onToggleDesktopTitles={onToggleDesktopTitles!}
           onImport={onImport!}
           onShowQRModal={onShowQRModal!}
         />

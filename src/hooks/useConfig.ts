@@ -80,7 +80,7 @@ export function useConfig() {
 
   // Migrer la config si nécessaire
   const migratedConfig = migrateToDesktops(rawConfig);
-  
+
   // currentDesktopId est géré localement (toujours démarrer sur le premier desktop)
   const [currentDesktopId, setCurrentDesktopId] = useState<string>(
     migratedConfig.desktops[0]?.id || 'main'
@@ -446,11 +446,11 @@ export function useConfig() {
       } else {
         // Ajouter le bloc settings
         const id = generateId();
-        const pos = getCenteredPosition(19, 30);
+        const pos = getCenteredPosition(20, 35);
         const newBlock: Block = {
           id,
           type: 'settings',
-          layout: { ...pos, w: 19, h: 30 }
+          layout: { ...pos, w: 20, h: 35 }
         };
         return {
           ...prev,
@@ -502,6 +502,29 @@ export function useConfig() {
     }));
   }, [updateConfig]);
 
+  // Update Desktop Title
+  const updateDesktopTitle = useCallback((desktopId: string, title: string) => {
+    updateConfig((prev) => ({
+      ...prev,
+      desktops: prev.desktops.map(desktop =>
+        desktop.id === desktopId
+          ? { ...desktop, title }
+          : desktop
+      ),
+    }));
+  }, [updateConfig]);
+
+  // Toggle Desktop Titles
+  const toggleDesktopTitles = useCallback(() => {
+    updateConfig((prev) => ({
+      ...prev,
+      settings: {
+        ...prev.settings,
+        hideDesktopTitles: !prev.settings.hideDesktopTitles,
+      },
+    }));
+  }, [updateConfig]);
+
   return {
     config,
     isLoading,
@@ -537,6 +560,8 @@ export function useConfig() {
     toggleTheme,
     toggleLinkTarget,
     toggleGridLines,
+    toggleDesktopTitles,
+    updateDesktopTitle,
     undo,
     canUndo: historyRef.current.length > 0,
   };

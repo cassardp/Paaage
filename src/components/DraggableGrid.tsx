@@ -13,7 +13,7 @@ const BLOCK_SIZE_LIMITS: Record<string, { minW: number; minH: number; maxW: numb
   station: { minW: 6, minH: 2, maxW: 20, maxH: 4 },
   weather: { minW: 6, minH: 5, maxW: 25, maxH: 8 },
   stock: { minW: 6, minH: 5, maxW: 20, maxH: 6 },
-  todo: { minW: 8, minH: 4, maxW: 30, maxH: 40 },
+  todo: { minW: 8, minH: 4, maxW: 30, maxH: 1000 },
   clock: { minW: 9, minH: 6, maxW: 20, maxH: 6 },
   links: { minW: 4, minH: 2, maxW: 100, maxH: 100 },
   rss: { minW: 10, minH: 5, maxW: 40, maxH: 100 },

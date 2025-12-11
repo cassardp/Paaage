@@ -10,6 +10,7 @@ import { ClockBlock } from './ClockBlock';
 import { RssBlock } from './RssBlock';
 import { LinksBlock } from './LinksBlock';
 import { SettingsBlock } from './SettingsBlock';
+import { TextBlock } from './TextBlock';
 
 interface BlockContentProps {
   block: Block;
@@ -24,6 +25,7 @@ interface BlockContentProps {
   onUpdateStationUrl: (blockId: string, name: string, streamUrl: string) => void;
   onUpdateRssFeedUrl: (blockId: string, feedUrl: string) => void;
   onUpdateLinks: (blockId: string, items: LinkItem[]) => void;
+  onUpdateText: (blockId: string, content: string) => void;
   isDark?: boolean;
   focusedNoteId?: string | null;
   onNoteFocused?: () => void;
@@ -40,6 +42,10 @@ interface BlockContentProps {
   onToggleDesktopTitles?: () => void;
   onImport?: (config: Config) => void;
   onShowQRModal?: () => void;
+  // Interaction states for text blocks
+  isDragging?: boolean;
+  isGrabHovering?: boolean;
+  isSelected?: boolean;
 }
 
 export function BlockContent({
@@ -55,6 +61,7 @@ export function BlockContent({
   onUpdateStationUrl,
   onUpdateRssFeedUrl,
   onUpdateLinks,
+  onUpdateText,
   isDark = true,
   focusedNoteId,
   onNoteFocused,
@@ -71,6 +78,10 @@ export function BlockContent({
   onToggleDesktopTitles,
   onImport,
   onShowQRModal,
+  // Interaction states
+  isDragging = false,
+  isGrabHovering = false,
+  isSelected = false,
 }: BlockContentProps) {
   switch (block.type) {
     case 'search':
@@ -134,6 +145,9 @@ export function BlockContent({
           onShowQRModal={onShowQRModal!}
         />
       );
+
+    case 'text':
+      return <TextBlock blockId={block.id} content={block.content} onUpdate={onUpdateText} isDark={isDark} isDragging={isDragging} isGrabHovering={isGrabHovering} isSelected={isSelected} config={config} />;
 
     default:
       return null;

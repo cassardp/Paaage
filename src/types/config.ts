@@ -84,7 +84,12 @@ export interface SettingsBlock extends BaseBlock {
   type: 'settings';
 }
 
-export type Block = SearchBlock | WeatherBlock | BookmarkBlock | NoteBlock | StationBlock | StockBlock | TodoBlock | ClockBlock | RssBlock | LinksBlock | SettingsBlock;
+export interface TextBlock extends BaseBlock {
+  type: 'text';
+  content: string;
+}
+
+export type Block = SearchBlock | WeatherBlock | BookmarkBlock | NoteBlock | StationBlock | StockBlock | TodoBlock | ClockBlock | RssBlock | LinksBlock | SettingsBlock | TextBlock;
 
 export interface Desktop {
   id: string;

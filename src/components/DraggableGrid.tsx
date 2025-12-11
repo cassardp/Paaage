@@ -18,6 +18,7 @@ const BLOCK_SIZE_LIMITS: Record<string, { minW: number; minH: number; maxW: numb
   links: { minW: 4, minH: 2, maxW: 100, maxH: 100 },
   rss: { minW: 10, minH: 5, maxW: 40, maxH: 100 },
   settings: { minW: 10, minH: 10, maxW: 30, maxH: 40 },
+  text: { minW: 4, minH: 2, maxW: 40, maxH: 20 },
   default: { minW: 4, minH: 2, maxW: 40, maxH: 30 },
 };
 

@@ -427,6 +427,25 @@ export function useConfig() {
     addBlockToCurrentDesktop(newBlock);
   }, [addBlockToCurrentDesktop]);
 
+  // Ajouter un bloc text
+  const addText = useCallback(() => {
+    const id = generateId();
+    const pos = getCenteredPosition(20, 6);
+    const newBlock: Block = {
+      id,
+      type: 'text',
+      content: '',
+      layout: { ...pos, w: 20, h: 6 }
+    };
+
+    addBlockToCurrentDesktop(newBlock);
+  }, [addBlockToCurrentDesktop]);
+
+  // Mettre à jour le contenu d'un bloc text
+  const updateText = useCallback((blockId: string, content: string) => {
+    updateConfig((prev) => updateBlockInConfig(prev, blockId, 'text', () => ({ content })));
+  }, [updateConfig]);
+
   // Toggle bloc settings (ajoute ou supprime)
   const addSettings = useCallback(() => {
     updateConfig((prev) => {
@@ -556,6 +575,8 @@ export function useConfig() {
     updateRssFeedUrl,
     addLinks,
     updateLinks,
+    addText,
+    updateText,
     addSettings,
     toggleTheme,
     toggleLinkTarget,

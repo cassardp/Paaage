@@ -16,7 +16,9 @@ export function DesktopTitle({ title, onUpdateTitle, isDark }: DesktopTitleProps
     useEffect(() => {
         if (isEditing && inputRef.current) {
             inputRef.current.focus();
-            inputRef.current.select();
+            // Place cursor at end of text instead of selecting all
+            const length = inputRef.current.value.length;
+            inputRef.current.setSelectionRange(length, length);
         }
     }, [isEditing]);
 

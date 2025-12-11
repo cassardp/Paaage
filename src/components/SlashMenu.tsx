@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, ListTodo, Clock, Rss, Link2, Settings } from 'lucide-react';
+import { Search, CloudSun, Bookmark, FileText, Headphones, TrendingUp, ListTodo, Clock, Rss, Link2, Settings, Type } from 'lucide-react';
 
 interface SlashMenuItem {
   id: string;
@@ -20,6 +20,7 @@ interface SlashMenuProps {
   onAddClock: () => void;
   onAddRss: () => void;
   onAddLinks: () => void;
+  onAddText: () => void;
   onAddSettings: () => void;
   hasSearchBlock: boolean;
   hasSettingsBlock: boolean;
@@ -37,6 +38,7 @@ export function SlashMenu({
   onAddClock,
   onAddRss,
   onAddLinks,
+  onAddText,
   onAddSettings,
   hasSearchBlock,
   hasSettingsBlock,
@@ -59,6 +61,7 @@ export function SlashMenu({
     { id: 'clock', icon: Clock, label: 'Clock', description: 'City time', action: onAddClock },
     { id: 'rss', icon: Rss, label: 'RSS', description: 'Custom RSS feed', action: onAddRss },
     { id: 'links', icon: Link2, label: 'Links', description: 'Link list with import', action: onAddLinks },
+    { id: 'text', icon: Type, label: 'Text', description: 'Transparent text block', action: onAddText },
     ...(!hasSettingsBlock ? [{ id: 'settings', icon: Settings, label: 'Settings', description: 'App settings', action: onAddSettings }] : []),
   ];
 
@@ -128,14 +131,13 @@ export function SlashMenu({
   if (!isOpen) return null;
 
   return (
-    <div 
+    <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
       onClick={() => setIsOpen(false)}
     >
-      <div 
-        className={`w-80 rounded-lg border shadow-xl overflow-hidden ${
-          isDark ? 'bg-neutral-900/50 backdrop-blur-sm border-neutral-700' : 'bg-white/90 backdrop-blur-sm border-neutral-200'
-        }`}
+      <div
+        className={`w-80 rounded-lg border shadow-xl overflow-hidden ${isDark ? 'bg-neutral-900/50 backdrop-blur-sm border-neutral-700' : 'bg-white/90 backdrop-blur-sm border-neutral-200'
+          }`}
         onClick={e => e.stopPropagation()}
       >
         <div className="p-2 border-b border-neutral-700/30">
@@ -146,9 +148,8 @@ export function SlashMenu({
             onChange={e => setFilter(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Search for a block..."
-            className={`w-full px-3 py-2 rounded text-sm bg-transparent border-none outline-none ${
-              isDark ? 'text-neutral-200 placeholder-neutral-500' : 'text-neutral-700 placeholder-neutral-400'
-            }`}
+            className={`w-full px-3 py-2 rounded text-sm bg-transparent border-none outline-none ${isDark ? 'text-neutral-200 placeholder-neutral-500' : 'text-neutral-700 placeholder-neutral-400'
+              }`}
           />
         </div>
         <div ref={listRef} className="max-h-64 overflow-auto p-1">
@@ -165,11 +166,10 @@ export function SlashMenu({
                   data-index={index}
                   onClick={() => { item.action(); setIsOpen(false); }}
                   onMouseEnter={() => setSelectedIndex(index)}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded text-left cursor-pointer transition-colors ${
-                    index === selectedIndex
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded text-left cursor-pointer transition-colors ${index === selectedIndex
                       ? isDark ? 'bg-neutral-700/50' : 'bg-neutral-200'
                       : ''
-                  }`}
+                    }`}
                 >
                   <Icon className={`w-4 h-4 shrink-0 ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`} />
                   <div>

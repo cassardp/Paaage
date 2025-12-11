@@ -68,6 +68,8 @@ function AppContent() {
     updateRssFeedUrl,
     addLinks,
     updateLinks,
+    addText,
+    updateText,
     addSettings,
     toggleTheme,
     toggleLinkTarget,
@@ -228,6 +230,7 @@ function AppContent() {
       onUpdateStationUrl={updateStationUrl}
       onUpdateRssFeedUrl={updateRssFeedUrl}
       onUpdateLinks={updateLinks}
+      onUpdateText={updateText}
       isDark={isDark}
       focusedNoteId={focusedNoteId}
       onNoteFocused={() => setFocusedNoteId(null)}
@@ -247,7 +250,35 @@ function AppContent() {
     />
   );
 
+
+
   const renderBlock = (block: Block, isDragging: boolean, isGrabHovering: boolean = false, isSelected: boolean = false) => {
+    // Text blocks handle their own wrapper based on interaction state
+    if (block.type === 'text') {
+      return (
+        <BlockContent
+          block={block}
+          searchEngine={config.settings.searchEngine}
+          onUpdateNote={updateNote}
+          onUpdateNoteTitle={updateNoteTitle}
+          onUpdateTodo={updateTodo}
+          onUpdateTodoTitle={updateTodoTitle}
+          onUpdateWeatherCity={updateWeatherCity}
+          onUpdateClockCity={updateClockCity}
+          onUpdateStockSymbol={updateStockSymbol}
+          onUpdateStationUrl={updateStationUrl}
+          onUpdateRssFeedUrl={updateRssFeedUrl}
+          onUpdateLinks={updateLinks}
+          onUpdateText={updateText}
+          isDark={isDark}
+          config={config}
+          isDragging={isDragging}
+          isGrabHovering={isGrabHovering}
+          isSelected={isSelected}
+        />
+      );
+    }
+
     const isCompact = block.layout.h <= 2 || (block.type === 'links' && block.layout.w > block.layout.h * 2);
     return (
       <BlockWrapper isDragging={isDragging} isGrabHovering={isGrabHovering} isDark={isDark} compact={isCompact} isSelected={isSelected}>
@@ -286,6 +317,7 @@ function AppContent() {
         onAddTodo={addTodo}
         onAddClock={addClock}
         onAddRss={addRss}
+        onAddText={addText}
         onAddSettings={addSettings}
         showBookmarkForm={showBookmarkModal}
         onShowBookmarkForm={setShowBookmarkModal}
@@ -337,6 +369,7 @@ function AppContent() {
         onAddClock={addClock}
         onAddRss={addRss}
         onAddLinks={addLinks}
+        onAddText={addText}
         onAddSettings={addSettings}
         hasSearchBlock={currentDesktop.blocks.some(b => b.type === 'search')}
         hasSettingsBlock={currentDesktop.blocks.some(b => b.type === 'settings')}

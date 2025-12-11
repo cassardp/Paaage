@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, CloudSun, Bookmark, StickyNote, Music, TrendingUp, ListTodo, Clock, Rss, Settings2, Lock, EyeOff } from 'lucide-react';
+import { Plus, Search, CloudSun, Bookmark, StickyNote, Music, TrendingUp, ListTodo, Clock, Rss, Settings2, Lock, EyeOff, Type } from 'lucide-react';
 import { Tooltip } from './Tooltip';
 import { FormModal } from './FormModal';
 
@@ -15,6 +15,7 @@ interface ToolbarProps {
   onAddTodo: () => void;
   onAddClock: () => void;
   onAddRss: () => void;
+  onAddText: () => void;
   onAddSettings: () => void;
   showBookmarkForm?: boolean;
   onShowBookmarkForm?: (show: boolean) => void;
@@ -34,6 +35,7 @@ export function Toolbar({
   onAddTodo,
   onAddClock,
   onAddRss,
+  onAddText,
   onAddSettings,
   showBookmarkForm: externalShowBookmark,
   onShowBookmarkForm,
@@ -98,6 +100,7 @@ export function Toolbar({
     { icon: ListTodo, action: () => { onAddTodo(); setIsHovered(false); }, label: 'Todo' },
     { icon: Clock, action: () => { onAddClock(); setIsHovered(false); }, label: 'Clock' },
     { icon: Rss, action: () => { onAddRss(); setIsHovered(false); }, label: 'RSS' },
+    { icon: Type, action: () => { onAddText(); setIsHovered(false); }, label: 'Text' },
   ];
 
   const radius = 90;

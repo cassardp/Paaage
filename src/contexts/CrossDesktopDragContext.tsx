@@ -1,6 +1,15 @@
 import { createContext, useContext, useState, useCallback, useRef, type ReactNode } from 'react';
 import type { Block } from '../types/config';
 
+export interface BlockDragInfo {
+  block: Block;
+  // Offset relatif au block principal (0,0 pour le block principal)
+  relativeX: number;
+  relativeY: number;
+  width: number;
+  height: number;
+}
+
 interface DragState {
   block: Block;
   sourceDesktopId: string;
@@ -13,6 +22,8 @@ interface DragState {
   // Dimensions du bloc en pixels
   width: number;
   height: number;
+  // Blocks additionnels sélectionnés (pour multi-drag)
+  additionalBlocks: BlockDragInfo[];
 }
 
 interface CrossDesktopDragContextType {
@@ -25,7 +36,8 @@ interface CrossDesktopDragContextType {
     offsetX: number,
     offsetY: number,
     width: number,
-    height: number
+    height: number,
+    additionalBlocks?: BlockDragInfo[]
   ) => void;
   updateDragPosition: (clientX: number, clientY: number) => void;
   endCrossDrag: () => DragState | null;
@@ -47,7 +59,8 @@ export function CrossDesktopDragProvider({ children }: { children: ReactNode }) 
     offsetX: number,
     offsetY: number,
     width: number,
-    height: number
+    height: number,
+    additionalBlocks: BlockDragInfo[] = []
   ) => {
     setDragState({
       block,
@@ -58,6 +71,7 @@ export function CrossDesktopDragProvider({ children }: { children: ReactNode }) 
       offsetY,
       width,
       height,
+      additionalBlocks,
     });
   }, []);
 

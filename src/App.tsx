@@ -14,6 +14,7 @@ import { DesktopNavigator } from './components/DesktopNavigator';
 import { DesktopCarousel } from './components/DesktopCarousel';
 import { DragOverlay } from './components/DragOverlay';
 import { CrossDesktopDragProvider, useCrossDesktopDrag } from './contexts/CrossDesktopDragContext';
+import { SelectionProvider, useSelection } from './contexts/SelectionContext';
 import { CELL_SIZE } from './lib/defaultConfig';
 import { pixelToGrid } from './components/Grid';
 import type { Block } from './types/config';
@@ -26,6 +27,7 @@ function AppContent() {
   const [showBookmarkModal, setShowBookmarkModal] = useState(false);
 
   const { dragState: crossDragState, endCrossDrag } = useCrossDesktopDrag();
+  const { clearSelection } = useSelection();
 
   // Détecter le redimensionnement
   useEffect(() => {
@@ -164,15 +166,37 @@ function AppContent() {
       if (targetDesktopId && targetDesktopId !== state.sourceDesktopId) {
         // Déplacer vers un autre desktop
         moveBlockToDesktop(state.block.id, state.sourceDesktopId, targetDesktopId, newLayout);
+        // Déplacer aussi les blocks additionnels
+        for (const ab of state.additionalBlocks) {
+          const abGridX = pixelToGrid(state.clientX - state.offsetX + ab.relativeX);
+          const abGridY = pixelToGrid(state.clientY - state.offsetY + ab.relativeY);
+          const abGridW = Math.round(ab.width / CELL_SIZE);
+          const abGridH = Math.round(ab.height / CELL_SIZE);
+          const abFinalX = Math.max(0, Math.min(abGridX, maxCols - abGridW));
+          const abFinalY = Math.max(0, Math.min(abGridY, maxRows - abGridH));
+          moveBlockToDesktop(ab.block.id, state.sourceDesktopId, targetDesktopId, { x: abFinalX, y: abFinalY, w: abGridW, h: abGridH });
+        }
       } else if (targetDesktopId) {
         // Même desktop, juste déplacer
         moveBlock(state.block.id, newLayout);
+        // Déplacer aussi les blocks additionnels
+        for (const ab of state.additionalBlocks) {
+          const abGridX = pixelToGrid(state.clientX - state.offsetX + ab.relativeX);
+          const abGridY = pixelToGrid(state.clientY - state.offsetY + ab.relativeY);
+          const abGridW = Math.round(ab.width / CELL_SIZE);
+          const abGridH = Math.round(ab.height / CELL_SIZE);
+          const abFinalX = Math.max(0, Math.min(abGridX, maxCols - abGridW));
+          const abFinalY = Math.max(0, Math.min(abGridY, maxRows - abGridH));
+          moveBlock(ab.block.id, { x: abFinalX, y: abFinalY, w: abGridW, h: abGridH });
+        }
       }
+      // Clear la sélection après le drop
+      clearSelection();
     };
 
     window.addEventListener('pointerup', handlePointerUp);
     return () => window.removeEventListener('pointerup', handlePointerUp);
-  }, [crossDragState, endCrossDrag, config.desktops, currentDesktopIndex, moveBlock, moveBlockToDesktop]);
+  }, [crossDragState, endCrossDrag, config.desktops, currentDesktopIndex, moveBlock, moveBlockToDesktop, clearSelection]);
 
   if (isLoading) {
     return (
@@ -218,10 +242,10 @@ function AppContent() {
     />
   );
 
-  const renderBlock = (block: Block, isDragging: boolean, isGrabHovering: boolean = false) => {
+  const renderBlock = (block: Block, isDragging: boolean, isGrabHovering: boolean = false, isSelected: boolean = false) => {
     const isCompact = block.layout.h <= 2 || (block.type === 'links' && block.layout.w > block.layout.h * 2);
     return (
-      <BlockWrapper isDragging={isDragging} isGrabHovering={isGrabHovering} isDark={isDark} compact={isCompact}>
+      <BlockWrapper isDragging={isDragging} isGrabHovering={isGrabHovering} isDark={isDark} compact={isCompact} isSelected={isSelected}>
         {renderBlockContent(block)}
       </BlockWrapper>
     );
@@ -359,11 +383,13 @@ function AppContent() {
   );
 }
 
-// Wrapper avec le provider
+// Wrapper avec les providers
 function App() {
   return (
     <CrossDesktopDragProvider>
-      <AppContent />
+      <SelectionProvider>
+        <AppContent />
+      </SelectionProvider>
     </CrossDesktopDragProvider>
   );
 }

@@ -2,7 +2,8 @@ import { useState, useRef, useEffect, useCallback, type ReactNode } from 'react'
 import { CELL_SIZE } from '../lib/defaultConfig';
 import { gridToPixel, gridSizeToPixel, pixelToGrid } from './Grid';
 import type { Block, BlockLayout } from '../types/config';
-import { useCrossDesktopDrag } from '../contexts/CrossDesktopDragContext';
+import { useCrossDesktopDrag, type BlockDragInfo } from '../contexts/CrossDesktopDragContext';
+import { useSelection } from '../contexts/SelectionContext';
 
 // Limites de taille par type de bloc (en cellules)
 const BLOCK_SIZE_LIMITS: Record<string, { minW: number; minH: number; maxW: number; maxH: number }> = {
@@ -25,7 +26,7 @@ interface DraggableGridProps {
   desktopId: string;
   onMoveBlock: (blockId: string, layout: BlockLayout) => void;
   onDeleteBlock: (blockId: string) => void;
-  renderBlock: (block: Block, isDragging: boolean, isGrabHovering: boolean) => ReactNode;
+  renderBlock: (block: Block, isDragging: boolean, isGrabHovering: boolean, isSelected: boolean) => ReactNode;
   isDark?: boolean;
   dragLocked?: boolean;
   hideGridLines?: boolean;
@@ -38,6 +39,7 @@ const LONG_PRESS_DELAY = 400; // ms pour déclencher le drag sur touch
 export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, renderBlock, isDark = true, dragLocked = false, hideGridLines = false }: DraggableGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
   const { dragState: crossDragState, startCrossDrag } = useCrossDesktopDrag();
+  const { selectedBlockIds, toggleSelection, clearSelection, isSelected } = useSelection();
   
   // Long press state pour touch
   const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -54,6 +56,14 @@ export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, r
     currentPxY: number;
     currentPxW: number;
     currentPxH: number;
+  } | null>(null);
+
+  // Rectangle de sélection (lasso)
+  const [selectionRect, setSelectionRect] = useState<{
+    startX: number;
+    startY: number;
+    currentX: number;
+    currentY: number;
   } | null>(null);
 
   // Annuler le long press
@@ -82,6 +92,27 @@ export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, r
     if (mode === 'move') {
       const offsetX = clientX - (rect.left + blockPxX);
       const offsetY = clientY - (rect.top + blockPxY);
+      
+      // Collecter les blocks additionnels sélectionnés (sauf le block principal)
+      const additionalBlocks: BlockDragInfo[] = [];
+      if (selectedBlockIds.has(block.id) && selectedBlockIds.size > 1) {
+        for (const selectedId of selectedBlockIds) {
+          if (selectedId === block.id) continue;
+          const selectedBlock = blocks.find(b => b.id === selectedId);
+          if (selectedBlock) {
+            const selPxX = gridToPixel(selectedBlock.layout.x);
+            const selPxY = gridToPixel(selectedBlock.layout.y);
+            additionalBlocks.push({
+              block: selectedBlock,
+              relativeX: selPxX - blockPxX,
+              relativeY: selPxY - blockPxY,
+              width: gridSizeToPixel(selectedBlock.layout.w),
+              height: gridSizeToPixel(selectedBlock.layout.h),
+            });
+          }
+        }
+      }
+      
       startCrossDrag(
         block,
         desktopId,
@@ -90,7 +121,8 @@ export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, r
         offsetX,
         offsetY,
         blockPxW,
-        blockPxH
+        blockPxH,
+        additionalBlocks
       );
       return;
     }
@@ -106,12 +138,23 @@ export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, r
       currentPxW: blockPxW,
       currentPxH: blockPxH,
     });
-  }, [desktopId, startCrossDrag]);
+  }, [desktopId, startCrossDrag, selectedBlockIds, blocks]);
 
   // Handler pour pointer down sur les zones de drag (bordures)
   const handlePointerDown = useCallback((e: React.PointerEvent, block: Block, mode: DragMode) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    // Gérer la sélection avec Ctrl/Cmd+click
+    if (mode === 'move' && (e.ctrlKey || e.metaKey)) {
+      toggleSelection(block.id, true);
+      return;
+    }
+    
+    // Si le block n'est pas sélectionné et qu'on commence un drag, clear la sélection
+    if (mode === 'move' && !isSelected(block.id)) {
+      clearSelection();
+    }
     
     if (e.pointerType === 'mouse') {
       // Souris : drag immédiat
@@ -135,7 +178,7 @@ export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, r
         }
       }, LONG_PRESS_DELAY);
     }
-  }, [startDrag, cancelLongPress]);
+  }, [startDrag, cancelLongPress, toggleSelection, isSelected, clearSelection]);
 
   // Annuler le long press si on bouge trop
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
@@ -155,6 +198,74 @@ export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, r
   const handlePointerUp = useCallback(() => {
     cancelLongPress();
   }, [cancelLongPress]);
+
+  // Démarrer la sélection par rectangle sur le fond
+  const handleGridPointerDown = useCallback((e: React.PointerEvent) => {
+    // Ne pas démarrer si on clique sur un block ou si drag locké
+    if (dragLocked) return;
+    if ((e.target as HTMLElement).closest('[data-block]')) return;
+    
+    // Clear la sélection existante sauf si Ctrl/Cmd
+    if (!e.ctrlKey && !e.metaKey) {
+      clearSelection();
+    }
+    
+    if (!gridRef.current) return;
+    const rect = gridRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    setSelectionRect({ startX: x, startY: y, currentX: x, currentY: y });
+  }, [dragLocked, clearSelection]);
+
+  // Mettre à jour le rectangle de sélection et sélectionner les blocks
+  useEffect(() => {
+    if (!selectionRect) return;
+
+    const handleMove = (e: PointerEvent) => {
+      if (!gridRef.current) return;
+      const rect = gridRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      setSelectionRect(prev => prev ? { ...prev, currentX: x, currentY: y } : null);
+    };
+
+    const handleUp = () => {
+      if (!selectionRect || !gridRef.current) {
+        setSelectionRect(null);
+        return;
+      }
+
+      // Calculer le rectangle normalisé
+      const minX = Math.min(selectionRect.startX, selectionRect.currentX);
+      const maxX = Math.max(selectionRect.startX, selectionRect.currentX);
+      const minY = Math.min(selectionRect.startY, selectionRect.currentY);
+      const maxY = Math.max(selectionRect.startY, selectionRect.currentY);
+
+      // Sélectionner les blocks qui intersectent le rectangle
+      for (const block of blocks) {
+        const blockLeft = gridToPixel(block.layout.x);
+        const blockTop = gridToPixel(block.layout.y);
+        const blockRight = blockLeft + gridSizeToPixel(block.layout.w);
+        const blockBottom = blockTop + gridSizeToPixel(block.layout.h);
+
+        // Vérifier l'intersection
+        const intersects = !(blockRight < minX || blockLeft > maxX || blockBottom < minY || blockTop > maxY);
+        if (intersects) {
+          toggleSelection(block.id, true);
+        }
+      }
+
+      setSelectionRect(null);
+    };
+
+    window.addEventListener('pointermove', handleMove);
+    window.addEventListener('pointerup', handleUp);
+    return () => {
+      window.removeEventListener('pointermove', handleMove);
+      window.removeEventListener('pointerup', handleUp);
+    };
+  }, [selectionRect, blocks, toggleSelection]);
 
   // Cleanup du timer au unmount
   useEffect(() => {
@@ -279,10 +390,19 @@ export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, r
 
   const gridColor = isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.04)';
 
+  // Calculer les dimensions du rectangle de sélection
+  const selectionBox = selectionRect ? {
+    left: Math.min(selectionRect.startX, selectionRect.currentX),
+    top: Math.min(selectionRect.startY, selectionRect.currentY),
+    width: Math.abs(selectionRect.currentX - selectionRect.startX),
+    height: Math.abs(selectionRect.currentY - selectionRect.startY),
+  } : null;
+
   return (
     <div
       ref={gridRef}
       className="relative w-full h-full min-h-screen select-none"
+      onPointerDown={handleGridPointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
@@ -302,11 +422,27 @@ export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, r
         />
       )}
 
+      {/* Rectangle de sélection */}
+      {selectionBox && selectionBox.width > 5 && selectionBox.height > 5 && (
+        <div
+          className="absolute border border-dashed border-neutral-400 rounded pointer-events-none z-40"
+          style={{
+            left: selectionBox.left,
+            top: selectionBox.top,
+            width: selectionBox.width,
+            height: selectionBox.height,
+          }}
+        />
+      )}
+
       {/* Blocs */}
       {blocks.map((block) => {
         // Cacher le bloc s'il est en cours de cross-desktop drag depuis ce desktop
         const isCrossDragging = crossDragState?.block.id === block.id && crossDragState?.sourceDesktopId === desktopId;
-        if (isCrossDragging) return null;
+        const isAdditionalDragging = crossDragState?.additionalBlocks.some(ab => ab.block.id === block.id) && crossDragState?.sourceDesktopId === desktopId;
+        if (isCrossDragging || isAdditionalDragging) return null;
+        
+        const isBlockSelected = isSelected(block.id);
 
         const isDragging = dragState?.blockId === block.id;
         const isResizing = isDragging && dragState.mode.startsWith('resize');
@@ -314,7 +450,8 @@ export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, r
         return (
           <div
             key={block.id}
-            className={`absolute group ${isDragging ? 'z-50 opacity-90' : 'z-0'}`}
+            data-block
+            className={`absolute group ${isDragging ? 'z-50 opacity-90 cursor-grabbing' : 'z-0'} ${isBlockSelected ? 'cursor-grab active:cursor-grabbing' : ''}`}
             style={{
               left: isDragging ? dragState.currentPxX : gridToPixel(block.layout.x),
               top: isDragging ? dragState.currentPxY : gridToPixel(block.layout.y),
@@ -328,9 +465,11 @@ export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, r
               className="relative w-full h-full"
               onMouseEnter={() => setHoveredBlockId(block.id)}
               onMouseLeave={() => setHoveredBlockId(null)}
+              onPointerDown={isBlockSelected ? (e) => handlePointerDown(e, block, 'move') : undefined}
+              style={isBlockSelected ? { touchAction: 'none' } : undefined}
             >
               {/* Zones de drag sur les bordures - plus grandes pour le touch */}
-              {!dragLocked && (
+              {!dragLocked && !isBlockSelected && (
                 <>
                   <div
                     className="absolute inset-x-0 top-0 h-[12px] cursor-grab active:cursor-grabbing z-10"
@@ -358,11 +497,15 @@ export function DraggableGrid({ blocks, desktopId, onMoveBlock, onDeleteBlock, r
                   )}
                 </>
               )}
-              {renderBlock(block, isDragging, hoveredBlockId === block.id)}
+              {renderBlock(block, isDragging, hoveredBlockId === block.id, isBlockSelected)}
+              {/* Overlay pour bloquer les interactions quand sélectionné */}
+              {isBlockSelected && (
+                <div className="absolute inset-0 z-30" />
+              )}
             </div>
 
-            {/* Bouton supprimer et zone de resize - masqués si verrouillé */}
-            {!dragLocked && (
+            {/* Bouton supprimer et zone de resize - masqués si verrouillé ou si sélection active */}
+            {!dragLocked && !isBlockSelected && (
               <>
                 <button
                   className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-5 h-5 flex items-center justify-center rounded z-20 cursor-pointer

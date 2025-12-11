@@ -7,14 +7,17 @@ interface BlockWrapperProps {
   isDark?: boolean;
   compact?: boolean;
   overflowVisible?: boolean;
+  isSelected?: boolean;
 }
 
-export function BlockWrapper({ children, isDragging, isGrabHovering, isDark = true, compact = false, overflowVisible = false }: BlockWrapperProps) {
+export function BlockWrapper({ children, isDragging, isGrabHovering, isDark = true, compact = false, overflowVisible = false, isSelected = false }: BlockWrapperProps) {
   const bgClass = isDark ? 'bg-neutral-900/50 backdrop-blur-sm' : 'bg-white/90 backdrop-blur-sm';
   const isHighlighted = isDragging || isGrabHovering;
-  const borderClass = isDark 
-    ? (isHighlighted ? 'border-neutral-600' : 'border-neutral-700')
-    : (isHighlighted ? 'border-neutral-300' : 'border-neutral-200');
+  const borderClass = isSelected
+    ? 'border-neutral-400'
+    : isDark 
+      ? (isHighlighted ? 'border-neutral-600' : 'border-neutral-700')
+      : (isHighlighted ? 'border-neutral-300' : 'border-neutral-200');
   const textClass = isDark ? 'text-neutral-200' : 'text-neutral-700';
   const shadowClass = isDragging 
     ? (isDark ? 'shadow-2xl shadow-black/50' : 'shadow-2xl shadow-black/20') 

@@ -75,14 +75,20 @@ export function DragOverlay({
 
   if (!dragState) return null;
 
-  const { block, clientX, clientY, offsetX, offsetY, width, height } = dragState;
+  const { block, clientX, clientY, offsetX, offsetY, width, height, additionalBlocks } = dragState;
+  const baseX = clientX - offsetX;
+  const baseY = clientY - offsetY;
 
   return (
-    <div
+    <>
+      {/* Curseur grabbing global pendant le drag */}
+      <style>{`body { cursor: grabbing !important; }`}</style>
+      {/* Block principal */}
+      <div
         className="fixed z-[9999] pointer-events-none"
         style={{
-          left: clientX - offsetX,
-          top: clientY - offsetY,
+          left: baseX,
+          top: baseY,
           width,
           height,
           opacity: 0.9,
@@ -92,5 +98,24 @@ export function DragOverlay({
       >
         {renderBlock(block, true, false)}
       </div>
+      {/* Blocks additionnels sélectionnés */}
+      {additionalBlocks.map((ab) => (
+        <div
+          key={ab.block.id}
+          className="fixed z-[9998] pointer-events-none"
+          style={{
+            left: baseX + ab.relativeX,
+            top: baseY + ab.relativeY,
+            width: ab.width,
+            height: ab.height,
+            opacity: 0.9,
+            transform: 'scale(1.02)',
+            transition: 'transform 100ms, opacity 100ms',
+          }}
+        >
+          {renderBlock(ab.block, true, false)}
+        </div>
+      ))}
+    </>
   );
 }

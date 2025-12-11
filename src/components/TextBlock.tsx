@@ -79,7 +79,7 @@ export function TextBlock({ blockId, content, onUpdate, isDark = true, isDraggin
                     onChange={(e) => setValue(e.target.value)}
                     onBlur={handleBlur}
                     placeholder="Enter text..."
-                    className={`w-full h-full resize-none bg-transparent border-none outline-none text-sm ${textClass} ${placeholderClass}`}
+                    className={`w-full h-full resize-none bg-transparent border-none outline-none text-sm leading-relaxed ${textClass} ${placeholderClass}`}
                 />
             </div>
         );
@@ -90,7 +90,7 @@ export function TextBlock({ blockId, content, onUpdate, isDark = true, isDraggin
         return (
             <div
                 onClick={handleClick}
-                className={`w-full h-full p-4 rounded-[12px] border ${bgClass} ${borderClass} ${shadowClass} cursor-pointer text-sm overflow-hidden whitespace-pre-wrap ${textClass}`}
+                className={`w-full h-full p-4 rounded-[12px] border ${bgClass} ${borderClass} ${shadowClass} cursor-pointer text-sm overflow-hidden whitespace-pre-wrap leading-relaxed ${textClass}`}
             >
                 {value ? (
                     <LinkifyText text={value} isDark={isDark} config={config} />
@@ -107,7 +107,7 @@ export function TextBlock({ blockId, content, onUpdate, isDark = true, isDraggin
     return (
         <div
             onClick={handleClick}
-            className={`w-full h-full p-4 cursor-pointer text-sm rounded-[12px] border border-transparent overflow-hidden whitespace-pre-wrap ${textClass}`}
+            className={`w-full h-full p-4 cursor-pointer text-sm rounded-[12px] border border-transparent overflow-hidden whitespace-pre-wrap leading-relaxed ${textClass}`}
         >
             {value ? (
                 <LinkifyText text={value} isDark={isDark} config={config} />

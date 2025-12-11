@@ -113,24 +113,24 @@ export function NoteBlock({ blockId, content, title = 'Note', source, onUpdate, 
           </span>
         )}
         {isEditingTitle ? (
-        <input
-          ref={titleInputRef}
-          type="text"
-          value={editTitle}
-          onChange={(e) => setEditTitle(e.target.value)}
-          onKeyDown={handleTitleKeyDown}
-          onBlur={handleSaveTitle}
-          placeholder="Title"
-          className={`mb-2 bg-transparent border-none outline-none text-xs uppercase tracking-wide ${mutedClass}`}
-        />
-      ) : (
-        <span
-          onClick={handleEditTitle}
-          className={`text-xs ${mutedClass} truncate cursor-pointer hover:underline uppercase tracking-wide`}
-          title="Click to edit title"
-        >
-          {title}
-        </span>
+          <input
+            ref={titleInputRef}
+            type="text"
+            value={editTitle}
+            onChange={(e) => setEditTitle(e.target.value)}
+            onKeyDown={handleTitleKeyDown}
+            onBlur={handleSaveTitle}
+            placeholder="Title"
+            className={`mb-2 bg-transparent border-none outline-none text-xs uppercase tracking-wide ${mutedClass}`}
+          />
+        ) : (
+          <span
+            onClick={handleEditTitle}
+            className={`text-xs ${mutedClass} truncate cursor-pointer hover:underline uppercase tracking-wide`}
+            title="Click to edit title"
+          >
+            {title}
+          </span>
         )}
       </div>
       {/* Contenu */}
@@ -141,14 +141,14 @@ export function NoteBlock({ blockId, content, title = 'Note', source, onUpdate, 
             value={value}
             onChange={(e) => setValue(e.target.value)}
             onBlur={handleBlur}
-            className={`w-full h-full resize-none bg-transparent border-none outline-none text-sm
+            className={`w-full h-full resize-none bg-transparent border-none outline-none text-sm leading-relaxed
                      ${isDark ? 'text-neutral-200 placeholder-neutral-500' : 'text-neutral-700 placeholder-neutral-400'}`}
             placeholder="Write your note..."
           />
         ) : (
           <div
             onClick={handleClick}
-            className={`w-full h-full text-sm whitespace-pre-wrap cursor-text overflow-auto scrollbar-hide ${textClass}`}
+            className={`w-full h-full text-sm whitespace-pre-wrap cursor-text overflow-auto scrollbar-hide leading-relaxed ${textClass}`}
           >
             {value ? (
               <LinkifyText text={value} isDark={isDark} config={config} />

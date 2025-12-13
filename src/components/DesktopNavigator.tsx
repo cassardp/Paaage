@@ -46,27 +46,27 @@ export function DesktopNavigator({
                         key={index}
                         onClick={() => handleDotClick(index)}
                         className={`rounded-full transition-all cursor-pointer ${isLast
-                                ? // "+" dot for creating new desktop - always gray
-                                isDark
-                                    ? 'w-2 h-2 bg-neutral-500 hover:bg-neutral-400 hover:scale-125'
-                                    : 'w-2 h-2 bg-neutral-400 hover:bg-neutral-500 hover:scale-125'
-                                : isCurrent
-                                    ? // Current desktop - elongated, black/white if has content, gray if empty
-                                    hasContent
-                                        ? isDark
-                                            ? 'w-6 h-2 bg-neutral-200'
-                                            : 'w-6 h-2 bg-neutral-900'
-                                        : isDark
-                                            ? 'w-6 h-2 bg-neutral-500'
-                                            : 'w-6 h-2 bg-neutral-400'
-                                    : // Other desktops - black/white if has content, gray if empty
-                                    hasContent
-                                        ? isDark
-                                            ? 'w-2 h-2 bg-neutral-200 hover:bg-neutral-400 hover:scale-125'
-                                            : 'w-2 h-2 bg-neutral-700 hover:bg-neutral-500 hover:scale-125'
-                                        : isDark
-                                            ? 'w-2 h-2 bg-neutral-500 hover:bg-neutral-400 hover:scale-125'
-                                            : 'w-2 h-2 bg-neutral-400 hover:bg-neutral-500 hover:scale-125'
+                            ? // "+" dot for creating new desktop - always gray
+                            isDark
+                                ? 'w-1.5 h-1.5 bg-neutral-500 hover:bg-neutral-400 hover:scale-125'
+                                : 'w-1.5 h-1.5 bg-neutral-400 hover:bg-neutral-500 hover:scale-125'
+                            : isCurrent
+                                ? // Current desktop - elongated, black/white if has content, gray if empty
+                                hasContent
+                                    ? isDark
+                                        ? 'w-5 h-1.5 bg-neutral-200'
+                                        : 'w-5 h-1.5 bg-neutral-900'
+                                    : isDark
+                                        ? 'w-5 h-1.5 bg-neutral-500'
+                                        : 'w-5 h-1.5 bg-neutral-400'
+                                : // Other desktops - black/white if has content, gray if empty
+                                hasContent
+                                    ? isDark
+                                        ? 'w-1.5 h-1.5 bg-neutral-200 hover:bg-neutral-400 hover:scale-125'
+                                        : 'w-1.5 h-1.5 bg-neutral-700 hover:bg-neutral-500 hover:scale-125'
+                                    : isDark
+                                        ? 'w-1.5 h-1.5 bg-neutral-500 hover:bg-neutral-400 hover:scale-125'
+                                        : 'w-1.5 h-1.5 bg-neutral-400 hover:bg-neutral-500 hover:scale-125'
                             }`}
                         title={isLast ? 'New desktop' : `Desktop ${index + 1}`}
                     />

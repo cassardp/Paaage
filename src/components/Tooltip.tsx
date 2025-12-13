@@ -9,7 +9,7 @@ interface TooltipProps {
     delay?: number;
 }
 
-export function Tooltip({ text, visible, x, y, isDark = true, delay = 500 }: TooltipProps) {
+export function Tooltip({ text, visible, x, y, isDark = true, delay = 200 }: TooltipProps) {
     const [show, setShow] = useState(false);
     const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -29,14 +29,14 @@ export function Tooltip({ text, visible, x, y, isDark = true, delay = 500 }: Too
 
     return (
         <div
-            className={`fixed z-50 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap pointer-events-none transition-opacity duration-200 backdrop-blur-sm ${isDark
-                    ? 'bg-neutral-900/80 text-neutral-200 border border-neutral-700'
-                    : 'bg-white/90 text-neutral-700 border border-neutral-200 shadow-lg'
+            className={`fixed z-50 px-2.5 py-1 rounded-lg text-[9px] font-normal uppercase whitespace-nowrap pointer-events-none transition-opacity duration-200 backdrop-blur-sm ${isDark
+                ? 'bg-neutral-900/80 text-neutral-200 border border-neutral-700'
+                : 'bg-white/90 text-neutral-700 border border-neutral-200 shadow-lg'
                 }`}
             style={{
                 left: x,
                 top: y,
-                transform: 'translate(-50%, -100%) translateY(-8px)',
+                transform: 'translate(-50%, -100%) translateY(-12px)',
             }}
         >
             {text}

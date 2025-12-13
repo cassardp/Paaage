@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, CloudSun, Bookmark, StickyNote, Music, TrendingUp, ListTodo, Clock, Rss, Settings2, Lock, EyeOff, Type } from 'lucide-react';
+import { Plus, Search, CloudSun, RectangleHorizontal, StickyNote, Music, TrendingUp, ListTodo, Clock, Rss, Settings2, Lock, EyeOff, Type, Link2 } from 'lucide-react';
 import { Tooltip } from './Tooltip';
 import { FormModal } from './FormModal';
 
@@ -15,6 +15,7 @@ interface ToolbarProps {
   onAddTodo: () => void;
   onAddClock: () => void;
   onAddRss: () => void;
+  onAddLinks: () => void;
   onAddText: () => void;
   onAddSettings: () => void;
   showBookmarkForm?: boolean;
@@ -35,6 +36,7 @@ export function Toolbar({
   onAddTodo,
   onAddClock,
   onAddRss,
+  onAddLinks,
   onAddText,
   onAddSettings,
   showBookmarkForm: externalShowBookmark,
@@ -93,32 +95,45 @@ export function Toolbar({
   const addActions = [
     ...(!hasSearchBlock ? [{ icon: Search, action: () => handleAddBlock('search'), label: 'Search' }] : []),
     { icon: CloudSun, action: () => handleAddBlock('weather'), label: 'Weather' },
-    { icon: Bookmark, action: handleBookmarkClick, label: 'Link' },
+    { icon: RectangleHorizontal, action: handleBookmarkClick, label: 'Button' },
     { icon: StickyNote, action: () => { onAddNote(''); setIsHovered(false); }, label: 'Note' },
     { icon: Music, action: () => { onAddStation(); setIsHovered(false); }, label: 'Radio' },
     { icon: TrendingUp, action: () => { onAddStock(); setIsHovered(false); }, label: 'Stock' },
     { icon: ListTodo, action: () => { onAddTodo(); setIsHovered(false); }, label: 'Todo' },
     { icon: Clock, action: () => { onAddClock(); setIsHovered(false); }, label: 'Clock' },
     { icon: Rss, action: () => { onAddRss(); setIsHovered(false); }, label: 'RSS' },
+    { icon: Link2, action: () => { onAddLinks(); setIsHovered(false); }, label: 'Links' },
     { icon: Type, action: () => { onAddText(); setIsHovered(false); }, label: 'Text' },
   ];
 
-  const radius = 90;
-  const startAngle = -180;
-  const endAngle = 0;
+  const spacing = 60; // Espacement horizontal entre les icônes
 
   const getPosition = (index: number, total: number) => {
-    const angle = startAngle + (index / (total - 1 || 1)) * (endAngle - startAngle);
-    const radian = (angle * Math.PI) / 180;
-    return { x: Math.cos(radian) * radius, y: Math.sin(radian) * radius };
+    // Distribuer les icônes de chaque côté du bouton principal
+    const halfTotal = Math.floor(total / 2);
+    let x: number;
+
+    if (index < halfTotal) {
+      // Icônes à gauche (de droite à gauche)
+      x = -(halfTotal - index) * spacing;
+    } else {
+      // Icônes à droite (de gauche à droite)
+      x = (index - halfTotal + 1) * spacing;
+    }
+
+    return { x, y: 0 }; // y = 0 pour rester au même niveau que le bouton principal
   };
 
   return (
     <>
       {/* FAB Container */}
       <div
-        className="fixed bottom-12 left-1/2 z-40 flex items-end justify-center"
-        style={{ width: radius * 2 + 56, height: radius + 56, transform: 'translateX(-50%)' }}
+        className="fixed bottom-12 left-1/2 z-40 flex items-center justify-center"
+        style={{
+          width: spacing * (addActions.length + 1) + 60,
+          height: 50,
+          transform: 'translateX(-50%)'
+        }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -166,16 +181,32 @@ export function Toolbar({
         {/* FAB principal */}
         <button
           onClick={handleSettingsClick}
-          className={`relative w-14 h-14 rounded-full border flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 ${fabClass}`}
+          onMouseEnter={(e) => {
+            if (isHovered) {
+              const rect = e.currentTarget.getBoundingClientRect();
+              setHoveredButton({
+                label: 'Settings',
+                x: rect.left + rect.width / 2,
+                y: rect.top,
+              });
+            }
+          }}
+          onMouseLeave={() => setHoveredButton(null)}
+          className={`absolute w-11 h-11 rounded-full border flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 ${fabClass}`}
+          style={{
+            left: '50%',
+            bottom: 0,
+            transform: 'translateX(-50%)',
+          }}
         >
           {isHovered ? (
-            <Settings2 className="w-5 h-5" />
+            <Settings2 className="w-4 h-4" />
           ) : dragLocked ? (
-            <Lock className="w-5 h-5 text-[var(--accent-color)]" />
+            <Lock className="w-4 h-4 text-[var(--accent-color)]" />
           ) : notesHidden ? (
-            <EyeOff className="w-5 h-5 text-[var(--accent-color)]" />
+            <EyeOff className="w-4 h-4 text-[var(--accent-color)]" />
           ) : (
-            <Plus className="w-6 h-6" />
+            <Plus className="w-4 h-4" />
           )}
         </button>
       </div>
@@ -184,7 +215,7 @@ export function Toolbar({
         isOpen={showBookmarkForm}
         onClose={() => setShowBookmarkForm(false)}
         onSubmit={handleBookmarkSubmit}
-        submitLabel="Add Bookmark"
+        submitLabel="Add Button"
         isDark={isDark}
         fields={[
           {
@@ -198,7 +229,7 @@ export function Toolbar({
             label: 'Name',
             value: bookmarkLabel,
             onChange: setBookmarkLabel,
-            placeholder: 'My Bookmark',
+            placeholder: 'My Button',
             optional: true,
           },
         ]}

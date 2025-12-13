@@ -320,6 +320,7 @@ function AppContent() {
         onAddLinks={addLinks}
         onAddText={addText}
         onAddSettings={addSettings}
+        onUndo={undo}
         showBookmarkForm={showBookmarkModal}
         onShowBookmarkForm={setShowBookmarkModal}
         hasSearchBlock={currentDesktop.blocks.some(b => b.type === 'search')}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, CloudSun, RectangleHorizontal, StickyNote, Music, TrendingUp, ListTodo, Clock, Rss, Settings2, Lock, EyeOff, Type, Link2, X } from 'lucide-react';
+import { Plus, Search, CloudSun, RectangleHorizontal, StickyNote, Music, TrendingUp, ListTodo, Clock, Rss, Settings2, Lock, EyeOff, Type, Link2, X, Undo2 } from 'lucide-react';
 import { Tooltip } from './Tooltip';
 import { FormModal } from './FormModal';
 
@@ -18,6 +18,7 @@ interface ToolbarProps {
   onAddLinks: () => void;
   onAddText: () => void;
   onAddSettings: () => void;
+  onUndo: () => void;
   showBookmarkForm?: boolean;
   onShowBookmarkForm?: (show: boolean) => void;
   hasSearchBlock: boolean;
@@ -39,6 +40,7 @@ export function Toolbar({
   onAddLinks,
   onAddText,
   onAddSettings,
+  onUndo,
   showBookmarkForm: externalShowBookmark,
   onShowBookmarkForm,
   hasSearchBlock,
@@ -104,6 +106,7 @@ export function Toolbar({
     { icon: Rss, action: () => { onAddRss(); setIsHovered(false); }, label: 'RSS' },
     { icon: Link2, action: () => { onAddLinks(); setIsHovered(false); }, label: 'Links' },
     { icon: Type, action: () => { onAddText(); setIsHovered(false); }, label: 'Text' },
+    { icon: Undo2, action: () => { onUndo(); setIsHovered(false); }, label: 'Undo - Shift U' },
   ];
 
   const spacing = 52; // Espacement horizontal entre les icônes

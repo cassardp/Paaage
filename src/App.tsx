@@ -317,6 +317,7 @@ function AppContent() {
         onAddTodo={addTodo}
         onAddClock={addClock}
         onAddRss={addRss}
+        onAddLinks={addLinks}
         onAddText={addText}
         onAddSettings={addSettings}
         showBookmarkForm={showBookmarkModal}

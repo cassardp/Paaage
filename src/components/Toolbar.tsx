@@ -106,7 +106,7 @@ export function Toolbar({
     { icon: Type, action: () => { onAddText(); setIsHovered(false); }, label: 'Text' },
   ];
 
-  const spacing = 60; // Espacement horizontal entre les icônes
+  const spacing = 52; // Espacement horizontal entre les icônes
 
   const getPosition = (index: number, total: number) => {
     // Distribuer les icônes de chaque côté du bouton principal

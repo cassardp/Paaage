@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, CloudSun, RectangleHorizontal, StickyNote, Music, TrendingUp, ListTodo, Clock, Rss, Settings2, Lock, EyeOff, Type, Link2 } from 'lucide-react';
+import { Plus, Search, CloudSun, RectangleHorizontal, StickyNote, Music, TrendingUp, ListTodo, Clock, Rss, Settings2, Lock, EyeOff, Type, Link2, X } from 'lucide-react';
 import { Tooltip } from './Tooltip';
 import { FormModal } from './FormModal';
 
@@ -42,7 +42,7 @@ export function Toolbar({
   showBookmarkForm: externalShowBookmark,
   onShowBookmarkForm,
   hasSearchBlock,
-  hasSettingsBlock: _hasSettingsBlock,
+  hasSettingsBlock,
 }: ToolbarProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [internalShowBookmark, setInternalShowBookmark] = useState(false);
@@ -185,7 +185,7 @@ export function Toolbar({
             if (isHovered) {
               const rect = e.currentTarget.getBoundingClientRect();
               setHoveredButton({
-                label: 'Settings',
+                label: hasSettingsBlock ? 'Close settings' : 'Settings',
                 x: rect.left + rect.width / 2,
                 y: rect.top,
               });
@@ -200,7 +200,11 @@ export function Toolbar({
           }}
         >
           {isHovered ? (
-            <Settings2 className="w-4 h-4" />
+            hasSettingsBlock ? (
+              <X className="w-4 h-4" />
+            ) : (
+              <Settings2 className="w-4 h-4" />
+            )
           ) : dragLocked ? (
             <Lock className="w-4 h-4 text-[var(--accent-color)]" />
           ) : notesHidden ? (

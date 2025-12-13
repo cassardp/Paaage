@@ -106,7 +106,7 @@ export function Toolbar({
     { icon: Rss, action: () => { onAddRss(); setIsHovered(false); }, label: 'RSS' },
     { icon: Link2, action: () => { onAddLinks(); setIsHovered(false); }, label: 'Links' },
     { icon: Type, action: () => { onAddText(); setIsHovered(false); }, label: 'Text' },
-    { icon: Undo2, action: () => { onUndo(); setIsHovered(false); }, label: 'Undo - Shift U' },
+    { icon: Undo2, action: () => { onUndo(); }, label: 'Undo - Shift U' },
   ];
 
   const spacing = 52; // Espacement horizontal entre les icônes

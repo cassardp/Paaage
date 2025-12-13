@@ -465,11 +465,10 @@ export function useConfig() {
       } else {
         // Ajouter le bloc settings
         const id = generateId();
-        const pos = getCenteredPosition(20, 35);
         const newBlock: Block = {
           id,
           type: 'settings',
-          layout: { ...pos, w: 20, h: 35 }
+          layout: { x: 36, y: 10, w: 22, h: 35 }
         };
         return {
           ...prev,

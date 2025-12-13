@@ -134,7 +134,7 @@ export function Toolbar({
         className="fixed bottom-12 left-1/2 z-40 flex items-center justify-center"
         style={{
           width: spacing * (addActions.length + 1) + 60,
-          height: 50,
+          height: 70,
           transform: 'translateX(-50%)'
         }}
         onMouseEnter={() => setIsHovered(true)}

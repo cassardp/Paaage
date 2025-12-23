@@ -19,7 +19,7 @@ export function DesktopCarousel({
 }: DesktopCarouselProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const userScrollingRef = useRef(false);
-  
+
   // Touch/swipe state
   const touchStartRef = useRef<{ x: number; y: number; scrollLeft: number; pointerId: number } | null>(null);
   const isTouchSwipingRef = useRef(false);
@@ -28,13 +28,13 @@ export function DesktopCarousel({
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    
+
     // Ne pas scroller si c'est l'utilisateur qui a déclenché le changement
     if (userScrollingRef.current) {
       userScrollingRef.current = false;
       return;
     }
-    
+
     const targetScroll = currentIndex * container.clientWidth;
     if (Math.abs(container.scrollLeft - targetScroll) > 10) {
       container.scrollTo({ left: targetScroll, behavior: 'smooth' });
@@ -49,7 +49,7 @@ export function DesktopCarousel({
     const handleWheel = (e: WheelEvent) => {
       const absX = Math.abs(e.deltaX);
       const absY = Math.abs(e.deltaY);
-      
+
       // Si le scroll est trop diagonal ou principalement vertical, bloquer
       if (absY > 5 && absX < absY * 2) {
         e.preventDefault();
@@ -73,16 +73,16 @@ export function DesktopCarousel({
       const pageWidth = container.clientWidth;
       const scrollPosition = container.scrollLeft;
       const newIndex = Math.round(scrollPosition / pageWidth);
-      
+
       const maxIndex = lastDesktopEmpty ? children.length - 1 : children.length;
       const clampedIndex = Math.max(0, Math.min(newIndex, maxIndex));
-      
+
       // Mettre à jour l'index si changé
       if (clampedIndex !== currentIndex) {
         userScrollingRef.current = true;
         onChangeIndex(clampedIndex);
       }
-      
+
       // Debounce: forcer le snap exact après 100ms d'inactivité
       if (scrollTimeout) clearTimeout(scrollTimeout);
       scrollTimeout = setTimeout(() => {
@@ -106,15 +106,15 @@ export function DesktopCarousel({
     if (e.pointerType === 'mouse') return;
     const container = containerRef.current;
     if (!container) return;
-    
+
     // Capturer le pointer pour recevoir tous les événements même hors de l'élément
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
-    
-    touchStartRef.current = { 
-      x: e.clientX, 
-      y: e.clientY, 
+
+    touchStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
       scrollLeft: container.scrollLeft,
-      pointerId: e.pointerId 
+      pointerId: e.pointerId
     };
     isTouchSwipingRef.current = false;
   }, []);
@@ -123,10 +123,10 @@ export function DesktopCarousel({
     if (!touchStartRef.current || e.pointerType === 'mouse') return;
     const container = containerRef.current;
     if (!container) return;
-    
+
     const dx = e.clientX - touchStartRef.current.x;
     const dy = e.clientY - touchStartRef.current.y;
-    
+
     // Dès qu'on détecte un mouvement horizontal, on suit le doigt
     if (Math.abs(dx) > 5) {
       // Si c'est principalement horizontal, activer le swipe
@@ -140,14 +140,14 @@ export function DesktopCarousel({
 
   const handlePointerUp = useCallback((e: React.PointerEvent) => {
     if (!touchStartRef.current || e.pointerType === 'mouse') return;
-    
+
     const dx = e.clientX - touchStartRef.current.x;
     const dy = e.clientY - touchStartRef.current.y;
-    
+
     // Swipe horizontal détecté
     if (Math.abs(dx) > SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy)) {
       const maxIndex = lastDesktopEmpty ? children.length - 1 : children.length;
-      
+
       if (dx < 0 && currentIndex < maxIndex) {
         // Swipe vers la gauche = desktop suivant
         userScrollingRef.current = true;
@@ -157,24 +157,24 @@ export function DesktopCarousel({
         userScrollingRef.current = true;
         onChangeIndex(currentIndex - 1);
       }
-      
+
       // Forcer le scroll vers le bon desktop
       const container = containerRef.current;
       if (container) {
-        const targetIndex = dx < 0 
+        const targetIndex = dx < 0
           ? Math.min(currentIndex + 1, maxIndex)
           : Math.max(currentIndex - 1, 0);
         container.scrollTo({ left: targetIndex * container.clientWidth, behavior: 'smooth' });
       }
     }
-    
+
     // Libérer le pointer capture
     if (touchStartRef.current) {
       try {
         (e.target as HTMLElement).releasePointerCapture(touchStartRef.current.pointerId);
       } catch (_) { /* ignore */ }
     }
-    
+
     touchStartRef.current = null;
     isTouchSwipingRef.current = false;
   }, [children.length, currentIndex, lastDesktopEmpty, onChangeIndex]);
@@ -194,7 +194,7 @@ export function DesktopCarousel({
   return (
     <div
       ref={containerRef}
-      className={`w-full h-screen overflow-x-auto overflow-y-hidden snap-x snap-mandatory scrollbar-hide ${bgClass}`}
+      className={`w-full h-screen overflow-x-auto overflow-y-hidden snap-x snap-mandatory scrollbar-hide overscroll-x-none ${bgClass}`}
       style={{
         scrollbarWidth: 'none',
         msOverflowStyle: 'none',
@@ -205,7 +205,7 @@ export function DesktopCarousel({
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerCancel}
     >
-      <div 
+      <div
         className="flex h-full"
         style={{ width: `${(children.length + (lastDesktopEmpty ? 0 : 1)) * 100}vw` }}
       >

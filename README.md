@@ -1,38 +1,63 @@
-<div align="center">
-
-# ✦ Paaage
+# Paaage
 
 **Your browser's new home.**
 
-A minimalist, drag-and-drop homepage builder.
+A minimalist, drag-and-drop homepage builder. Turn your new tab into a personalized command center.
 
-[Live Demo](https://paaage.vercel.app) · [Report Bug](https://github.com/cassardp/Paaage/issues)
+[**Try it live**](https://paaage.vercel.app)
 
-</div>
+## Features
 
----
+- **Drag & drop grid** — Place blocks anywhere on a free-form grid
+- **12 block types** — Search, Notes, Bookmarks, Weather, Stocks, RSS, Todo, Clock, Radio, Links, Text, Settings
+- **Multiple desktops** — Organize your blocks across separate pages
+- **Cloud sync** — Sync your config across devices via a simple URL
+- **Keyboard shortcuts** — `/` to insert, `Shift+L` to lock, `Shift+U` to undo
+- **Dark/Light mode** — Automatic theme support
+- **Import/Export** — Save and restore your config as JSON
+- **No account required** — Everything stored locally, sync is optional
 
-## What is this?
+## Tech Stack
 
-Paaage turns your new tab into a personalized command center. Drag blocks, drop them anywhere, make it yours.
+- **React 19** + **TypeScript**
+- **Vite 7** — Dev server and build
+- **Tailwind CSS 4** — Styling
+- **Val.town** — Serverless cloud sync
+- **Lucide React** — Icons
 
-## Shortcuts
+## Getting Started
 
+```bash
+npm install
+cp .env.example .env    # Configure your sync API URL
+npm run dev             # Start dev server
 ```
-/        → Insert block
-⇧ + L    → Lock layout
-⇧ + M    → Mask mode
-⇧ + U    → Undo
+
+## Commands
+
+```bash
+npm run dev       # Start dev server with HMR
+npm run build     # TypeScript check + production build
+npm run lint      # Run ESLint
+npm run preview   # Preview production build
 ```
 
-## Stack
+## Keyboard Shortcuts
 
-React · TypeScript · Vite · Tailwind · react-grid-layout · [Val.town](https://val.town)
+| Shortcut | Action |
+|----------|--------|
+| `/` | Insert block |
+| `Shift + L` | Lock/unlock layout |
+| `Shift + M` | Mask mode |
+| `Shift + U` | Undo |
+| `Shift + G` | Toggle grid lines |
+| `Shift + T` | Toggle desktop titles |
+| `Arrow keys` | Navigate desktops |
 
----
+## Contributing
 
-<div align="center">
+This is a personal project. The code is open-source for transparency and learning purposes, but I'm not accepting contributions at this time.
 
-Made by [@cassardp](https://github.com/cassardp) · [cassard@gmail.com](mailto:cassard@gmail.com)
+## License
 
-</div>
+[MIT](LICENSE)

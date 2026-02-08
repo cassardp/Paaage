@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Paaage is a minimalist, drag-and-drop homepage builder that turns your browser's new tab into a personalized command center. Users can place widget blocks (notes, bookmarks, weather, stocks, RSS, todo, clock, etc.) on a free-form grid across multiple desktops.
 
-Deployed at https://paaage.vercel.app
+Deployed at https://paaage.app
 
 ## Commands
 

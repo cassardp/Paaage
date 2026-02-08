@@ -4,7 +4,7 @@
 
 A minimalist, drag-and-drop homepage builder. Turn your new tab into a personalized command center.
 
-[**Try it live**](https://paaage.vercel.app)
+[**Try it live**](https://paaage.app)
 
 ## Features
 

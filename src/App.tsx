@@ -14,6 +14,7 @@ import { DesktopNavigator } from './components/DesktopNavigator';
 import { DesktopCarousel } from './components/DesktopCarousel';
 import { DesktopTitle } from './components/DesktopTitle';
 import { DragOverlay } from './components/DragOverlay';
+import { ShutdownNotice } from './components/ShutdownNotice';
 import { CrossDesktopDragProvider, useCrossDesktopDrag } from './contexts/CrossDesktopDragContext';
 import { SelectionProvider, useSelection } from './contexts/SelectionContext';
 import { CELL_SIZE } from './lib/defaultConfig';
@@ -295,6 +296,9 @@ function AppContent() {
           <p className="text-neutral-700 text-sm">
             This app is optimized for desktop use only.
           </p>
+          <p className="text-neutral-500 text-sm mt-3">
+            Paaage is shutting down on January 10, 2027. Open it on a computer to export your data.
+          </p>
         </div>
         <SpeedInsights />
         <Analytics />
@@ -425,6 +429,7 @@ function AppContent() {
           </div>
         </div>
       )}
+      <ShutdownNotice config={config} isDark={isDark} />
       <SpeedInsights />
       <Analytics />
     </div>
